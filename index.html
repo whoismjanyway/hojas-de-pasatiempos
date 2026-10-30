@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hojas de pasatiempos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: control column (game picker, level ladder, language, paper options) beside a live paper preview; stacks on phones. */
+:root{
+  --bg:#ECEFF3; --surface:#FFFFFF; --ink:#18202D; --muted:#5B6576; --line:#CBD2DC;
+  --accent:#F2B705; --on-accent:#18202D; --focus:#2C5BD8; --track:#DDE2E9;
+  --display:"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151C; --surface:#1A202A; --ink:#E6EAF0; --muted:#9AA4B4; --line:#2D3644;
+    --accent:#F2B705; --on-accent:#18202D; --focus:#7FA2FF; --track:#262E3B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151C; --surface:#1A202A; --ink:#E6EAF0; --muted:#9AA4B4; --line:#2D3644;
+  --accent:#F2B705; --on-accent:#18202D; --focus:#7FA2FF; --track:#262E3B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:28px 48px;
+}
+.wrap{max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:24px}
+header h1{font-family:var(--display); font-weight:800; font-size:clamp(28px,5vw,42px); line-height:1.05; margin:0; letter-spacing:-0.01em; text-wrap:balance}
+header p{margin:6px 0 0; color:var(--muted); max-width:62ch}
+.app{display:grid; grid-template-columns:minmax(0,380px) minmax(0,1fr); gap:28px; align-items:start}
+@media (max-width:840px){ .app{grid-template-columns:minmax(0,1fr)} }
+.controls{display:flex; flex-direction:column; gap:22px; min-width:0}
+fieldset{border:0; margin:0; padding:0; min-width:0}
+legend,.label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; padding:0}
+input.vh{position:absolute; opacity:0; pointer-events:none}
+.hint{font-size:12.5px; color:var(--muted); margin:6px 0 0; min-height:0}
+.hint:empty{display:none}
+
+.games{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px}
+.games label{display:flex; flex-direction:column; padding:8px 11px; border-radius:8px; border:1px solid var(--line); background:var(--surface); cursor:pointer; min-width:0}
+.games label b{font-size:15px}
+.games label small{font-size:12px; color:var(--muted)}
+.games label:hover{border-color:var(--muted)}
+.games input:checked + label{background:var(--ink); border-color:var(--ink); color:var(--bg)}
+.games input:checked + label small{color:var(--bg); opacity:.75}
+.games input:focus-visible + label{outline:2px solid var(--focus); outline-offset:2px}
+
+.ladder{display:flex; flex-direction:column; gap:4px}
+.ladder label{display:grid; grid-template-columns:1fr auto; align-items:center; gap:4px 12px; padding:8px 12px; border-radius:8px; cursor:pointer}
+.ladder label:hover{background:var(--surface)}
+.ladder .nm{font-weight:700}
+.ladder .gv{font-size:12.5px; color:var(--muted); text-align:right}
+.meter{grid-column:1 / -1; display:grid; grid-template-columns:repeat(7,1fr); gap:3px}
+.meter i{height:4px; border-radius:2px; background:var(--track)}
+.meter i.on{background:var(--ink)}
+.ladder input:checked + label{background:var(--accent); color:var(--on-accent)}
+.ladder input:checked + label .gv{color:var(--on-accent)}
+.ladder input:checked + label .meter i{background:rgba(24,32,45,.18)}
+.ladder input:checked + label .meter i.on{background:var(--on-accent)}
+.ladder input:focus-visible + label{outline:2px solid var(--focus); outline-offset:2px}
+
+.seg{display:flex; background:var(--track); border-radius:8px; padding:3px; gap:3px}
+.seg label{flex:1; text-align:center; padding:7px 6px; border-radius:6px; cursor:pointer; font-weight:700; font-variant-numeric:tabular-nums}
+.seg label small{display:block; font-weight:400; font-size:11px; color:var(--muted)}
+.seg input:checked + label{background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg input:disabled + label{opacity:.35; cursor:not-allowed}
+.seg input:focus-visible + label{outline:2px solid var(--focus); outline-offset:1px}
+.row{display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end}
+.row > *{flex:1 1 150px; min-width:0}
+.stepper{display:flex; align-items:center; background:var(--track); border-radius:8px; padding:3px; gap:3px}
+.stepper button{width:38px; height:34px; border:0; border-radius:6px; background:var(--surface); color:var(--ink); font-size:18px; cursor:pointer}
+.stepper output{flex:1; text-align:center; font-weight:700; font-variant-numeric:tabular-nums}
+.check{display:flex; gap:10px; align-items:center; cursor:pointer; font-weight:700}
+.check input{width:18px; height:18px; accent-color:var(--ink)}
+.actions{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.btn{font:inherit; font-weight:700; border-radius:8px; padding:11px 14px; cursor:pointer; border:1px solid var(--line); background:var(--surface); color:var(--ink); display:inline-flex; align-items:center; justify-content:center; gap:8px}
+.btn svg{width:18px; height:18px; flex:none}
+.btn.primary{grid-column:1 / -1; background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.btn:disabled{opacity:.5; cursor:progress}
+.btn:focus-visible,.stepper button:focus-visible,.pager button:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.status{font-size:13px; color:var(--muted); min-height:1.5em}
+
+.preview{display:flex; flex-direction:column; gap:12px; align-items:center; min-width:0}
+.sheet{width:100%; max-width:560px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.08), 0 10px 30px rgba(20,30,50,.14); border-radius:2px}
+.sheet canvas{display:block; width:100%; height:auto}
+.pager{display:flex; align-items:center; gap:12px; font-variant-numeric:tabular-nums}
+.pager button{border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:6px; width:34px; height:30px; cursor:pointer; font-size:16px}
+.pager button:disabled{opacity:.35; cursor:default}
+.meta{font-family:var(--mono); font-size:12px; color:var(--muted); text-align:center; max-width:560px}
+@media (prefers-reduced-motion:no-preference){ .ladder label,.seg label,.games label{transition:background .15s, border-color .15s} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Hojas de pasatiempos</h1>
+    <p>Elige un juego y una dificultad, y descarga un PDF listo para imprimir con juegos nuevos y su hoja de soluciones. «Mezclar juegos» combina los seis juegos en las mismas hojas.</p>
+  </header>
+
+  <div class="app">
+    <form class="controls" id="form">
+      <fieldset>
+        <legend>Juego</legend>
+        <div class="games" id="games"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Dificultad</legend>
+        <div class="ladder" id="ladder"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Idioma</legend>
+        <div class="seg">
+          <input class="vh" type="radio" name="lang" id="l-es" value="es" checked><label for="l-es">Español<small>palabras y pistas</small></label>
+          <input class="vh" type="radio" name="lang" id="l-en" value="en"><label for="l-en">English<small>words &amp; clues</small></label>
+        </div>
+        <p class="hint">Cambia las palabras de la sopa de letras y del crucigrama, y el idioma de las instrucciones impresas. Las dificultades son las mismas en los dos idiomas.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tamaño de hoja</legend>
+        <div class="seg">
+          <input class="vh" type="radio" name="paper" id="p-a4" value="A4" checked><label for="p-a4">A4<small>hoja completa</small></label>
+          <input class="vh" type="radio" name="paper" id="p-a5" value="A5"><label for="p-a5">A5<small>mitad superior de A4</small></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Juegos por hoja</legend>
+        <div class="seg" id="perSeg">
+          <input class="vh" type="radio" name="per" id="per-1" value="1"><label for="per-1">1</label>
+          <input class="vh" type="radio" name="per" id="per-2" value="2"><label for="per-2">2</label>
+          <input class="vh" type="radio" name="per" id="per-4" value="4" checked><label for="per-4">4</label>
+          <input class="vh" type="radio" name="per" id="per-6" value="6"><label for="per-6">6</label>
+        </div>
+        <p class="hint" id="perHint"></p>
+      </fieldset>
+
+      <div class="row">
+        <div>
+          <div class="label" id="pagesLbl">Hojas de juegos</div>
+          <div class="stepper" role="group" aria-labelledby="pagesLbl">
+            <button type="button" id="pgMinus" aria-label="Menos hojas">−</button>
+            <output id="pgOut">2</output>
+            <button type="button" id="pgPlus" aria-label="Más hojas">+</button>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="answers" checked> Incluir soluciones</label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="shuffleBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>Mezclar juegos</button>
+        <button type="button" class="btn" id="newBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>Juegos nuevos</button>
+        <button type="button" class="btn primary" id="dlBtn">Descargar PDF</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </form>
+
+    <section class="preview" aria-label="Vista previa de la hoja">
+      <div class="sheet"><canvas id="cv" aria-label="Vista previa de la hoja impresa"></canvas></div>
+      <div class="pager">
+        <button type="button" id="prev" aria-label="Hoja anterior">‹</button>
+        <span id="pageLbl">Hoja 1 de 1</span>
+        <button type="button" id="next" aria-label="Hoja siguiente">›</button>
+      </div>
+      <div class="meta" id="meta"></div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+function ENGINE(){
+"use strict";
+const R=n=>(Math.random()*n)|0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=R(i+1);const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+const pop=m=>{let c=0;while(m){m&=m-1;c++}return c};
+const lowbit=m=>31-Math.clz32(m&-m);
+function combos(arr,k,fn){const pick=[];return (function rec(s){if(pick.length===k)return fn(pick);for(let i=s;i<arr.length;i++){pick.push(arr[i]);if(rec(i+1))return true;pick.pop();}return false;})(0);}
+const range=n=>[...Array(n).keys()];
+const r2=v=>Math.round(v*100)/100;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+
+/* ================= SUDOKU ================= */
+const ROWS=[],COLS=[],BOXES=[],BOX=new Array(81),PEERS=[],ISPEER=[];
+for(let k=0;k<9;k++){ROWS.push([]);COLS.push([]);BOXES.push([]);}
+for(let i=0;i<81;i++){const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0);BOX[i]=b;ROWS[r].push(i);COLS[c].push(i);BOXES[b].push(i);}
+const UNITS=ROWS.concat(COLS,BOXES),LINES=ROWS.concat(COLS);
+for(let i=0;i<81;i++){const s=new Set([...ROWS[(i/9)|0],...COLS[i%9],...BOXES[BOX[i]]]);s.delete(i);PEERS.push([...s]);const f=new Uint8Array(81);s.forEach(p=>f[p]=1);ISPEER.push(f);}
+
+function sdFull(){
+  const a=new Array(81).fill(0),Rm=new Array(9).fill(0),Cm=new Array(9).fill(0),Bm=new Array(9).fill(0);
+  (function rec(i){
+    if(i===81)return true;
+    const r=(i/9)|0,c=i%9,b=BOX[i];
+    for(const d of shuffle([1,2,3,4,5,6,7,8,9])){
+      const bit=1<<d;if((Rm[r]|Cm[c]|Bm[b])&bit)continue;
+      a[i]=d;Rm[r]|=bit;Cm[c]|=bit;Bm[b]|=bit;
+      if(rec(i+1))return true;
+      Rm[r]^=bit;Cm[c]^=bit;Bm[b]^=bit;a[i]=0;
+    }
+    return false;
+  })(0);
+  return a;
+}
+function sdCount(g,limit){
+  const a=g.slice(),Rm=new Array(9).fill(0),Cm=new Array(9).fill(0),Bm=new Array(9).fill(0);
+  for(let i=0;i<81;i++)if(a[i]){const r=(i/9)|0,c=i%9,b=BOX[i],bit=1<<a[i];if((Rm[r]|Cm[c]|Bm[b])&bit)return 0;Rm[r]|=bit;Cm[c]|=bit;Bm[b]|=bit;}
+  let count=0;
+  (function rec(){
+    let best=-1,bm=0,bn=10;
+    for(let i=0;i<81;i++)if(!a[i]){const m=~(Rm[(i/9)|0]|Cm[i%9]|Bm[BOX[i]])&0x3FE,n=pop(m);if(n<bn){bn=n;best=i;bm=m;if(n===0)return;}}
+    if(best<0){count++;return;}
+    const r=(best/9)|0,c=best%9,b=BOX[best];let m=bm;
+    while(m){const bit=m&-m;m^=bit;a[best]=lowbit(bit);Rm[r]|=bit;Cm[c]|=bit;Bm[b]|=bit;rec();Rm[r]^=bit;Cm[c]^=bit;Bm[b]^=bit;a[best]=0;if(count>=limit)return;}
+  })();
+  return count;
+}
+/* Human-style grader: returns the hardest technique needed (1..10) or 99 if those are not enough. */
+function sdGrade(g){
+  const grid=g.slice(),cand=new Array(81).fill(0);let empty=0;
+  for(let i=0;i<81;i++)if(!grid[i]){cand[i]=0x3FE;empty++;}
+  for(let i=0;i<81;i++)if(grid[i]){const nb=~(1<<grid[i]);for(const p of PEERS[i])cand[p]&=nb;}
+  const place=(i,d)=>{grid[i]=d;cand[i]=0;empty--;const nb=~(1<<d);for(const p of PEERS[i])cand[p]&=nb;};
+  const elim=(cells,mask)=>{let ch=false;for(const i of cells)if(!grid[i]&&(cand[i]&mask)){cand[i]&=~mask;ch=true;}return ch;};
+  function nakedSingle(){for(let i=0;i<81;i++)if(!grid[i]){const m=cand[i];if(m&&!(m&(m-1))){place(i,lowbit(m));return true;}}return false;}
+  function hiddenSingle(){for(const u of UNITS)for(let d=1;d<=9;d++){const b=1<<d;let pos=-1,n=0;for(const i of u){if(grid[i]===d){n=-99;break;}if(!grid[i]&&(cand[i]&b)){n++;pos=i;}}if(n===1){place(pos,d);return true;}}return false;}
+  function locked(){
+    for(let b=0;b<9;b++)for(let d=1;d<=9;d++){const bit=1<<d;const ps=BOXES[b].filter(i=>!grid[i]&&(cand[i]&bit));if(ps.length<2)continue;
+      const r=(ps[0]/9)|0;if(ps.every(i=>((i/9)|0)===r)&&elim(ROWS[r].filter(i=>BOX[i]!==b),bit))return true;
+      const c=ps[0]%9;if(ps.every(i=>i%9===c)&&elim(COLS[c].filter(i=>BOX[i]!==b),bit))return true;}
+    for(const L of LINES)for(let d=1;d<=9;d++){const bit=1<<d;const ps=L.filter(i=>!grid[i]&&(cand[i]&bit));if(ps.length<2)continue;const b=BOX[ps[0]];
+      if(ps.every(i=>BOX[i]===b)&&elim(BOXES[b].filter(i=>!L.includes(i)),bit))return true;}
+    return false;
+  }
+  function nakedSub(k){for(const u of UNITS){const E=u.filter(i=>!grid[i]);if(E.length<=k)continue;const C=E.filter(i=>pop(cand[i])<=k);
+    if(combos(C,k,set=>{let m=0;for(const i of set)m|=cand[i];if(pop(m)!==k)return false;return elim(E.filter(i=>!set.includes(i)),m);}))return true;}return false;}
+  function hiddenSub(k){for(const u of UNITS){const E=u.filter(i=>!grid[i]);if(E.length<=k)continue;const pos={},ds=[];
+    for(let d=1;d<=9;d++){let m=0;E.forEach((i,j)=>{if(cand[i]&(1<<d))m|=1<<j;});const n=pop(m);if(n>=2&&n<=k){pos[d]=m;ds.push(d);}}
+    if(combos(ds,k,set=>{let m=0,dm=0;for(const d of set){m|=pos[d];dm|=1<<d;}if(pop(m)!==k)return false;let ch=false;E.forEach((i,j)=>{if(((m>>j)&1)&&(cand[i]&~dm)){cand[i]&=dm;ch=true;}});return ch;}))return true;}return false;}
+  function fish(k){
+    for(let d=1;d<=9;d++){const bit=1<<d;
+      for(const A of [ROWS,COLS]){const lines=[],pm={};
+        for(let a=0;a<9;a++){let m=0;A[a].forEach((i,j)=>{if(!grid[i]&&(cand[i]&bit))m|=1<<j;});const n=pop(m);if(n>=2&&n<=k){lines.push(a);pm[a]=m;}}
+        if(combos(lines,k,set=>{let m=0;for(const a of set)m|=pm[a];if(pop(m)!==k)return false;let ch=false;
+          for(let j=0;j<9;j++)if((m>>j)&1)for(let a=0;a<9;a++)if(!set.includes(a)){const i=A[a][j];if(!grid[i]&&(cand[i]&bit)){cand[i]&=~bit;ch=true;}}
+          return ch;}))return true;}}
+    return false;
+  }
+  function xyWing(){
+    for(let p=0;p<81;p++){if(grid[p]||pop(cand[p])!==2)continue;const mp=cand[p];
+      for(const a of PEERS[p]){if(grid[a]||pop(cand[a])!==2)continue;const x=cand[a]&mp;if(pop(x)!==1)continue;const c=cand[a]&~x,want=(mp&~x)|c;
+        for(const b of PEERS[p]){if(b===a||grid[b]||cand[b]!==want)continue;let ch=false;
+          for(let z=0;z<81;z++){if(z===p||z===a||z===b||grid[z])continue;if(ISPEER[a][z]&&ISPEER[b][z]&&(cand[z]&c)){cand[z]&=~c;ch=true;}}
+          if(ch)return true;}}}
+    return false;
+  }
+  const T=[[nakedSingle,1],[hiddenSingle,2],[locked,3],[()=>nakedSub(2),4],[()=>hiddenSub(2),5],[()=>nakedSub(3),6],[()=>hiddenSub(3),7],[()=>fish(2),8],[xyWing,9],[()=>fish(3),10]];
+  let max=0;
+  outer:while(empty>0){for(const [f,l] of T){if(f()){if(l>max)max=l;continue outer;}}return 99;}
+  return max;
+}
+function sdSingles(g,hidden){
+  const a=g.slice(),Rm=new Array(9).fill(0),Cm=new Array(9).fill(0),Bm=new Array(9).fill(0);let empty=0;
+  for(let i=0;i<81;i++){if(a[i]){const bit=1<<a[i];Rm[(i/9)|0]|=bit;Cm[i%9]|=bit;Bm[BOX[i]]|=bit;}else empty++;}
+  const cand=i=>~(Rm[(i/9)|0]|Cm[i%9]|Bm[BOX[i]])&0x3FE;
+  const place=(i,d)=>{const bit=1<<d;a[i]=d;Rm[(i/9)|0]|=bit;Cm[i%9]|=bit;Bm[BOX[i]]|=bit;empty--;};
+  while(empty){let moved=false;
+    for(let i=0;i<81;i++)if(!a[i]){const m=cand(i);if(!m)return false;if(!(m&(m-1))){place(i,lowbit(m));moved=true;}}
+    if(!moved&&hidden){for(const u of UNITS)for(let d=1;d<=9;d++){const bit=1<<d;let pos=-1,cnt=0;for(const i of u){if(a[i]===d){cnt=-99;break;}if(!a[i]&&(cand(i)&bit)){cnt++;pos=i;}}if(cnt===1){place(pos,d);moved=true;}}}
+    if(!moved)return false;}
+  return true;
+}
+function sdDig(sol,target,logic,sym){
+  const p=sol.slice();let n=81;
+  const groups=sym?shuffle(range(41)).map(i=>i===40?[40]:[i,80-i]):shuffle(range(81)).map(i=>[i]);
+  for(const grp of groups){
+    if(n-grp.length<target)continue;
+    const saved=grp.map(i=>p[i]);grp.forEach(i=>p[i]=0);
+    let keep=sdCount(p,2)===1;
+    if(keep&&logic!=="any")keep=sdSingles(p,logic==="hidden");
+    if(keep)n-=grp.length;else grp.forEach((i,k)=>p[i]=saved[k]);
+  }
+  return {p,n};
+}
+const sdTier=g=>g<=0?0:g===1?0:g===2?1:g===3?2:g<=5?3:g<=8?4:g<=10?5:6;
+function sudoku(L){
+  if(L===0){const sol=sdFull();const {p,n}=sdDig(sol,50,"naked",true);return {game:"sudoku",n:9,givens:p,solution:sol,count:n};}
+  if(L===1){let z=null;for(let a=0;a<40;a++){const sol=sdFull();const {p,n}=sdDig(sol,36,"hidden",true);z={game:"sudoku",n:9,givens:p,solution:sol,count:n};if(sdGrade(p)===2)break;}return z;}
+  let best=null;const t0=Date.now();
+  for(let a=0;a<1500;a++){
+    const sol=sdFull();const sym=L<6||a%2===0;
+    const {p,n}=sdDig(sol,17,"any",sym);const g=sdGrade(p),d=Math.abs(sdTier(g)-L);
+    if(!best||d<best.d||(d===best.d&&g>best.z.grade))best={d,z:{game:"sudoku",n:9,givens:p,solution:sol,count:n,grade:g}};
+    if(d===0||Date.now()-t0>4000)break;
+  }
+  return best.z;
+}
+
+/* ================= MAZE ================= */
+function maze(L){
+  const n=[6,9,12,15,19,24,30][L],N=n*n;
+  const right=new Array(N).fill(1),down=new Array(N).fill(1),seen=new Uint8Array(N);
+  const st=[R(N)];seen[st[0]]=1;
+  while(st.length){const i=st[st.length-1],r=(i/n)|0,c=i%n,opts=[];
+    if(r>0&&!seen[i-n])opts.push(i-n);if(r<n-1&&!seen[i+n])opts.push(i+n);if(c>0&&!seen[i-1])opts.push(i-1);if(c<n-1&&!seen[i+1])opts.push(i+1);
+    if(!opts.length){st.pop();continue;}
+    const j=opts[R(opts.length)];
+    if(j===i+1)right[i]=0;else if(j===i-1)right[j]=0;else if(j===i+n)down[i]=0;else down[j]=0;
+    seen[j]=1;st.push(j);}
+  const prev=new Array(N).fill(-1);prev[0]=0;const q=[0];
+  while(q.length){const i=q.shift(),r=(i/n)|0,c=i%n;
+    const go=j=>{if(prev[j]<0){prev[j]=i;q.push(j);}};
+    if(c<n-1&&!right[i])go(i+1);if(c>0&&!right[i-1])go(i-1);if(r<n-1&&!down[i])go(i+n);if(r>0&&!down[i-n])go(i-n);}
+  const path=[];for(let i=N-1;;i=prev[i]){path.push(i);if(i===0)break;}path.reverse();
+  return {game:"maze",n,right,down,path};
+}
+
+/* ================= WORD BANK (ES | pista ES | EN | clue EN) ================= */
+const BANK=`#animales|Animales|Animals
+PERRO|El mejor amigo del ser humano; ladra|DOG|Man's best friend; it barks
+GATO|Mascota que maúlla y ronronea|CAT|Pet that meows and purrs
+CABALLO|Animal que se monta y relincha|HORSE|Animal you can ride; it neighs
+VACA|Animal de granja que nos da leche|COW|Farm animal that gives us milk
+CONEJO|Tiene orejas largas y come zanahorias|RABBIT|Long ears, loves carrots
+TORTUGA|Reptil lento con caparazón|TURTLE|Slow reptile with a shell
+ELEFANTE|Animal enorme con trompa|ELEPHANT|Huge animal with a trunk
+JIRAFA|El animal con el cuello más largo|GIRAFFE|Animal with the longest neck
+LEÓN|Rey de la selva; tiene melena|LION|King of the jungle; has a mane
+TIGRE|Gran felino con rayas|TIGER|Big striped cat
+MONO|Le encanta trepar y comer plátanos|MONKEY|Loves climbing and eating bananas
+OSO|Animal grande que hiberna|BEAR|Big animal that hibernates
+DELFÍN|Mamífero marino muy inteligente|DOLPHIN|Smart sea mammal
+BALLENA|El animal más grande del mar|WHALE|Biggest animal in the sea
+PINGÜINO|Ave que no vuela y vive en el frío|PENGUIN|Bird that can't fly and lives in the cold
+ARDILLA|Roedor que guarda nueces|SQUIRREL|Rodent that stores nuts
+RATÓN|Pequeño roedor al que le gusta el queso|MOUSE|Small rodent that loves cheese
+OVEJA|Animal que nos da lana|SHEEP|Animal that gives us wool
+CERDO|Animal rosado de granja|PIG|Pink farm animal that oinks
+PATO|Ave que nada y hace cuac|DUCK|Bird that swims and quacks
+ZORRO|Animal astuto de cola esponjada|FOX|Clever animal with a bushy tail
+LOBO|Le aúlla a la luna|WOLF|Howls at the moon
+CEBRA|Parece caballo, con rayas blancas y negras|ZEBRA|Horse-like animal with black and white stripes
+#frutas|Frutas y verduras|Fruits and vegetables
+MANZANA|Fruta roja o verde que cruje al morderla|APPLE|Crunchy red or green fruit
+PLÁTANO|Fruta amarilla y alargada|BANANA|Long yellow fruit
+NARANJA|Fruta cítrica del color de su nombre|ORANGE|Citrus fruit named after its color
+UVA|Fruta pequeña que crece en racimos|GRAPE|Small fruit that grows in bunches
+FRESA|Fruta roja con semillas por fuera|STRAWBERRY|Red fruit with seeds on the outside
+SANDÍA|Fruta grande, verde por fuera y roja por dentro|WATERMELON|Big fruit, green outside and red inside
+PIÑA|Fruta tropical con corona de hojas|PINEAPPLE|Tropical fruit with a leafy crown
+MANGO|Fruta tropical dulce con hueso grande|MANGO|Sweet tropical fruit with a big pit
+LIMÓN|Fruta cítrica muy ácida|LEMON|Very sour citrus fruit
+CEREZA|Fruta roja pequeña con rabito|CHERRY|Small red fruit with a stem
+PERA|Fruta con forma de foco|PEAR|Fruit shaped like a light bulb
+DURAZNO|Fruta de piel aterciopelada|PEACH|Fruit with fuzzy skin
+ZANAHORIA|Verdura naranja que comen los conejos|CARROT|Orange vegetable rabbits love
+TOMATE|Rojo y jugoso, va en la ensalada|TOMATO|Red and juicy, goes in salads
+PAPA|Tubérculo para hacer puré|POTATO|Tuber used for fries and mash
+CEBOLLA|Te hace llorar al cortarla|ONION|Makes you cry when you cut it
+LECHUGA|Hojas verdes de la ensalada|LETTUCE|Green leaves in a salad
+PEPINO|Verdura verde, larga y fresca|CUCUMBER|Long, cool green vegetable
+ELOTE|Mazorca de maíz|CORN|Yellow kernels on a cob
+CALABAZA|Verdura naranja de Halloween|PUMPKIN|Orange vegetable carved at Halloween
+BRÓCOLI|Parece un arbolito verde|BROCCOLI|Looks like a little green tree
+AGUACATE|Fruto verde para hacer guacamole|AVOCADO|Green fruit used for guacamole
+#casa|La casa|The house
+MESA|Mueble donde comemos|TABLE|Furniture where we eat
+SILLA|Mueble para sentarse|CHAIR|Furniture to sit on
+CAMA|Mueble para dormir|BED|Furniture you sleep in
+PUERTA|Se abre para entrar a un cuarto|DOOR|You open it to enter a room
+VENTANA|Por ella entra la luz|WINDOW|Lets light into a room
+COCINA|Cuarto donde se prepara la comida|KITCHEN|Room where food is cooked
+ESPEJO|Refleja tu imagen|MIRROR|Shows your reflection
+LÁMPARA|Da luz por la noche|LAMP|Gives light at night
+SOFÁ|Asiento largo de la sala|SOFA|Long comfy seat in the living room
+ALMOHADA|Apoyas la cabeza en ella al dormir|PILLOW|You rest your head on it at night
+TECHO|Cubre la casa por arriba|ROOF|Covers the top of a house
+ESCALERA|Sirve para subir de piso|STAIRS|Steps between floors
+REFRIGERADOR|Mantiene fría la comida|FRIDGE|Keeps food cold
+ESTUFA|Aparato para cocinar|STOVE|Appliance for cooking
+CUCHARA|Cubierto para tomar sopa|SPOON|Used to eat soup
+TENEDOR|Cubierto con picos|FORK|Utensil with prongs
+PLATO|En él se sirve la comida|PLATE|Food is served on it
+VASO|Recipiente para beber agua|GLASS|You drink water from it
+JARDÍN|Lugar con plantas junto a la casa|GARDEN|Place with plants next to a house
+LLAVE|Abre la cerradura|KEY|Opens a lock
+RELOJ|Marca la hora|CLOCK|Tells the time
+ALFOMBRA|Tapete grande en el suelo|RUG|Covers part of the floor
+TOALLA|Te secas con ella|TOWEL|You dry yourself with it
+#escuela|La escuela|School
+LÁPIZ|Sirve para escribir y se puede borrar|PENCIL|You write with it and can erase
+GOMA|Borra lo escrito con lápiz|ERASER|Removes pencil marks
+CUADERNO|Libreta para tus apuntes|NOTEBOOK|Where you take notes
+LIBRO|Tiene páginas para leer|BOOK|Has pages to read
+MOCHILA|La cargas en la espalda con tus útiles|BACKPACK|Bag you carry on your back
+MAESTRO|Persona que enseña en clase|TEACHER|Person who teaches a class
+PIZARRÓN|El maestro escribe en él|BLACKBOARD|The teacher writes on it
+REGLA|Sirve para medir y trazar líneas|RULER|Used to measure and draw lines
+TIJERAS|Sirven para cortar papel|SCISSORS|Used to cut paper
+PEGAMENTO|Sirve para pegar|GLUE|Makes things stick
+CRAYOLA|Cera de color para dibujar|CRAYON|Wax stick for coloring
+EXAMEN|Prueba de lo que aprendiste|EXAM|Test of what you learned
+RECREO|Descanso para jugar|RECESS|Break time to play
+ALUMNO|Persona que estudia|STUDENT|Person who studies
+CLASE|Hora de aprender una materia|LESSON|Time to learn a subject
+MAPA|Dibujo de un lugar o país|MAP|Drawing of a place or country
+PUPITRE|Mesa del alumno|DESK|A student's table
+TAREA|Trabajo para hacer en casa|HOMEWORK|Schoolwork done at home
+MATEMÁTICAS|Materia de números|MATH|Subject about numbers
+LECTURA|Acción de leer|READING|The act of reading
+CALCULADORA|Hace operaciones muy rápido|CALCULATOR|Does sums very quickly
+SACAPUNTAS|Afila el lápiz|SHARPENER|Sharpens pencils
+BIBLIOTECA|Lugar con muchos libros|LIBRARY|Place with lots of books
+#naturaleza|Naturaleza|Nature
+SOL|Estrella que nos da luz y calor|SUN|Star that gives us light and heat
+LUNA|Brilla en el cielo de noche|MOON|Shines in the night sky
+ESTRELLA|Punto brillante en el cielo nocturno|STAR|Twinkling dot in the night sky
+NUBE|Algodón blanco en el cielo|CLOUD|White fluffy thing in the sky
+LLUVIA|Agua que cae del cielo|RAIN|Water falling from the sky
+NIEVE|Copos blancos y fríos|SNOW|Cold white flakes
+RÍO|Corriente de agua dulce|RIVER|Stream of fresh water
+MAR|Gran masa de agua salada|SEA|Big body of salt water
+MONTAÑA|Elevación muy alta del terreno|MOUNTAIN|Very high land
+ÁRBOL|Planta grande con tronco|TREE|Big plant with a trunk
+FLOR|Parte colorida de una planta|FLOWER|Colorful part of a plant
+HOJA|Parte verde de una planta|LEAF|Green part of a plant
+BOSQUE|Lugar con muchos árboles|FOREST|Place full of trees
+PLAYA|Arena junto al mar|BEACH|Sand next to the sea
+VOLCÁN|Montaña que expulsa lava|VOLCANO|Mountain that erupts lava
+ARCOÍRIS|Arco de colores después de la lluvia|RAINBOW|Colorful arc after the rain
+VIENTO|Aire en movimiento|WIND|Moving air
+DESIERTO|Lugar seco con mucha arena|DESERT|Dry, sandy place
+ISLA|Tierra rodeada de agua|ISLAND|Land surrounded by water
+LAGO|Agua rodeada de tierra|LAKE|Water surrounded by land
+PIEDRA|Trozo duro de roca|STONE|Small hard piece of rock
+CIELO|Es azul en un día despejado|SKY|It is blue on a clear day
+RAYO|Destello de luz en una tormenta|LIGHTNING|Flash of light in a storm
+#deportes|Deportes|Sports
+FÚTBOL|Se juega con los pies y dos porterías|SOCCER|Played with your feet and two goals
+BÉISBOL|Se juega con bate y guante|BASEBALL|Played with a bat and a glove
+TENIS|Se juega con raqueta sobre una red|TENNIS|Played with rackets over a net
+NATACIÓN|Deporte en la alberca|SWIMMING|Sport in the pool
+BOXEO|Pelea con guantes en un ring|BOXING|Fighting with gloves in a ring
+GOLF|Se mete la pelota en hoyos con un palo|GOLF|Hit a ball into holes with a club
+KARATE|Arte marcial japonés|KARATE|Japanese martial art
+CICLISMO|Deporte en bicicleta|CYCLING|Sport on a bike
+BALÓN|Pelota grande para jugar|BALL|Round thing you kick or throw
+PORTERO|Jugador que cuida la portería|GOALIE|Player who guards the goal
+EQUIPO|Grupo de jugadores|TEAM|Group of players
+ÁRBITRO|Hace cumplir las reglas del partido|REFEREE|Makes sure the rules are followed
+MEDALLA|Premio para los ganadores|MEDAL|Prize for the winners
+TROFEO|Copa para el campeón|TROPHY|Cup for the champion
+CARRERA|Competencia de velocidad|RACE|Speed competition
+ESTADIO|Lugar grande para los partidos|STADIUM|Big place for games
+VOLEIBOL|Se pasa la pelota con las manos sobre una red|VOLLEYBALL|Hit the ball over a net with your hands
+PATINAJE|Deslizarse sobre patines|SKATING|Gliding on skates
+SILBATO|El árbitro lo sopla|WHISTLE|The referee blows it
+RAQUETA|Se usa para jugar tenis|RACKET|Used to play tennis
+SURF|Montar olas sobre una tabla|SURFING|Riding waves on a board
+GIMNASIA|Deporte de saltos, giros y equilibrio|GYMNASTICS|Sport of flips, jumps and balance
+#profesiones|Profesiones|Jobs
+DOCTOR|Cura a los enfermos|DOCTOR|Heals sick people
+BOMBERO|Apaga incendios|FIREFIGHTER|Puts out fires
+POLICÍA|Cuida el orden y nos protege|OFFICER|Police ___ who keeps us safe
+PANADERO|Hace el pan|BAKER|Makes bread
+CARTERO|Entrega las cartas|MAILMAN|Delivers the mail
+PILOTO|Maneja aviones|PILOT|Flies planes
+CHEF|Cocina en un restaurante|CHEF|Cooks in a restaurant
+GRANJERO|Trabaja en el campo con animales|FARMER|Works on a farm with animals
+DENTISTA|Cuida tus dientes|DENTIST|Takes care of your teeth
+PINTOR|Pinta cuadros o paredes|PAINTER|Paints pictures or walls
+ACTOR|Actúa en películas|ACTOR|Acts in movies
+CANTANTE|Canta canciones|SINGER|Sings songs
+ENFERMERA|Ayuda a cuidar a los pacientes|NURSE|Takes care of patients
+CARPINTERO|Trabaja la madera|CARPENTER|Works with wood
+ASTRONAUTA|Viaja al espacio|ASTRONAUT|Travels to space
+VETERINARIO|Médico de animales|VET|Animal doctor
+JUEZ|Decide en un juicio|JUDGE|Decides cases in court
+MECÁNICO|Arregla carros|MECHANIC|Fixes cars
+ESCRITOR|Escribe libros|WRITER|Writes books
+FOTÓGRAFO|Toma fotografías|PHOTOGRAPHER|Takes pictures
+SASTRE|Hace ropa a la medida|TAILOR|Makes clothes to measure
+PAYASO|Hace reír en el circo|CLOWN|Makes people laugh at the circus
+ARQUITECTO|Diseña edificios|ARCHITECT|Designs buildings
+#cuerpo|El cuerpo humano|The human body
+CABEZA|Parte de arriba del cuerpo|HEAD|Top part of your body
+OJO|Sirve para ver|EYE|You see with it
+NARIZ|Sirve para oler|NOSE|You smell with it
+BOCA|Sirve para comer y hablar|MOUTH|You eat and talk with it
+OREJA|Sirve para oír|EAR|You hear with it
+MANO|Tiene cinco dedos|HAND|Has five fingers
+PIE|Parte del cuerpo con la que pisas|FOOT|You stand on it
+DEDO|Tienes diez en las manos|FINGER|You have ten on your hands
+BRAZO|Va del hombro a la mano|ARM|Goes from the shoulder to the hand
+PIERNA|Te sirve para caminar y correr|LEG|You walk and run with it
+RODILLA|Articulación a la mitad de la pierna|KNEE|Joint in the middle of your leg
+CODO|Articulación del brazo|ELBOW|Joint in your arm
+HOMBRO|Une el brazo con el cuerpo|SHOULDER|Joins your arm to your body
+CORAZÓN|Bombea la sangre|HEART|Pumps your blood
+DIENTE|Sirve para morder|TOOTH|You bite with it
+LENGUA|Sirve para saborear|TONGUE|You taste with it
+CUELLO|Une la cabeza con el cuerpo|NECK|Joins your head to your body
+ESPALDA|Parte trasera del tronco|BACK|Rear part of your body
+CEJA|Pelo arriba del ojo|EYEBROW|Hair above your eye
+UÑA|Crece en la punta de los dedos|NAIL|Grows at your fingertips
+PELO|Crece en tu cabeza|HAIR|Grows on your head
+ESTÓMAGO|Digiere la comida|STOMACH|Digests your food
+CEREBRO|Con él piensas|BRAIN|You think with it
+#transporte|Transportes|Transportation
+AVIÓN|Vuela por el cielo con alas|PLANE|Flies in the sky with wings
+BARCO|Navega en el mar|SHIP|Sails on the sea
+TREN|Viaja sobre rieles|TRAIN|Runs on rails
+AUTOBÚS|Transporte público grande|BUS|Big public transport
+BICICLETA|Tiene dos ruedas y pedales|BICYCLE|Two wheels and pedals
+MOTO|Vehículo de dos ruedas con motor|MOTORBIKE|Two wheels with an engine
+CARRO|Vehículo de cuatro ruedas|CAR|Four-wheeled vehicle
+CAMIÓN|Vehículo grande de carga|TRUCK|Big vehicle that carries loads
+HELICÓPTERO|Vuela con hélices en el techo|HELICOPTER|Flies with spinning blades on top
+COHETE|Viaja al espacio|ROCKET|Blasts off into space
+SUBMARINO|Navega bajo el agua|SUBMARINE|Travels underwater
+TAXI|Auto que te lleva si le pagas|TAXI|Car you pay to ride in
+AMBULANCIA|Lleva a los enfermos al hospital|AMBULANCE|Takes sick people to the hospital
+PATINETA|Tabla con ruedas|SKATEBOARD|Board with wheels
+GLOBO|Vuela con aire caliente|BALLOON|Flies with hot air
+VELERO|Barco que mueve el viento|SAILBOAT|Boat pushed by the wind
+TRACTOR|Vehículo para trabajar el campo|TRACTOR|Farm vehicle
+METRO|Tren que va debajo de la ciudad|SUBWAY|Train under the city
+CANOA|Bote que se mueve con remos|CANOE|Boat moved with paddles
+LANCHA|Bote pequeño con motor|SPEEDBOAT|Small fast boat with a motor
+GRÚA|Levanta cosas muy pesadas|CRANE|Lifts very heavy things
+PATINES|Zapatos con ruedas|SKATES|Shoes with wheels`;
+function norm(s){return s.toUpperCase().replace(/Ñ/g,"\u0001").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\u0001/g,"Ñ").replace(/[^A-ZÑ]/g,"");}
+const THEMES=[];
+(function(){let cur=null;for(const line of BANK.split("\n")){const t=line.trim();if(!t)continue;const f=t.split("|");
+  if(t[0]==="#"){cur={id:f[0].slice(1),es:f[1],en:f[2],items:[]};THEMES.push(cur);}
+  else cur.items.push({es:{w:norm(f[0]),q:f[1]},en:{w:norm(f[2]),q:f[3]}});}})();
+
+/* ================= SOPA DE LETRAS ================= */
+const DR8=[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[1,-1],[-1,-1]];
+const WS=[{n:8,k:6,d:2,max:7},{n:10,k:8,d:2},{n:11,k:10,d:4},{n:12,k:12,d:6},{n:14,k:14,d:8},{n:15,k:15,d:8,decoy:1},{n:16,k:16,d:8,decoy:1}];
+const FILL={es:"AAAAAAAAAAAAEEEEEEEEEEEEEOOOOOOOOOSSSSSSRRRRRRRNNNNNNIIIIIIDDDDDLLLLLCCCCTTTTUUUUMMMPPBBGGVYQHFZJÑX",
+            en:"EEEEEEEEEEEETTTTTTTTTAAAAAAAAOOOOOOOIIIIIIINNNNNNNSSSSSSHHHHHHRRRRRRDDDDLLLLCCCUUUMMWWFFGGYYPPBVKJXQZ"};
+function wsCount(g,n,w){let c=0;
+  for(let r=0;r<n;r++)for(let col=0;col<n;col++)if(g[r*n+col]===w[0])for(const [dr,dc] of DR8){let ok=true;
+    for(let i=1;i<w.length;i++){const rr=r+dr*i,cc=col+dc*i;if(rr<0||cc<0||rr>=n||cc>=n||g[rr*n+cc]!==w[i]){ok=false;break;}}if(ok)c++;}
+  return c;}
+function wordsearch(L,lang){
+  const P=WS[L],n=P.n,max=P.max||n,dirs=DR8.slice(0,P.d);
+  for(let att=0;att<80;att++){
+    const th=THEMES[R(THEMES.length)],pool=[];
+    for(const w of shuffle(th.items.map(e=>e[lang].w))){
+      if(w.length<3||w.length>max)continue;if(w===w.split("").reverse().join(""))continue;
+      if(pool.some(p=>p.includes(w)||w.includes(p)))continue;pool.push(w);}
+    if(pool.length<P.k)continue;
+    const g=new Array(n*n).fill(""),placed=[];
+    const cand=pool.slice(0,P.k+5).sort((a,b)=>b.length-a.length);
+    for(const w of cand){if(placed.length>=P.k)break;const opts=[];let bestOv=0;
+      for(const [dr,dc] of dirs)for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+        const er=r+dr*(w.length-1),ec=c+dc*(w.length-1);if(er<0||ec<0||er>=n||ec>=n)continue;
+        let ov=0,ok=true;for(let i=0;i<w.length;i++){const ch=g[(r+dr*i)*n+c+dc*i];if(ch){if(ch!==w[i]){ok=false;break;}ov++;}}
+        if(!ok||ov===w.length)continue;opts.push({r,c,dr,dc,ov});if(ov>bestOv)bestOv=ov;}
+      if(!opts.length)continue;
+      let pick=opts;if(L>=3&&bestOv>0&&Math.random()<0.7)pick=opts.filter(o=>o.ov>0);
+      const o=pick[R(pick.length)];for(let i=0;i<w.length;i++)g[(o.r+o.dr*i)*n+o.c+o.dc*i]=w[i];
+      placed.push({w,r:o.r,c:o.c,dr:o.dr,dc:o.dc});}
+    if(placed.length<P.k)continue;
+    const letters=FILL[lang],wl=placed.map(p=>p.w).join("");
+    for(let t=0;t<25;t++){
+      const f=g.map(ch=>ch||(P.decoy&&Math.random()<0.5?wl[R(wl.length)]:letters[R(letters.length)]));
+      if(placed.every(p=>wsCount(f,n,p.w)===1))
+        return {game:"wordsearch",n,grid:f,words:placed.sort((a,b)=>a.w.localeCompare(b.w)),theme:th[lang],lang};
+    }
+  }
+  return null;
+}
+
+/* ================= CRUCIGRAMA ================= */
+const CW=[{k:5,S:8,max:7,rev:"first"},{k:7,S:9,max:8,rev:0.3},{k:9,S:10,max:9,rev:0.15},{k:11,S:11,rev:0},{k:13,S:12,rev:0},{k:15,S:13,rev:0},{k:17,S:15,rev:0}];
+function crossword(L,lang){
+  const P=CW[L],S=P.S,max=P.max||S,seen=new Set(),all=[];
+  for(const th of THEMES)for(const e of th.items){const x=e[lang];if(x.w.length<3||x.w.length>max||seen.has(x.w))continue;seen.add(x.w);all.push(x);}
+  const key=(r,c)=>(r+50)*200+(c+50);
+  let best=null;
+  for(let att=0;att<40;att++){
+    const pool=shuffle(all.slice()).slice(0,110);
+    const G=new Map(),DR=new Map(),pl=[];let r0=0,r1=0,c0=0,c1=0;
+    const put=(e,r,c,dr,dc)=>{const bit=dr?2:1;for(let i=0;i<e.w.length;i++){const k=key(r+dr*i,c+dc*i);G.set(k,e.w[i]);DR.set(k,(DR.get(k)||0)|bit);}
+      r0=Math.min(r0,r);c0=Math.min(c0,c);r1=Math.max(r1,r+dr*(e.w.length-1));c1=Math.max(c1,c+dc*(e.w.length-1));pl.push({e,r,c,dr,dc});};
+    const fits=(w,r,c,dr,dc)=>{const n=w.length,bit=dr?2:1;
+      if(G.has(key(r-dr,c-dc))||G.has(key(r+dr*n,c+dc*n)))return -1;
+      if(Math.max(r1,r+dr*(n-1))-Math.min(r0,r)+1>S||Math.max(c1,c+dc*(n-1))-Math.min(c0,c)+1>S)return -1;
+      let x=0;for(let i=0;i<n;i++){const rr=r+dr*i,cc=c+dc*i,k=key(rr,cc),ch=G.get(k);
+        if(ch!==undefined){if(ch!==w[i]||(DR.get(k)&bit))return -1;x++;}
+        else if(G.has(key(rr+dc,cc+dr))||G.has(key(rr-dc,cc-dr)))return -1;}
+      return x;};
+    const first=pool.find(e=>e.w.length>=Math.min(max,Math.ceil(S*0.6)))||pool[0];
+    const fd=R(2);put(first,0,0,fd,1-fd);const used=new Set([first.w]);
+    for(let pass=0;pass<3&&pl.length<P.k;pass++)for(const e of pool){
+      if(pl.length>=P.k)break;if(used.has(e.w))continue;
+      const opts=[];let bx=0;
+      for(const [k,ch] of G){const rs=((k/200)|0)-50,cs=k%200-50;
+        for(let i=0;i<e.w.length;i++){if(e.w[i]!==ch)continue;
+          for(const [dr,dc] of [[0,1],[1,0]]){const r=rs-dr*i,c=cs-dc*i,x=fits(e.w,r,c,dr,dc);if(x>0){opts.push({r,c,dr,dc,x});if(x>bx)bx=x;}}}}
+      if(!opts.length)continue;
+      const top=opts.filter(o=>o.x===bx),o=top[R(top.length)];put(e,o.r,o.c,o.dr,o.dc);used.add(e.w);}
+    const sc=pl.length*10-((r1-r0+1)*(c1-c0+1))/(S*S);
+    if(!best||sc>best.sc)best={sc,pl,r0,c0,rows:r1-r0+1,cols:c1-c0+1,G};
+    if(pl.length>=P.k&&att>=5)break;
+  }
+  const b=best,rows=b.rows,cols=b.cols,cells=new Array(rows*cols).fill("");
+  for(const [k,ch] of b.G){const r=((k/200)|0)-50-b.r0,c=k%200-50-b.c0;cells[r*cols+c]=ch;}
+  const ws=b.pl.map(p=>({w:p.e.w,q:p.e.q,r:p.r-b.r0,col:p.c-b.c0,down:!!p.dr})).sort((a,c)=>a.r-c.r||a.col-c.col);
+  const starts=new Map();
+  for(const w of ws){const i=w.r*cols+w.col;if(!starts.has(i))starts.set(i,starts.size+1);w.n=starts.get(i);}
+  const reveal=new Array(rows*cols).fill(false);
+  if(P.rev==="first")for(const w of ws)reveal[w.r*cols+w.col]=true;
+  else if(P.rev)cells.forEach((ch,i)=>{if(ch&&Math.random()<P.rev)reveal[i]=true;});
+  const pick=d=>ws.filter(w=>w.down===d).sort((a,c)=>a.n-c.n).map(w=>({n:w.n,q:w.q,w:w.w}));
+  return {game:"crossword",rows,cols,cells,reveal,nums:[...starts],across:pick(false),down:pick(true),lang};
+}
+
+/* ================= DIBUJOS (para diferencias y rompecabezas) ================= */
+const LW=0.5,LT=0.35;
+function builder(it){
+  const s=it.s,fx=it.flip?-1:1,o=[];
+  const X=x=>r2(it.x+x*s*fx),Y=y=>r2(it.y+y*s);
+  const M=a=>{const q=[];for(let i=0;i<a.length;i+=2)q.push(X(a[i]),Y(a[i+1]));return q;};
+  const lwOf=lw=>lw==null?LW:lw;
+  const b={o,
+    shape:(a,fill,lw)=>o.push(["s",M(a),lwOf(lw),lw===0?null:"k",fill||null]),
+    circle:(x,y,r,fill,lw)=>o.push(["c",X(x),Y(y),r2(r*s),lwOf(lw),lw===0?null:"k",fill||null]),
+    line:(a,lw,col)=>o.push(["p",M(a),lwOf(lw),col||"k"]),
+    rect:(x,y,w,h,fill,lw)=>b.shape([x,y,x+w,y,x+w,y+h,x,y+h],fill,lw),
+    ell:(cx,cy,rx,ry,fill,lw)=>{const a=[];for(let k=0;k<24;k++){const t=k*Math.PI/12;a.push(cx+Math.cos(t)*rx,cy+Math.sin(t)*ry);}b.shape(a,fill,lw);},
+    blob:(cs,fill)=>{cs.forEach(c=>o.push(["c",X(c[0]),Y(c[1]),r2(c[2]*s),LW,"k",null]));cs.forEach(c=>o.push(["c",X(c[0]),Y(c[1]),r2(c[2]*s-LW*0.55),0,null,fill]));}
+  };
+  return b;
+}
+function arcPts(cx,cy,r,a0,a1,n){const a=[];for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;a.push(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}return a;}
+function starPts(cx,cy,ro,ri){const a=[];for(let k=0;k<10;k++){const t=-Math.PI/2+k*Math.PI/5,r=k%2?ri:ro;a.push(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}return a;}
+const APPLES=[[-4.5,-14.5],[3,-19.5],[4.5,-12.5],[-0.5,-12],[-2.5,-21]];
+const ORN=[[-4.5,-6.5],[3.5,-7],[-2.5,-12],[2.8,-13],[0,-18.5]];
+const BER=[[-4.5,-3.5],[-1.2,-6.5],[2,-4],[4.8,-2.5],[0,-2]];
+const SHAPES={
+  house(b,p){
+    if(p.chim)b.rect(5.5,-31,3.6,9,"w");
+    b.rect(-13,-18,26,18,"w");
+    b.shape([-15.5,-17.6,0,-30,15.5,-17.6],"w");
+    if(p.attic)b.circle(0,-22.5,1.9,"w");
+    b.rect(-2.8,-10.5,5.6,10.5,"w");
+    if(p.knob)b.circle(1.5,-5,0.75,"d",0);
+    const win=(x,cr,dk)=>{b.rect(x,-14.5,6,5.5,dk?"l":"w");if(cr){b.line([x+3,-14.5,x+3,-9],LT);b.line([x,-11.75,x+6,-11.75],LT);}};
+    win(-10.5,p.crossL,p.darkL);win(4.5,p.crossR,p.darkR);
+  },
+  tree(b,p){
+    b.rect(-1.6,-9.5,3.2,9.5,"w");if(p.hole)b.ell(0,-5,0.9,1.4,"d",0);
+    b.blob([[0,-17,7],[-5,-14,4.6],[5,-14,4.6],[-3.2,-21.5,4.4],[3.2,-21.5,4.4]],"w");
+    APPLES.forEach((a,i)=>{if(p.apples&(1<<i))b.circle(a[0],a[1],1.15,"l",LT);});
+  },
+  pine(b,p){
+    b.rect(-1.3,-5,2.6,5,"w");
+    b.shape([-8,-4.5,0,-13.5,8,-4.5],"w");b.shape([-6.5,-10,0,-19.5,6.5,-10],"w");b.shape([-5,-15.5,0,-25,5,-15.5],"w");
+    if(p.star)b.shape(starPts(0,-25.5,2.4,1),"w",LT);
+    ORN.forEach((a,i)=>{if(p.orn&(1<<i))b.circle(a[0],a[1],0.95,"l",LT);});
+  },
+  flower(b,p){
+    b.line([0,0,0,-6.4],LT);if(p.leaf)b.shape([0,-2.2,2.6,-4,2.9,-2.3],"w",LT);
+    for(let k=0;k<p.n;k++){const a=k*2*Math.PI/p.n-Math.PI/2;b.circle(Math.cos(a)*1.7,-7.8+Math.sin(a)*1.7,1.25,"w",LT);}
+    b.circle(0,-7.8,1.05,p.dark?"d":"w",LT);
+  },
+  bush(b,p){
+    b.blob([[-4.2,-3.4,3.4],[0,-5,4.2],[4.2,-3.4,3.4]],"w");
+    BER.forEach((a,i)=>{if(p.ber&(1<<i))b.circle(a[0],a[1],0.8,"d",0);});
+  },
+  fence(b,p){
+    const n=p.n,w=(n-1)*4;b.rect(-w/2-1,-7,w+2,1.1,"w",LT);b.rect(-w/2-1,-3.6,w+2,1.1,"w",LT);
+    for(let i=0;i<n;i++){if(p.miss===i)continue;const x=-w/2+i*4;b.shape([x-1.3,0,x-1.3,-8.2,x,-9.6,x+1.3,-8.2,x+1.3,0],"w",LT);}
+  },
+  mail(b,p){
+    b.rect(-0.6,-7.5,1.2,7.5,"w",LT);b.rect(-3,-11.5,6,4,"w");
+    if(p.up){b.line([2.4,-9.5,2.4,-14.5],LT);b.rect(2.4,-14.5,2.6,1.7,"d",0);}
+    else{b.line([2.4,-9.5,6.2,-9.5],LT);b.rect(4.6,-9.5,1.6,2.4,"d",0);}
+  },
+  car(b,p){
+    b.shape([-11,-3,-11,-7,-6.5,-7.4,-3.6,-11,4,-11,7,-7.3,11,-6.6,11,-3],"w");
+    b.shape([-2.8,-7.6,-1,-10.2,3.4,-10.2,5.4,-7.6],"w",LT);if(p.div)b.line([1.2,-10.2,1.2,-7.6],LT);
+    if(p.light)b.circle(10,-5.4,0.8,"l",LT);
+    if(p.handle)b.line([-0.5,-6.3,1.8,-6.3],0.5);
+    b.circle(-6,-3,2.4,"w");b.circle(6,-3,2.4,"w");
+    if(p.hubL)b.circle(-6,-3,0.9,"d",0);if(p.hubR)b.circle(6,-3,0.9,"d",0);
+  },
+  rock(b){b.shape([-4,0,-3.4,-2.6,-1,-3.9,2.4,-3.3,4,0],"w",LT);},
+  grass(b){b.line([-1.6,0,-2.3,-2.6],LT);b.line([0,0,0,-3.2],LT);b.line([1.6,0,2.3,-2.6],LT);},
+  fly(b,p){
+    b.line([0,-1.9,-0.9,-3.1],LT);b.line([0,-1.9,0.9,-3.1],LT);
+    b.circle(-1.7,-0.9,1.5,"w",LT);b.circle(1.7,-0.9,1.5,"w",LT);b.circle(-1.25,1.1,1.05,"w",LT);b.circle(1.25,1.1,1.05,"w",LT);
+    b.line([0,-1.9,0,2.1],0.6);
+    if(p.spots){b.circle(-1.7,-0.9,0.5,"d",0);b.circle(1.7,-0.9,0.5,"d",0);}
+  },
+  sun(b,p){
+    for(let k=0;k<p.n;k++){if(k===p.gap)continue;const a=k*2*Math.PI/p.n;b.line([Math.cos(a)*6.3,Math.sin(a)*6.3,Math.cos(a)*9.2,Math.sin(a)*9.2],0.55);}
+    b.circle(0,0,5,"w");b.circle(-1.7,-0.9,0.5,"d",0);b.circle(1.7,-0.9,0.5,"d",0);
+    if(p.smile)b.line(arcPts(0,0.2,2.6,0.25*Math.PI,0.75*Math.PI,8),0.45);
+  },
+  cloud(b,p){const c=[[-4,0,3],[0,-1.6,3.8],[1.6,1.1,2.6],[-1.8,1.1,2.6]];if(!p.small)c.push([4,0,3]);b.blob(c,"w");},
+  bird(b){b.line([-2.6,0,-1.3,-1.3,0,0,1.3,-1.3,2.6,0],0.5);},
+  balloon(b,p){
+    b.line([0,4.6,0.7,7,-0.3,9.5,0.4,11.5],LT);b.shape([-0.7,5.1,0,4.2,0.7,5.1],"w",LT);b.ell(0,0,3.7,4.6,"w");
+    if(p.stripe){const xx=3.7*Math.sqrt(1-Math.pow(1.3/4.6,2));b.line([-xx,-1.3,xx,-1.3],LT);b.line([-xx,1.3,xx,1.3],LT);}
+  },
+  kite(b,p){
+    const T=[[0,6],[1.8,8.5],[-0.6,11],[1.6,13.5],[0,16]];b.line([].concat(...T),LT);
+    b.shape([0,-5,3.3,0,0,6,-3.3,0],"w");b.line([0,-5,0,6],LT);b.line([-3.3,0,3.3,0],LT);
+    for(let i=0;i<4;i++)if(p.bows&(1<<i)){const [x,y]=T[i+1];b.shape([x-1.1,y-0.7,x+1.1,y+0.7,x+1.1,y-0.7,x-1.1,y+0.7],"d",0);}
+  },
+  mount(b,p){
+    const w=p.w,h=p.h;b.shape([-w/2,0,0,-h,w/2,0],"w");
+    if(p.snow){const q=0.3;b.line([-w/2*q,-h*(1-q),-w*0.07,-h*0.62,0,-h*0.73,w*0.07,-h*0.62,w/2*q,-h*(1-q)],LT);}
+  }
+};
+function compileItem(it){if(it.gone)return [];const b=builder(it);SHAPES[it.t](b,it);return b.o;}
+function bbox(ps){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const p of ps){
+    if(p[0]==="c"){const r=p[3]+(p[5]?p[4]/2:0);x0=Math.min(x0,p[1]-r);y0=Math.min(y0,p[2]-r);x1=Math.max(x1,p[1]+r);y1=Math.max(y1,p[2]+r);}
+    else{const h=(p[0]==="p"||p[3])?p[2]/2:0,a=p[1];for(let i=0;i<a.length;i+=2){x0=Math.min(x0,a[i]-h);y0=Math.min(y0,a[i+1]-h);x1=Math.max(x1,a[i]+h);y1=Math.max(y1,a[i+1]+h);}}
+  }
+  return [x0,y0,x1,y1];}
+function itemOps(it){
+  const o=[],tog=k=>o.push(c=>{c[k]=!c[k];}),gone=()=>o.push(c=>{c.gone=true;});
+  switch(it.t){
+    case "house":["chim","knob","attic","crossL","crossR","darkL","darkR"].forEach(tog);gone();break;
+    case "tree":for(let i=0;i<5;i++)o.push(c=>{c.apples^=1<<i;});tog("hole");gone();break;
+    case "pine":for(let i=0;i<5;i++)o.push(c=>{c.orn^=1<<i;});tog("star");gone();break;
+    case "flower":o.push(c=>{c.n=c.n===5?4:5;});tog("dark");tog("leaf");gone();break;
+    case "bush":for(let i=0;i<5;i++)o.push(c=>{c.ber^=1<<i;});gone();break;
+    case "fence":if(it.miss<0)for(let i=1;i<it.n-1;i++)o.push(c=>{c.miss=i;});break;
+    case "mail":tog("up");gone();break;
+    case "car":["div","light","hubL","hubR","handle"].forEach(tog);gone();break;
+    case "rock":case "grass":case "bird":gone();break;
+    case "fly":tog("spots");gone();break;
+    case "sun":tog("smile");for(let i=0;i<it.n;i++)o.push(c=>{c.gap=i;});break;
+    case "cloud":tog("small");gone();break;
+    case "balloon":tog("stripe");gone();break;
+    case "kite":for(let i=0;i<4;i++)o.push(c=>{c.bows^=1<<i;});gone();break;
+    case "mount":tog("snow");break;
+  }
+  return o;}
+const SC={house:[1,1,1,1,1,1,1],tree:[2,2,2,3,3,3,4],flower:[2,3,3,4,5,6,7],bush:[0,1,1,1,2,2,2],cloud:[2,2,3,3,3,4,4],bird:[1,2,2,3,3,4,4],
+  mount:[0,1,1,2,2,2,2],fence:[0,0,1,1,1,1,1],car:[0,0,0,1,1,1,1],mail:[0,0,1,1,1,1,1],fly:[0,1,1,1,2,2,3],rock:[1,1,2,2,2,3,3],grass:[2,3,4,5,6,7,8],air:[0,1,1,1,1,2,2]};
+function scene(W,H,L){
+  const yh=r2(H*0.5),sky=[],ground=[],boxes=[],C=k=>SC[k][L],coin=p=>Math.random()<p;
+  const free=(bb,pad)=>{if(bb[0]<1||bb[2]>W-1||bb[1]<1||bb[3]>H-1)return false;
+    for(const o of boxes)if(bb[0]<o[2]+pad&&bb[2]>o[0]-pad&&bb[1]<o[3]+pad&&bb[3]>o[1]-pad)return false;return true;};
+  const put=(list,mk,pad,boxFn)=>{for(let t=0;t<80;t++){const it=mk(),bb=bbox(compileItem(it));if(!free(bb,pad==null?1.2:pad))continue;it.bb=bb;list.push(it);boxes.push(boxFn?boxFn(bb):bb);return it;}return null;};
+  const depth=y=>r2(0.6+0.55*(y-yh)/(H-yh));
+  const G=(a,b)=>r2(yh+(H-yh)*rnd(a,b));
+  const X=()=>r2(rnd(5,W-5));
+  const mk={
+    bird:()=>({t:"bird",x:X(),y:r2(rnd(5,yh-6)),s:r2(rnd(0.8,1.2))}),
+    cloud:()=>({t:"cloud",x:X(),y:r2(rnd(6,yh*0.6)),s:r2(rnd(0.8,1.2)),small:false}),
+    flower:()=>{const y=G(0.15,0.97);return {t:"flower",x:X(),y,s:r2(depth(y)*1.15),n:5,dark:coin(0.5),leaf:coin(0.6)};},
+    rock:()=>{const y=G(0.1,0.95);return {t:"rock",x:X(),y,s:r2(depth(y)*rnd(0.8,1.2))};},
+    grass:()=>{const y=G(0.08,0.97);return {t:"grass",x:X(),y,s:depth(y)};},
+    fly:()=>({t:"fly",x:X(),y:G(-0.2,0.8),s:1,spots:coin(0.5)})
+  };
+  for(let i=0;i<C("mount");i++)put(sky,()=>{const w=rnd(34,52),h=rnd(14,22);return {t:"mount",x:r2(rnd(w/2,W-w/2)),y:yh,s:1,w:r2(w),h:r2(h),snow:coin(0.6)};},-30,
+    bb=>[bb[0]+(bb[2]-bb[0])*0.3,bb[1],bb[2]-(bb[2]-bb[0])*0.3,bb[1]+(bb[3]-bb[1])*0.45]);
+  put(sky,()=>({t:"sun",x:r2(rnd(10,W-10)),y:r2(rnd(10,yh*0.42)),s:1,n:[8,10,12][R(3)],gap:-1,smile:coin(0.6)}),2);
+  for(let i=0;i<C("cloud");i++)put(sky,mk.cloud);
+  for(let i=0;i<C("air");i++)put(sky,()=>coin(0.5)?{t:"balloon",x:X(),y:r2(rnd(7,yh-14)),s:r2(rnd(0.9,1.15)),stripe:coin(0.5)}
+    :{t:"kite",x:X(),y:r2(rnd(7,yh-18)),s:1,bows:[15,7,11,13,14][R(5)]});
+  for(let i=0;i<C("bird");i++)put(sky,mk.bird);
+  for(let i=0;i<C("house");i++)put(ground,()=>{const y=G(0.18,0.55);return {t:"house",x:r2(rnd(18,W-18)),y,s:depth(y),chim:coin(0.7),knob:true,attic:coin(0.5),crossL:coin(0.7),crossR:coin(0.7),darkL:false,darkR:coin(0.3)};});
+  for(let i=0;i<C("car");i++)put(ground,()=>{const y=G(0.6,0.95),hub=coin(0.6);return {t:"car",x:X(),y,s:r2(depth(y)*0.85),flip:coin(0.5),div:coin(0.6),light:coin(0.6),hubL:hub,hubR:hub,handle:coin(0.5)};});
+  for(let i=0;i<C("tree");i++)put(ground,()=>{const y=G(0.1,0.85),s=r2(depth(y)*1.05);
+    return coin(0.4)?{t:"pine",x:X(),y,s,star:coin(0.4),orn:R(32)|1}:{t:"tree",x:X(),y,s,apples:R(32)|3,hole:coin(0.4)};});
+  for(let i=0;i<C("fence");i++)put(ground,()=>{const y=G(0.3,0.9);return {t:"fence",x:X(),y,s:depth(y),n:4+R(3),miss:-1};});
+  for(let i=0;i<C("mail");i++)put(ground,()=>{const y=G(0.3,0.9);return {t:"mail",x:X(),y,s:r2(depth(y)*1.1),up:coin(0.5)};});
+  for(let i=0;i<C("bush");i++)put(ground,()=>{const y=G(0.15,0.95);return {t:"bush",x:X(),y,s:depth(y),ber:R(32)|5};});
+  for(let i=0;i<C("flower");i++)put(ground,mk.flower);
+  for(let i=0;i<C("rock");i++)put(ground,mk.rock);
+  for(let i=0;i<C("fly");i++)put(ground,mk.fly);
+  for(let i=0;i<C("grass");i++)put(ground,mk.grass,0.4);
+  return {W,H,yh,sky,ground,boxes,free,mk};
+}
+function scenePrims(sc,alt,adds){
+  const o=[],use=it=>alt&&alt.has(it)?alt.get(it):it;
+  for(const it of sc.sky)o.push(...compileItem(use(it)));
+  if(adds)for(const it of adds)if(it.layer==="sky")o.push(...compileItem(it));
+  o.push(["s",[0,sc.yh,sc.W,sc.yh,sc.W,sc.H,0,sc.H],0,null,"g"]);
+  o.push(["p",[0,sc.yh,sc.W,sc.yh],LW,"k"]);
+  const gr=sc.ground.map(use).concat(adds?adds.filter(a=>a.layer!=="sky"):[]).sort((a,b)=>a.y-b.y);
+  for(const it of gr)o.push(...compileItem(it));
+  return o;}
+
+/* ================= DIFERENCIAS ================= */
+const DN=[3,4,5,6,7,8,10];
+function differences(L){
+  const K=DN[L],minD=[6,5,4,3.2,2.6,2.2,1.8][L],J=p=>JSON.stringify(p);
+  for(let att=0;att<40;att++){
+    const sc=scene(120,90,L),cands=[];
+    for(const it of sc.sky.concat(sc.ground)){
+      const A=compileItem(it),sa=new Set(A.map(J));
+      for(const f of itemOps(it)){const c=Object.assign({},it);f(c);const B=compileItem(c),sb=new Set(B.map(J));
+        const d=A.filter(p=>!sb.has(J(p))).concat(B.filter(p=>!sa.has(J(p))));if(!d.length)continue;
+        const bb=bbox(d);if(Math.max(bb[2]-bb[0],bb[3]-bb[1])<minD)continue;
+        cands.push({it,c,bb,area:(bb[2]-bb[0])*(bb[3]-bb[1])});}}
+    const kinds=["bird","fly","flower","rock","cloud","grass"];
+    for(let a=0;a<5;a++){const kd=kinds[R(kinds.length)];
+      for(let t=0;t<40;t++){const it=sc.mk[kd](),bb=bbox(compileItem(it));if(!sc.free(bb,1.5))continue;
+        if(Math.max(bb[2]-bb[0],bb[3]-bb[1])<minD)break;
+        it.layer=(kd==="bird"||kd==="cloud")?"sky":"ground";sc.boxes.push(bb);cands.push({add:it,bb,area:(bb[2]-bb[0])*(bb[3]-bb[1])});break;}}
+    cands.sort((p,q)=>q.area-p.area);
+    const N=cands.length,win=L<=1?cands.slice(0,Math.ceil(N*0.6)):L>=4?cands.slice(Math.floor(N*0.35)):cands.slice();
+    const chosen=[],usedIt=new Set();
+    const tryPick=list=>{for(const cd of shuffle(list.slice())){if(chosen.length>=K)return;if(chosen.includes(cd))continue;if(cd.it&&usedIt.has(cd.it))continue;
+      const b=cd.bb,p=2.5;if(chosen.some(o=>b[0]<o.bb[2]+p&&b[2]>o.bb[0]-p&&b[1]<o.bb[3]+p&&b[3]>o.bb[1]-p))continue;
+      chosen.push(cd);if(cd.it)usedIt.add(cd.it);}};
+    tryPick(win);if(chosen.length<K)tryPick(cands);
+    if(chosen.length<K)continue;
+    const alt=new Map(),adds=[];for(const cd of chosen){if(cd.add)adds.push(cd.add);else alt.set(cd.it,cd.c);}
+    return {game:"diff",W:sc.W,H:sc.H,a:scenePrims(sc),b:scenePrims(sc,alt,adds),
+      marks:chosen.map(cd=>{const b=cd.bb;return [r2((b[0]+b[2])/2),r2((b[1]+b[3])/2),r2(Math.max(b[2]-b[0],b[3]-b[1])/2+1.8)];})};
+  }
+  return null;
+}
+
+/* ================= ROMPECABEZAS ================= */
+const JG=[[2,2,0],[3,2,0],[3,3,0],[4,3,0],[5,4,0],[4,4,1],[5,5,1]];
+function jigsaw(L){
+  const [cols,rows,rot]=JG[L],W=rot?100:120,H=rot?100:90,N=cols*rows;
+  const sc=scene(W,H,Math.min(6,L+1));
+  let order;do{order=shuffle(range(N));}while(order.filter((p,i)=>p===i).length>N/4);
+  return {game:"jigsaw",W,H,prims:scenePrims(sc),cols,rows,order,rot:range(N).map(()=>rot?R(4):0)};
+}
+
+const GEN={sudoku,maze,wordsearch,crossword,diff:differences,jigsaw};
+return {generate:(game,level,lang)=>GEN[game](level,lang)};
+}
+
+</script>
+<script>
+(function(){
+"use strict";
+/* ---------- catalogue ---------- */
+const LEVEL_IDS=["super-facil","facil","medio","medio-dificil","dificil","extremo","super-extremo"];
+const TX={
+  es:{levels:["Súper fácil","Fácil","Medio","Medio-difícil","Difícil","Extremo","Súper extremo"],answers:"Soluciones",mix:"Mezcla de juegos",
+    theme:"Tema",across:"Horizontales",down:"Verticales",clues:"pistas",words:"palabras",diffs:"diferencias",pieces:"piezas",no:"No.",making:"generando…"},
+  en:{levels:["Super easy","Easy","Medium","Medium-hard","Hard","Extreme","Super extreme"],answers:"Answers",mix:"Puzzle mix",
+    theme:"Theme",across:"Across",down:"Down",clues:"clues",words:"words",diffs:"differences",pieces:"pieces",no:"No.",making:"making…"}
+};
+const DN=[3,4,5,6,7,8,10];
+const GAMES={
+  sudoku:{ui:"Sudoku",tag:"9×9 clásico",file:"sudoku",name:{es:"Sudoku",en:"Sudoku"},per:{A4:[1,2,4,6],A5:[1,2,4]},
+    desc:["Unas 50 pistas","Únicos ocultos","Pares señaladores","Pares","Tríos y X-Wing","XY-Wing","Requiere cadenas"],
+    rule:{es:()=>"Completa cada fila, cada columna y cada caja de 3×3 con los números del 1 al 9, sin repetir.",
+          en:()=>"Fill every row, column and 3×3 box with the digits 1 to 9."}},
+  maze:{ui:"Laberinto",tag:"Encuentra el camino",file:"laberinto",name:{es:"Laberinto",en:"Maze"},per:{A4:[1,2,4,6],A5:[1,2,4]},
+    desc:["6×6","9×9","12×12","15×15","19×19","24×24","30×30"],
+    rule:{es:()=>"Traza un camino desde la entrada (arriba a la izquierda) hasta la salida (abajo a la derecha).",
+          en:()=>"Draw a path from the opening at the top left to the exit at the bottom right."}},
+  wordsearch:{ui:"Sopa de letras",tag:"Español o inglés",file:"sopa-de-letras",word:true,name:{es:"Sopa de letras",en:"Word search"},per:{A4:[1,2,4],A5:[1,2]},
+    desc:["8×8 · 6 palabras","10×10 · 8 palabras","11×11 · diagonales","12×12 · al revés","14×14 · 8 direcciones","15×15 · letras trampa","16×16 · 16 palabras"],
+    rule:{es:L=>"Encuentra en la sopa todas las palabras de la lista. "+(L<=1?"Están escritas de izquierda a derecha o de arriba abajo.":L===2?"Pueden ir en horizontal, en vertical o en diagonal.":"Pueden ir en cualquier dirección, incluso al revés."),
+          en:L=>"Find every word from the list in the grid. "+(L<=1?"Words read left to right or top to bottom.":L===2?"Words run across, down or diagonally.":"Words can run in any direction, even backwards.")}},
+  crossword:{ui:"Crucigrama",tag:"Español o inglés",file:"crucigrama",word:true,name:{es:"Crucigrama",en:"Crossword"},per:{A4:[1,2,4],A5:[1,2]},
+    desc:["5 palabras · iniciales","7 palabras · con ayudas","9 palabras · pocas ayudas","11 palabras","13 palabras","15 palabras","17 palabras"],
+    rule:{es:L=>"Lee las pistas y escribe cada respuesta a partir de su número: las horizontales de izquierda a derecha y las verticales de arriba abajo. Escribe sin acentos."+(L<=2?" Algunas letras ya están puestas.":""),
+          en:L=>"Read the clues and write each answer starting at its number: across answers go left to right, down answers top to bottom."+(L<=2?" Some letters are already filled in.":"")}},
+  diff:{ui:"Diferencias",tag:"Encuentra los cambios",file:"diferencias",name:{es:"Encuentra las diferencias",en:"Spot the difference"},per:{A4:[1,2,4],A5:[1,2]},
+    desc:["3 diferencias grandes","4 diferencias","5 diferencias","6 diferencias","7 diferencias","8 diferencias chicas","10 diferencias chicas"],
+    rule:{es:L=>"Hay "+DN[L]+" diferencias entre los dos dibujos. Encuéntralas y enciérralas en un círculo.",
+          en:L=>"There are "+DN[L]+" differences between the two pictures. Find them and circle them."}},
+  jigsaw:{ui:"Rompecabezas",tag:"Recorta y arma",file:"rompecabezas",name:{es:"Rompecabezas",en:"Jigsaw puzzle"},per:{A4:[1,2,4],A5:[1,2]},
+    desc:["4 piezas","6 piezas","9 piezas","12 piezas","20 piezas","16 piezas giradas","25 piezas giradas"],
+    rule:{es:L=>"Recorta las piezas y pégalas en el marco para armar el dibujo, o escribe en cada casilla del marco la letra de la pieza que va ahí."+(L>=5?" Algunas piezas están giradas.":""),
+          en:L=>"Cut out the pieces and paste them into the frame to rebuild the picture, or write in each square the letter of the piece that belongs there."+(L>=5?" Some pieces are rotated.":"")}}
+};
+const GAME_KEYS=Object.keys(GAMES);
+const PAPER={
+  A4:{w:210,h:297,m:12,layouts:{1:[1,1],2:[1,2],4:[2,2],6:[2,3]},title:16,rpt:8},
+  A5:{w:210,h:148.5,sheet:{w:210,h:297},m:10,layouts:{1:[1,1],2:[2,1],4:[2,2]},title:13,rpt:7}
+};
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a}
+
+/* ---------- state ---------- */
+const state={game:"sudoku",level:2,lang:"es",paper:"A4",per:4,pages:2,answers:true,assign:[],pool:[],pageIdx:0};
+const STORE="hojas-pasatiempos-v1";
+try{const s=JSON.parse(localStorage.getItem(STORE)||"{}");
+  if(s.game==="mix"||GAMES[s.game])state.game=s.game;
+  if(s.level>=0&&s.level<=6)state.level=s.level;
+  if(s.lang==="es"||s.lang==="en")state.lang=s.lang;
+  if(PAPER[s.paper])state.paper=s.paper;
+  if([1,2,4,6].includes(s.per))state.per=s.per;
+  if(s.pages>=1&&s.pages<=10)state.pages=s.pages;
+  if(typeof s.answers==="boolean")state.answers=s.answers;
+}catch(e){}
+function remember(){try{localStorage.setItem(STORE,JSON.stringify({game:state.game,level:state.level,lang:state.lang,paper:state.paper,per:state.per,pages:state.pages,answers:state.answers}))}catch(e){}}
+const $=id=>document.getElementById(id);
+const need=()=>state.per*state.pages;
+function ensureAssign(){while(state.assign.length<need())state.assign.push(...shuffle(GAME_KEYS.slice()));}
+const gameAt=i=>state.game==="mix"?state.assign[i]:state.game;
+
+/* ---------- generation (background worker) ---------- */
+let worker=null,api=null,token=0,inflight=-1,fails=0;
+function startWorker(){
+  if(worker){worker.terminate();worker=null;}
+  inflight=-1;
+  try{
+    const src="const API=("+ENGINE.toString()+")();onmessage=function(e){var z=null;try{z=API.generate(e.data.game,e.data.level,e.data.lang)}catch(err){}postMessage({tok:e.data.tok,i:e.data.i,z:z})};";
+    worker=new Worker(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));
+    worker.onmessage=onResult;
+    worker.onerror=()=>{if(worker){worker.terminate();worker=null;}inflight=-1;pump();};
+  }catch(e){worker=null;}
+}
+function pump(){
+  ensureAssign();
+  if(inflight>=0)return;
+  let i=-1;for(let k=0;k<need();k++)if(!state.pool[k]){i=k;break;}
+  if(i<0){done();return;}
+  $("dlBtn").disabled=true;
+  const g=gameAt(i);
+  setStatus("Generando juego "+(i+1)+" de "+need()+" ("+GAMES[g].ui+")…");
+  const msg={tok:token,i,game:g,level:state.level,lang:state.lang};inflight=i;
+  if(worker)worker.postMessage(msg);
+  else setTimeout(()=>{if(!api)api=ENGINE();let z=null;try{z=api.generate(msg.game,msg.level,msg.lang)}catch(e){}onResult({data:{tok:msg.tok,i:msg.i,z}});},30);
+}
+function onResult(e){
+  const d=e.data;if(d.tok!==token)return;
+  inflight=-1;
+  if(d.z){state.pool[d.i]=d.z;fails=0;}
+  else if(++fails>3){setStatus("No se pudo generar ese juego. Prueba «Juegos nuevos».");return;}
+  render();pump();
+}
+function done(){
+  $("dlBtn").disabled=false;
+  const names=[...new Set(state.pool.slice(0,need()).map(z=>GAMES[z.game].ui))];
+  setStatus(need()+" juegos listos · nivel "+TX.es.levels[state.level].toLowerCase()+(state.game==="mix"?" · "+names.join(", "):""));
+}
+function regenerate(){token++;state.pool=[];state.pageIdx=0;startWorker();render();pump();}
+
+/* ---------- drawing (mm coordinates, shared by preview and PDF) ---------- */
+const INK="#111111",SOFT="#8a8a8a",THIN="#6b6b6b",LET="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const ptFor=mm=>mm/0.3528;
+function gridLines(D,x,y,s,n,thin,thick,every){
+  const u=s/n;
+  for(let i=1;i<n;i++){const heavy=every&&i%every===0;D.line(x+i*u,y,x+i*u,y+s,heavy?thick:thin,heavy?INK:THIN);D.line(x,y+i*u,x+s,y+i*u,heavy?thick:thin,heavy?INK:THIN);}
+  D.rect(x,y,s,s,0.8,INK);
+}
+function digit(D,v,cx,cy,u,given){D.text(String(v),cx,cy,ptFor(u*0.58),{align:"center",baseline:"middle",bold:given,color:given?INK:SOFT});}
+function wrap(D,text,pt,maxW,bold){const out=[];let line="";for(const w of text.split(" ")){const t=line?line+" "+w:w;if(D.measure(t,pt,bold)>maxW&&line){out.push(line);line=w;}else line=t;}if(line)out.push(line);return out;}
+const square=(x,y,w,h)=>{const s=Math.min(w,h);return [x+(w-s)/2,y+(h-s)/2,s];};
+
+/* picture primitives from the engine: ["s",pts,lw,stroke,fill] ["c",x,y,r,lw,stroke,fill] ["p",pts,lw,color] */
+const PCOL={k:"#1A1A1A",w:"#FFFFFF",d:"#333333",l:"#CFCFCF",g:"#EFEFEF"};
+function primBB(p){if(p[0]==="c")return [p[1]-p[3],p[2]-p[3],p[1]+p[3],p[2]+p[3]];const a=p[1];let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(let i=0;i<a.length;i+=2){if(a[i]<x0)x0=a[i];if(a[i]>x1)x1=a[i];if(a[i+1]<y0)y0=a[i+1];if(a[i+1]>y1)y1=a[i+1];}return [x0,y0,x1,y1];}
+function drawPrims(D,prims,M,cull){
+  for(const p of prims){
+    if(cull){const b=primBB(p);if(b[2]<cull[0]||b[0]>cull[2]||b[3]<cull[1]||b[1]>cull[3])continue;}
+    const lw=Math.max(0.1,(p[0]==="c"?p[4]:p[2])*M.k);
+    if(p[0]==="c"){D.circle(M.a*p[1]+M.c*p[2]+M.e,M.b*p[1]+M.d*p[2]+M.f,p[3]*M.k,lw,PCOL[p[5]]||null,PCOL[p[6]]||null);continue;}
+    const a=p[1],pts=[];for(let i=0;i<a.length;i+=2)pts.push([M.a*a[i]+M.c*a[i+1]+M.e,M.b*a[i]+M.d*a[i+1]+M.f]);
+    if(p[0]==="s")D.shape(pts,lw,PCOL[p[3]]||null,PCOL[p[4]]||null);else D.poly(pts,lw,PCOL[p[3]]);
+  }
+}
+function drawPic(D,prims,z,px,py,pw){const k=pw/z.W,ph=z.H*k;D.fill(px,py,pw,ph,"#FFFFFF");D.clip(px,py,pw,ph);drawPrims(D,prims,{a:k,b:0,c:0,d:k,e:px,f:py,k});D.unclip();D.rect(px,py,pw,ph,0.5,INK);return ph;}
+function tag(D,X,Y,ps,L){const r=Math.max(1.3,Math.min(3,ps*0.15));D.circle(X+r+0.5,Y+r+0.5,r,0.25,INK,"#FFFFFF");D.text(L,X+r+0.5,Y+r+0.55,ptFor(r*1.25),{align:"center",baseline:"middle",bold:true});}
+function piece(D,z,p,q,X,Y,k){
+  const pw=z.W/z.cols,ph=z.H/z.rows,sx=(p%z.cols)*pw,sy=((p/z.cols)|0)*ph,cxs=sx+pw/2,cys=sy+ph/2,X0=X+pw*k/2,Y0=Y+ph*k/2;
+  const co=[1,0,-1,0][q],si=[0,1,0,-1][q],a=k*co,b=k*si,c=-k*si,d=k*co;
+  D.fill(X,Y,pw*k,ph*k,"#FFFFFF");D.clip(X,Y,pw*k,ph*k);
+  drawPrims(D,z.prims,{a,b,c,d,e:X0-a*cxs-c*cys,f:Y0-b*cxs-d*cys,k},[sx-1,sy-1,sx+pw+1,sy+ph+1]);
+  D.unclip();D.rect(X,Y,pw*k,ph*k,0.35,INK);
+}
+function wsGrid(D,x0,y0,s,z,ans){const n=z.n,u=s/n;
+  if(ans)for(const p of z.words){const L=p.w.length-1;D.poly([[x0+(p.c+0.5)*u,y0+(p.r+0.5)*u],[x0+(p.c+p.dc*L+0.5)*u,y0+(p.r+p.dr*L+0.5)*u]],u*0.74,"#D4D4D4");}
+  D.rect(x0,y0,s,s,0.5,INK);
+  for(let i=0;i<n*n;i++)D.text(z.grid[i],x0+(i%n+0.5)*u,y0+(((i/n)|0)+0.55)*u,ptFor(u*0.56),{align:"center",baseline:"middle"});
+}
+function cwGrid(D,x0,y0,u,z,ans){const C=z.cols,nums=new Map(z.nums);
+  for(let i=0;i<z.cells.length;i++){const ch=z.cells[i];if(!ch)continue;const cx=x0+(i%C)*u,cy=y0+((i/C)|0)*u;
+    D.fill(cx,cy,u,u,"#FFFFFF");D.rect(cx,cy,u,u,0.35,INK);
+    if(nums.has(i))D.text(String(nums.get(i)),cx+u*0.07,cy+u*0.06,ptFor(u*0.26),{baseline:"top",color:"#333333"});
+    if(ans||z.reveal[i])D.text(ch,cx+u/2,cy+u*0.6,ptFor(u*0.5),{align:"center",baseline:"middle",bold:z.reveal[i],color:z.reveal[i]?INK:"#333333"});}
+}
+function clueBlock(D,list,f,colW){const lh=f*0.3528*1.32,items=[];let n=0;
+  for(const o of list){const pre=o.n+". ",pw=D.measure(pre,f,true),lines=wrap(D,o.q,f,Math.max(8,colW-pw));items.push({pre,pw,lines});n+=lines.length;}
+  return {items,h:lh*(n+1.3),lh};}
+function drawClues(D,x,y,title,B,f){D.text(title,x,y,f,{bold:true,baseline:"top"});let yy=y+B.lh*1.3;
+  for(const it of B.items){D.text(it.pre,x,yy,f,{bold:true,baseline:"top"});for(const l of it.lines){D.text(l,x+it.pw,yy,f,{baseline:"top"});yy+=B.lh;}}}
+
+/* Each drawer gets a box (x,y,w,h) and returns the rectangle it actually used. */
+const DRAW={
+  sudoku(D,x,y,w,h,z,ans){const [x0,y0,s]=square(x,y,w,h),u=s/9;
+    for(let i=1;i<9;i++)if(i%3){D.line(x0+i*u,y0,x0+i*u,y0+s,0.18,THIN);D.line(x0,y0+i*u,x0+s,y0+i*u,0.18,THIN);}
+    for(let i=3;i<9;i+=3){D.line(x0+i*u,y0,x0+i*u,y0+s,0.6,INK);D.line(x0,y0+i*u,x0+s,y0+i*u,0.6,INK);}
+    D.rect(x0,y0,s,s,0.9,INK);
+    for(let i=0;i<81;i++){const g=z.givens[i],v=ans?z.solution[i]:g;if(v)digit(D,v,x0+(i%9+0.5)*u,y0+(((i/9)|0)+0.53)*u,u,!!g);}
+    return [x0,y0,s,s];
+  },
+  maze(D,x,y,w,h,z,ans){const [x0,y0,s]=square(x,y,w,h),n=z.n,u=s/n,lw=Math.max(0.25,Math.min(0.7,u*0.1));
+    if(ans){const pts=z.path.map(i=>[x0+(i%n+0.5)*u,y0+(((i/n)|0)+0.5)*u]);pts.unshift([x0+u/2,y0]);pts.push([x0+s-u/2,y0+s]);D.poly(pts,Math.max(0.4,u*0.28),"#D0443A");}
+    D.line(x0+u,y0,x0+s,y0,lw,INK);D.line(x0,y0+s,x0+s-u,y0+s,lw,INK);D.line(x0,y0,x0,y0+s,lw,INK);D.line(x0+s,y0,x0+s,y0+s,lw,INK);
+    for(let i=0;i<n*n;i++){const r=(i/n)|0,c=i%n;
+      if(c<n-1&&z.right[i])D.line(x0+(c+1)*u,y0+r*u,x0+(c+1)*u,y0+(r+1)*u,lw,INK);
+      if(r<n-1&&z.down[i])D.line(x0+c*u,y0+(r+1)*u,x0+(c+1)*u,y0+(r+1)*u,lw,INK);}
+    return [x0,y0,s,s];
+  },
+  wordsearch(D,x,y,w,h,z,ans){const n=z.n;
+    if(ans){const [x0,y0,s]=square(x,y,w,h);wsGrid(D,x0,y0,s,z,true);return [x0,y0,s,s];}
+    const T=TX[z.lang],title=T.theme+": "+z.theme,words=z.words.map(p=>p.w);let best=null;
+    for(const f of [10,9,8,7.5,7,6.5,6,5.5]){
+      const mm=f*0.3528,lh=mm*1.45,ww=Math.max(...words.map(s=>D.measure(s,f)))+mm*2.2,tw=D.measure(title,f,true);
+      {const cols=Math.max(1,Math.min(words.length,Math.floor((w+mm*2.2)/ww))),rows=Math.ceil(words.length/cols),lhT=lh*(rows+1.2),s=Math.min(w,h-lhT-3);
+        if(s>0){const sc=s/n+f*0.15;if(!best||sc>best.sc)best={sc,mode:"below",f,s,cols,rows,lh,ww,lhT};}}
+      {const fit=Math.floor((h-lh*1.2)/lh);if(fit>0){const cols=Math.ceil(words.length/fit),rows=Math.ceil(words.length/cols),lw=Math.max(cols*ww,tw),s=Math.min(h,w-lw-4);
+        if(s>0&&cols<=3){const sc=s/n+f*0.15;if(!best||sc>best.sc)best={sc,mode:"right",f,s,cols,rows,lh,ww,lw};}}}
+    }
+    const b=best,s=b.s,f=b.f;
+    const list=(lx,ly)=>{D.text(title,lx,ly,f,{bold:true,baseline:"top"});
+      words.forEach((wd,i)=>{const c=Math.floor(i/b.rows),r=i%b.rows;D.text(wd,lx+c*b.ww,ly+b.lh*(r+1.2),f,{baseline:"top"});});};
+    if(b.mode==="below"){const bh=s+3+b.lhT,y0=y+(h-bh)/2,x0=x+(w-s)/2,listW=Math.min(w,b.cols*b.ww),lx=x+(w-listW)/2;
+      wsGrid(D,x0,y0,s,z,false);list(lx,y0+s+3);const rx=Math.min(x0,lx);return [rx,y0,Math.max(x0+s,lx+listW)-rx,bh];}
+    const bw=s+4+b.lw,x0=x+(w-bw)/2,bh=Math.max(s,b.lh*(b.rows+1.2)),y0=y+(h-bh)/2;
+    wsGrid(D,x0,y0,s,z,false);list(x0+s+4,y0);return [x0,y0,bw,bh];
+  },
+  crossword(D,x,y,w,h,z,ans){const R=z.rows,C=z.cols;
+    if(ans){const u=Math.min(w/C,h/R),x0=x+(w-u*C)/2,y0=y+(h-u*R)/2;cwGrid(D,x0,y0,u,z,true);return [x0,y0,u*C,u*R];}
+    const T=TX[z.lang];let best=null;
+    const consider=c=>{if(c.u<3)return;c.sc=Math.min(c.u,8)+c.f*0.8;if(!best||c.sc>best.sc)best=c;};
+    for(const f of [10,9,8.5,8,7.5,7,6.5,6,5.5,5]){
+      {const cw=(w-5)/2,A=clueBlock(D,z.across,f,cw),B=clueBlock(D,z.down,f,cw),lh=Math.max(A.h,B.h);consider({mode:"below",f,u:Math.min(w/C,(h-lh-4)/R),A,B,cw,lh});}
+      for(const share of [0.42,0.5,0.58]){const gw=w*share,cw=w-gw-5,A=clueBlock(D,z.across,f,cw),B=clueBlock(D,z.down,f,cw),lh=A.h+B.h+2;
+        if(lh<=h)consider({mode:"right",f,u:Math.min(gw/C,h/R),A,B,cw,lh});}
+      if(best&&best.f>=f+1.5)break;
+    }
+    if(!best){const f=5,cw=(w-5)/2,A=clueBlock(D,z.across,f,cw),B=clueBlock(D,z.down,f,cw),lh=Math.max(A.h,B.h);best={mode:"below",f,u:Math.max(2,Math.min(w/C,(h-lh-4)/R)),A,B,cw,lh};}
+    const b=best,gw=b.u*C,gh=b.u*R;
+    if(b.mode==="below"){const bh=gh+4+b.lh,y0=y+(h-bh)/2;cwGrid(D,x+(w-gw)/2,y0,b.u,z,false);
+      drawClues(D,x,y0+gh+4,T.across,b.A,b.f);drawClues(D,x+b.cw+5,y0+gh+4,T.down,b.B,b.f);return [x,y0,w,bh];}
+    const bw=gw+5+b.cw,x0=x+(w-bw)/2,bh=Math.max(gh,b.lh),y0=y+(h-bh)/2;cwGrid(D,x0,y0,b.u,z,false);
+    drawClues(D,x0+gw+5,y0,T.across,b.A,b.f);drawClues(D,x0+gw+5,y0+b.A.h+2,T.down,b.B,b.f);return [x0,y0,bw,bh];
+  },
+  diff(D,x,y,w,h,z,ans){const a=z.W/z.H,g=4;
+    if(ans){const pw=Math.min(w,h*a),ph=pw/a,px=x+(w-pw)/2,py=y+(h-ph)/2,k=pw/z.W;drawPic(D,z.b,z,px,py,pw);
+      for(const m of z.marks)D.circle(px+m[0]*k,py+m[1]*k,m[2]*k,0.6,"#D0443A",null);return [px,py,pw,ph];}
+    const sw=Math.min((w-g)/2,h*a),st=Math.min(w,((h-g)/2)*a);
+    if(sw>=st){const pw=sw,ph=pw/a,bw=2*pw+g,px=x+(w-bw)/2,py=y+(h-ph)/2;drawPic(D,z.a,z,px,py,pw);drawPic(D,z.b,z,px+pw+g,py,pw);return [px,py,bw,ph];}
+    const pw=st,ph=pw/a,bh=2*ph+g,px=x+(w-pw)/2,py=y+(h-bh)/2;drawPic(D,z.a,z,px,py,pw);drawPic(D,z.b,z,px,py+ph+g,pw);return [px,py,pw,bh];
+  },
+  jigsaw(D,x,y,w,h,z,ans){const W=z.W,H=z.H,cols=z.cols,rows=z.rows,pw=W/cols,ph=H/rows,gr=0.2;
+    if(ans){const k=Math.min(w/W,h/H),fw=W*k,fh=H*k,fx=x+(w-fw)/2,fy=y+(h-fh)/2;drawPic(D,z.prims,z,fx,fy,fw);
+      for(let i=1;i<cols;i++)D.line(fx+i*pw*k,fy,fx+i*pw*k,fy+fh,0.35,INK);for(let j=1;j<rows;j++)D.line(fx,fy+j*ph*k,fx+fw,fy+j*ph*k,0.35,INK);
+      const slotOf=[];z.order.forEach((p,s)=>slotOf[p]=s);
+      for(let p=0;p<cols*rows;p++)tag(D,fx+(p%cols)*pw*k,fy+((p/cols)|0)*ph*k,Math.min(pw,ph)*k,LET[slotOf[p]]);
+      return [fx,fy,fw,fh];}
+    const GW=W+(cols-1)*gr*pw,GH=H+(rows-1)*gr*ph,mid=5;
+    const kS=Math.min((w-mid)/(W+GW),h/Math.max(H,GH)),kT=Math.min(w/Math.max(W,GW),(h-mid)/(H+GH)),side=kS>=kT,k=side?kS:kT;
+    const bw=side?(W+GW)*k+mid:Math.max(W,GW)*k,bh=side?Math.max(H,GH)*k:(H+GH)*k+mid,bx=x+(w-bw)/2,by=y+(h-bh)/2;
+    const fx=side?bx:bx+(bw-W*k)/2,fy=side?by+(bh-H*k)/2:by,gx=side?bx+W*k+mid:bx+(bw-GW*k)/2,gy=side?by+(bh-GH*k)/2:by+H*k+mid;
+    D.fill(fx,fy,W*k,H*k,"#FFFFFF");
+    for(let i=1;i<cols;i++)D.line(fx+i*pw*k,fy,fx+i*pw*k,fy+H*k,0.2,"#BBBBBB");for(let j=1;j<rows;j++)D.line(fx,fy+j*ph*k,fx+W*k,fy+j*ph*k,0.2,"#BBBBBB");
+    D.rect(fx,fy,W*k,H*k,0.6,INK);
+    z.order.forEach((p,s)=>{const X=gx+(s%cols)*pw*k*(1+gr),Y=gy+((s/cols)|0)*ph*k*(1+gr);piece(D,z,p,z.rot[p],X,Y,k);tag(D,X,Y,Math.min(pw,ph)*k,LET[s]);});
+    return [bx,by,bw,bh];
+  }
+};
+function drawPuzzle(D,x,y,w,h,z,ans,lang){
+  if(!z){const [x0,y0,s]=square(x,y,w,h);D.rect(x0,y0,s,s,0.3,"#BBBBBB");D.text(TX[lang].making,x0+s/2,y0+s/2,9,{align:"center",baseline:"middle",color:"#999999"});return [x0,y0,s,s];}
+  return DRAW[z.game](D,x,y,w,h,z,ans);
+}
+function infoOf(z,T){switch(z.game){
+  case "sudoku":return z.count+" "+T.clues;
+  case "maze":case "wordsearch":return z.n+"×"+z.n;
+  case "crossword":return (z.across.length+z.down.length)+" "+T.words;
+  case "diff":return z.marks.length+" "+T.diffs;
+  case "jigsaw":return z.cols*z.rows+" "+T.pieces;}return "";}
+function ansGrid(){const small=state.game==="sudoku"||state.game==="maze";return state.paper==="A4"?(small?[3,4]:[2,3]):(small?[4,2]:[3,1]);}
+
+function buildPages(){
+  ensureAssign();
+  const P=PAPER[state.paper],per=state.per,n=need(),pages=[];
+  for(let p=0;p<state.pages;p++){const items=[];for(let j=0;j<per;j++){const i=p*per+j;items.push({no:i+1,g:gameAt(i),z:state.pool[i]});}pages.push({kind:"puzzles",items,grid:P.layouts[per]});}
+  if(state.answers){const ag=ansGrid(),k=ag[0]*ag[1];for(let s=0;s<n;s+=k){const items=[];for(let i=s;i<Math.min(n,s+k);i++)items.push({no:i+1,g:gameAt(i),z:state.pool[i]});pages.push({kind:"answers",items,grid:ag});}}
+  return pages;
+}
+function drawPage(D,page,no,total){
+  const P=PAPER[state.paper],m=P.m,mix=state.game==="mix",ans=page.kind==="answers",lang=state.lang,T=TX[lang];
+  D.text((mix?T.mix:GAMES[state.game].name[lang]).toUpperCase(),m,m+5,P.title,{bold:true,baseline:"middle"});
+  D.text((ans?T.answers+" · ":"")+T.levels[state.level],P.w-m,m+5,10,{align:"right",baseline:"middle",color:"#444444"});
+  D.line(m,m+10,P.w-m,m+10,0.4,INK);
+  let ty=m+12.5;
+  if(!ans){
+    const lh=P.rpt*0.3528*1.35,seen=[];
+    for(const it of page.items)if(!seen.includes(it.g))seen.push(it.g);
+    for(const g of seen){const G=GAMES[g],txt=(mix?G.name[lang]+": ":"")+G.rule[lang](state.level);
+      for(const l of wrap(D,txt,P.rpt,P.w-2*m)){D.text(l,m,ty,P.rpt,{baseline:"top",color:"#333333"});ty+=lh;}}
+    ty+=1;
+  }
+  D.text(no+" / "+total,P.w/2,P.h-m/2,8,{align:"center",baseline:"middle",color:"#777777"});
+  const top=ty+2,bottom=P.h-m-4,labelH=ans?5:7,gap=ans?6:(state.paper==="A5"?6:8);
+  const [cols,rows]=page.grid,cw=(P.w-2*m)/cols,ch=(bottom-top)/rows,bw=cw-gap,bh=ch-gap-labelH;
+  page.items.forEach((it,k)=>{
+    const col=k%cols,row=(k/cols)|0,bx=m+col*cw+gap/2,by=top+row*ch+gap/2;
+    const r=drawPuzzle(D,bx,by,bw,bh,it.z,ans,lang);
+    const lpt=Math.max(7,Math.min(10,Math.min(r[2],80)*0.11)),ly=r[1]+r[3]+labelH*0.62;
+    D.text(T.no+" "+it.no+(ans&&mix?" · "+GAMES[it.g].name[lang]:""),r[0],ly,lpt,{bold:true,baseline:"middle"});
+    if(!ans){const info=mix?GAMES[it.g].name[lang]:(it.z?infoOf(it.z,T):"");
+      if(info)D.text(info,r[0]+r[2],ly,lpt,{align:"right",baseline:"middle",color:"#666666"});}
+  });
+  return [bw,bh];
+}
+
+/* ---------- backends ---------- */
+function canvasBackend(cx,k){
+  cx.lineCap="square";
+  const font=(pt,b)=>(b?"700 ":"400 ")+(pt*0.3528*k)+"px Helvetica, Arial, sans-serif";
+  const paint=(st,fi,lw)=>{if(fi){cx.fillStyle=fi;cx.fill();}if(st){cx.strokeStyle=st;cx.lineWidth=lw*k;cx.lineJoin="round";cx.stroke();cx.lineJoin="miter";}};
+  return{
+    line(x1,y1,x2,y2,w,col){cx.strokeStyle=col;cx.lineWidth=w*k;cx.beginPath();cx.moveTo(x1*k,y1*k);cx.lineTo(x2*k,y2*k);cx.stroke();},
+    rect(x,y,w,h,lw,col){cx.strokeStyle=col;cx.lineWidth=lw*k;cx.strokeRect(x*k,y*k,w*k,h*k);},
+    fill(x,y,w,h,col){cx.fillStyle=col;cx.fillRect(x*k,y*k,w*k+0.5,h*k+0.5);},
+    poly(pts,w,col){cx.save();cx.strokeStyle=col;cx.lineWidth=w*k;cx.lineCap="round";cx.lineJoin="round";cx.beginPath();pts.forEach((p,i)=>i?cx.lineTo(p[0]*k,p[1]*k):cx.moveTo(p[0]*k,p[1]*k));cx.stroke();cx.restore();},
+    shape(pts,lw,st,fi){cx.beginPath();pts.forEach((p,i)=>i?cx.lineTo(p[0]*k,p[1]*k):cx.moveTo(p[0]*k,p[1]*k));cx.closePath();paint(st,fi,lw);},
+    circle(x,y,r,lw,st,fi){if(r<=0)return;cx.beginPath();cx.arc(x*k,y*k,r*k,0,Math.PI*2);paint(st,fi,lw);},
+    clip(x,y,w,h){cx.save();cx.beginPath();cx.rect(x*k,y*k,w*k,h*k);cx.clip();},
+    unclip(){cx.restore();},
+    text(s,x,y,pt,o){cx.font=font(pt,o.bold);cx.fillStyle=o.color||INK;cx.textAlign=o.align||"left";cx.textBaseline=o.baseline||"alphabetic";cx.fillText(s,x*k,y*k);},
+    measure(s,pt,b){cx.font=font(pt,b);return cx.measureText(s).width/k;}
+  };
+}
+function pdfBackend(doc){
+  doc.setLineCap("square");
+  const style=(st,fi)=>st&&fi?"FD":st?"S":"F";
+  const set=(st,fi,lw)=>{if(st){doc.setDrawColor(st);doc.setLineWidth(lw);}if(fi)doc.setFillColor(fi);};
+  return{
+    line(x1,y1,x2,y2,w,col){doc.setDrawColor(col);doc.setLineWidth(w);doc.line(x1,y1,x2,y2);},
+    rect(x,y,w,h,lw,col){doc.setDrawColor(col);doc.setLineWidth(lw);doc.rect(x,y,w,h,"S");},
+    fill(x,y,w,h,col){doc.setFillColor(col);doc.rect(x,y,w+0.05,h+0.05,"F");},
+    poly(pts,w,col){doc.setDrawColor(col);doc.setLineWidth(w);doc.setLineCap("round");doc.setLineJoin("round");
+      const segs=[];for(let i=1;i<pts.length;i++)segs.push([pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]]);
+      doc.lines(segs,pts[0][0],pts[0][1],[1,1],"S",false);doc.setLineCap("square");doc.setLineJoin("miter");},
+    shape(pts,lw,st,fi){if(!st&&!fi)return;set(st,fi,lw);doc.setLineJoin("round");
+      const segs=[];for(let i=1;i<pts.length;i++)segs.push([pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]]);
+      doc.lines(segs,pts[0][0],pts[0][1],[1,1],style(st,fi),true);doc.setLineJoin("miter");},
+    circle(x,y,r,lw,st,fi){if(r<=0||(!st&&!fi))return;set(st,fi,lw);doc.circle(x,y,r,style(st,fi));},
+    clip(x,y,w,h){const k=doc.internal.scaleFactor,H=doc.internal.pageSize.getHeight();
+      doc.internal.write("q "+(x*k).toFixed(3)+" "+((H-y-h)*k).toFixed(3)+" "+(w*k).toFixed(3)+" "+(h*k).toFixed(3)+" re W n");},
+    unclip(){doc.internal.write("Q");},
+    text(s,x,y,pt,o){doc.setFont("helvetica",o.bold?"bold":"normal");doc.setFontSize(pt);doc.setTextColor(o.color||INK);doc.text(String(s),x,y,{align:o.align||"left",baseline:o.baseline||"alphabetic"});},
+    measure(s,pt,b){doc.setFont("helvetica",b?"bold":"normal");doc.setFontSize(pt);return doc.getTextWidth(s);}
+  };
+}
+
+/* ---------- preview ---------- */
+const cv=$("cv");
+function render(){
+  const pages=buildPages();
+  state.pageIdx=Math.max(0,Math.min(state.pageIdx,pages.length-1));
+  const P=PAPER[state.paper],S=P.sheet||P,dpr=window.devicePixelRatio||1;
+  const cssW=cv.parentElement.clientWidth||400;
+  cv.width=Math.round(cssW*dpr);cv.height=Math.round(cssW*dpr*S.h/S.w);
+  const cx=cv.getContext("2d");cx.fillStyle="#ffffff";cx.fillRect(0,0,cv.width,cv.height);
+  const k=cv.width/S.w;
+  if(P.sheet){cx.strokeStyle="#C9C9C9";cx.setLineDash([4*dpr,4*dpr]);cx.lineWidth=dpr;cx.beginPath();cx.moveTo(0,P.h*k);cx.lineTo(cv.width,P.h*k);cx.stroke();cx.setLineDash([]);}
+  const box=drawPage(canvasBackend(cx,k),pages[state.pageIdx],state.pageIdx+1,pages.length);
+  $("pageLbl").textContent="Hoja "+(state.pageIdx+1)+" de "+pages.length;
+  $("prev").disabled=state.pageIdx===0;$("next").disabled=state.pageIdx>=pages.length-1;
+  $("meta").textContent="Espacio por juego: "+box[0].toFixed(0)+" × "+box[1].toFixed(0)+" mm · imprime a tamaño real (100 %) en hoja A4"+(state.paper==="A5"?" y corta por la mitad":"");
+}
+let rz=0;window.addEventListener("resize",()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(render);});
+const setStatus=t=>{$("status").textContent=t};
+
+/* ---------- controls ---------- */
+const gamesEl=$("games");
+[...GAME_KEYS,"mix"].forEach(k=>{const G=GAMES[k];
+  gamesEl.insertAdjacentHTML("beforeend",'<input class="vh" type="radio" name="game" id="g-'+k+'" value="'+k+'"><label for="g-'+k+'"><b>'+(G?G.ui:"Mezcla")+'</b><small>'+(G?G.tag:"Los seis juegos")+'</small></label>');});
+gamesEl.addEventListener("change",e=>{state.game=e.target.value;if(state.game==="mix")state.assign=[];syncLadder();syncPer();remember();regenerate();});
+
+const ladder=$("ladder");
+TX.es.levels.forEach((name,i)=>{
+  const meter=TX.es.levels.map((_,j)=>'<i class="'+(j<=i?"on":"")+'"></i>').join("");
+  ladder.insertAdjacentHTML("beforeend",'<input class="vh" type="radio" name="level" id="lv-'+i+'" value="'+i+'"><label for="lv-'+i+'"><span class="nm">'+name+'</span><span class="gv" id="gv-'+i+'"></span><span class="meter" aria-hidden="true">'+meter+'</span></label>');});
+ladder.addEventListener("change",e=>{state.level=+e.target.value;remember();regenerate();});
+function syncLadder(){
+  $("g-"+state.game).checked=true;$("lv-"+state.level).checked=true;
+  TX.es.levels.forEach((_,i)=>{$("gv-"+i).textContent=state.game==="mix"?"":GAMES[state.game].desc[i];});
+}
+function allowedPer(){const lay=PAPER[state.paper].layouts,games=state.game==="mix"?GAME_KEYS:[state.game];
+  return [1,2,4,6].filter(v=>lay[v]&&games.every(g=>GAMES[g].per[state.paper].includes(v)));}
+function syncPer(){
+  $("p-"+state.paper.toLowerCase()).checked=true;
+  const al=allowedPer(),lay=PAPER[state.paper].layouts;
+  [1,2,4,6].forEach(v=>{$("per-"+v).disabled=!al.includes(v);});
+  if(!al.includes(state.per))state.per=al.filter(v=>v<=state.per).pop()||al[0];
+  $("per-"+state.per).checked=true;
+  const blocked=[1,2,4,6].filter(v=>lay[v]&&!al.includes(v));
+  $("perHint").textContent=blocked.length?(state.game==="mix"?"En la mezcla":GAMES[state.game].ui)+" necesita más espacio: máximo "+al[al.length-1]+" por hoja en "+state.paper+".":"";
+}
+document.querySelectorAll('input[name="paper"]').forEach(r=>r.addEventListener("change",e=>{state.paper=e.target.value;syncPer();remember();render();pump();}));
+$("perSeg").addEventListener("change",e=>{state.per=+e.target.value;remember();render();pump();});
+document.querySelectorAll('input[name="lang"]').forEach(r=>r.addEventListener("change",e=>{state.lang=e.target.value;remember();
+  if(state.game==="mix"||GAMES[state.game].word)regenerate();else render();}));
+function setPages(n){state.pages=Math.max(1,Math.min(10,n));$("pgOut").textContent=state.pages;remember();render();pump();}
+$("pgMinus").addEventListener("click",()=>setPages(state.pages-1));
+$("pgPlus").addEventListener("click",()=>setPages(state.pages+1));
+$("answers").checked=state.answers;
+$("answers").addEventListener("change",e=>{state.answers=e.target.checked;remember();render();});
+$("newBtn").addEventListener("click",regenerate);
+$("shuffleBtn").addEventListener("click",()=>{state.game="mix";state.assign=[];syncLadder();syncPer();remember();regenerate();});
+$("prev").addEventListener("click",()=>{state.pageIdx--;render();});
+$("next").addEventListener("click",()=>{state.pageIdx++;render();});
+$("form").addEventListener("submit",e=>e.preventDefault());
+
+function makePdf(){
+  const pages=buildPages(),doc=new window.jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+  doc.setProperties({title:(state.game==="mix"?TX[state.lang].mix:GAMES[state.game].name[state.lang])+" · "+TX[state.lang].levels[state.level]+" · "+state.paper});
+  const D=pdfBackend(doc);pages.forEach((pg,i)=>{if(i)doc.addPage();drawPage(D,pg,i+1,pages.length);});
+  return {doc,pages};
+}
+window.__puzzleSheet={state,makePdf,regenerate,syncPer,syncLadder};
+$("dlBtn").addEventListener("click",()=>{
+  if(inflight>=0||state.pool.slice(0,need()).filter(Boolean).length<need())return;
+  if(!window.jspdf){setStatus("No se cargó el generador de PDF. Revisa tu conexión y recarga la página.");return;}
+  const {doc,pages}=makePdf();
+  const name=(state.game==="mix"?"mezcla":GAMES[state.game].file)+"-"+LEVEL_IDS[state.level]+"-"+state.lang+"-"+state.paper.toLowerCase()+".pdf";
+  doc.save(name);setStatus("PDF descargado · "+pages.length+" hojas. Imprime a tamaño real (100 %).");
+});
+
+$("pgOut").textContent=state.pages;
+$("l-"+state.lang).checked=true;
+syncLadder();syncPer();
+startWorker();render();pump();
+})();
+</script>
+</body>
+</html>
