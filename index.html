@@ -1435,7 +1435,7 @@ function openViewer(c){
   if(vUrl)URL.revokeObjectURL(vUrl);
   vUrl=URL.createObjectURL(doc.output("blob"));vName=fileName(c);
   $("vTitle").textContent=docTitle(c);$("vMeta").textContent=docMeta(c);
-  $("vFrame").src=vUrl+"#view=FitH";$("vOpen").href=vUrl;
+  $("vFrame").src=vUrl+"#view=FitH&navpanes=0";$("vOpen").href=vUrl;
   lastFocus=document.activeElement;$("viewer").hidden=false;document.body.style.overflow="hidden";$("vPrint").focus();
   return true;
 }
