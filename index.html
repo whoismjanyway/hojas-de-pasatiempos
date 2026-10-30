@@ -87,6 +87,40 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
 .btn:disabled{opacity:.5; cursor:progress}
 .btn:focus-visible,.stepper button:focus-visible,.pager button:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
 .status{font-size:13px; color:var(--muted); min-height:1.5em}
+.btn.wide{grid-column:1 / -1}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chips label{display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surface); cursor:pointer; font-weight:700; font-size:14px}
+.chips input{width:16px; height:16px; margin:0; accent-color:var(--ink)}
+.chips label:has(input:checked){border-color:var(--ink)}
+.chips label:has(input:focus-visible){outline:2px solid var(--focus); outline-offset:2px}
+
+/* PDF viewer: full-screen layer with its own print and download buttons */
+.viewer{position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; background:var(--bg)}
+.viewer[hidden],.hist[hidden],fieldset[hidden]{display:none}
+.vbar{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:10px max(16px, env(safe-area-inset-left, 0px)); border-bottom:1px solid var(--line); background:var(--surface)}
+.vinfo{display:flex; flex-direction:column; min-width:0}
+.vinfo b{font-family:var(--display); font-size:19px; line-height:1.2}
+.vinfo small{color:var(--muted); font-size:12.5px}
+.vbtns{display:flex; gap:8px; flex-wrap:wrap}
+.vbtns .btn{padding:9px 14px}
+#vFrame{flex:1; width:100%; border:0; background:#525659}
+.vnote{margin:0; padding:7px 16px; font-size:12.5px; color:var(--muted); background:var(--surface); border-top:1px solid var(--line)}
+.vnote a,.hist a{color:var(--focus)}
+
+/* print history */
+.hist{position:fixed; inset:0; z-index:40; background:rgba(10,14,20,.55); display:flex; align-items:flex-start; justify-content:center; padding:40px 16px; overflow:auto}
+.hcard{background:var(--bg); border-radius:12px; max-width:680px; width:100%; padding:18px 18px 14px; box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.hhead{display:flex; justify-content:space-between; align-items:center; gap:12px}
+.hhead h2{font-family:var(--display); font-weight:800; font-size:24px; margin:0}
+.hlist{list-style:none; margin:14px 0; padding:0; display:flex; flex-direction:column; gap:8px}
+.hlist li{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; align-items:center}
+.hlist .ht{font-weight:700}
+.hlist .hm{font-size:12.5px; color:var(--muted)}
+.hlist .hb{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end}
+.hlist .hb .btn{padding:7px 10px; font-size:13.5px}
+.hlist li.hempty{display:block; text-align:center; color:var(--muted); padding:24px 12px}
+.hfoot{display:flex; justify-content:flex-end}
+@media (max-width:560px){ .hlist li{grid-template-columns:minmax(0,1fr)} .hlist .hb{justify-content:flex-start} }
 
 .preview{display:flex; flex-direction:column; gap:12px; align-items:center; min-width:0}
 .sheet{width:100%; max-width:560px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.08), 0 10px 30px rgba(20,30,50,.14); border-radius:2px}
@@ -103,7 +137,7 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
 <div class="wrap">
   <header>
     <h1>Hojas de pasatiempos</h1>
-    <p>Elige un juego y una dificultad, y descarga un PDF listo para imprimir con juegos nuevos y su hoja de soluciones. «Mezclar juegos» combina varios juegos en las mismas hojas; el escape room ocupa una hoja completa.</p>
+    <p>Elige un juego y una dificultad, y pulsa «Imprimir» para ver el PDF con su hoja de soluciones; desde ahí lo imprimes o lo descargas. En «Mezcla» tú eliges qué juegos combinar.</p>
   </header>
 
   <div class="app">
@@ -111,6 +145,12 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
       <fieldset>
         <legend>Juego</legend>
         <div class="games" id="games"></div>
+      </fieldset>
+
+      <fieldset id="mixBox" hidden>
+        <legend>Juegos de la mezcla</legend>
+        <div class="chips" id="mixChips"></div>
+        <p class="hint" id="mixHint"></p>
       </fieldset>
 
       <fieldset>
@@ -124,7 +164,7 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
           <input class="vh" type="radio" name="lang" id="l-es" value="es" checked><label for="l-es">Español<small>palabras y pistas</small></label>
           <input class="vh" type="radio" name="lang" id="l-en" value="en"><label for="l-en">English<small>words &amp; clues</small></label>
         </div>
-        <p class="hint">Cambia las palabras de la sopa de letras y del crucigrama, y el idioma de las instrucciones impresas. Las dificultades son las mismas en los dos idiomas.</p>
+        <p class="hint">Cambia las palabras de la sopa de letras, el crucigrama, el mensaje secreto y el escape room, y el idioma de las instrucciones impresas. Las dificultades son las mismas en los dos idiomas.</p>
       </fieldset>
 
       <fieldset>
@@ -161,7 +201,8 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
       <div class="actions">
         <button type="button" class="btn" id="shuffleBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>Mezclar juegos</button>
         <button type="button" class="btn" id="newBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>Juegos nuevos</button>
-        <button type="button" class="btn primary" id="dlBtn">Descargar PDF</button>
+        <button type="button" class="btn primary" id="dlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>Imprimir</button>
+        <button type="button" class="btn wide" id="histBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>Historial de impresiones <span id="histCount"></span></button>
       </div>
       <div class="status" id="status" role="status" aria-live="polite"></div>
     </form>
@@ -175,6 +216,28 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
       </div>
       <div class="meta" id="meta"></div>
     </section>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="vTitle">
+  <div class="vbar">
+    <div class="vinfo"><b id="vTitle"></b><small id="vMeta"></small></div>
+    <div class="vbtns">
+      <button type="button" class="btn primary" id="vPrint">Imprimir</button>
+      <button type="button" class="btn" id="vDown">Descargar</button>
+      <button type="button" class="btn" id="vClose">Cerrar</button>
+    </div>
+  </div>
+  <iframe id="vFrame" title="Vista del PDF"></iframe>
+  <p class="vnote">Imprime a tamaño real (100 %). ¿No aparece el cuadro de impresión? Usa el botón de imprimir del visor o <a id="vOpen" href="#" target="_blank" rel="noopener">abre el PDF en otra pestaña</a>.</p>
+</div>
+
+<div class="hist" id="hist" hidden role="dialog" aria-modal="true" aria-labelledby="hTitle">
+  <div class="hcard">
+    <div class="hhead"><h2 id="hTitle">Historial de impresiones</h2><button type="button" class="btn" id="hClose">Cerrar</button></div>
+    <p class="hint">Se guarda solo en este navegador (las últimas 30). Puedes volver a abrir exactamente los mismos juegos.</p>
+    <ol class="hlist" id="hList"></ol>
+    <div class="hfoot"><button type="button" class="btn" id="hClear">Borrar historial</button></div>
   </div>
 </div>
 
@@ -634,169 +697,6 @@ function crossword(L,lang){
   return {game:"crossword",rows,cols,cells,reveal,nums:[...starts],across:pick(false),down:pick(true),lang};
 }
 
-/* ================= DIBUJOS (para diferencias y rompecabezas) ================= */
-const LW=0.5,LT=0.35;
-function builder(it){
-  const s=it.s,fx=it.flip?-1:1,o=[];
-  const X=x=>r2(it.x+x*s*fx),Y=y=>r2(it.y+y*s);
-  const M=a=>{const q=[];for(let i=0;i<a.length;i+=2)q.push(X(a[i]),Y(a[i+1]));return q;};
-  const lwOf=lw=>lw==null?LW:lw;
-  const b={o,
-    shape:(a,fill,lw)=>o.push(["s",M(a),lwOf(lw),lw===0?null:"k",fill||null]),
-    circle:(x,y,r,fill,lw)=>o.push(["c",X(x),Y(y),r2(r*s),lwOf(lw),lw===0?null:"k",fill||null]),
-    line:(a,lw,col)=>o.push(["p",M(a),lwOf(lw),col||"k"]),
-    rect:(x,y,w,h,fill,lw)=>b.shape([x,y,x+w,y,x+w,y+h,x,y+h],fill,lw),
-    ell:(cx,cy,rx,ry,fill,lw)=>{const a=[];for(let k=0;k<24;k++){const t=k*Math.PI/12;a.push(cx+Math.cos(t)*rx,cy+Math.sin(t)*ry);}b.shape(a,fill,lw);},
-    blob:(cs,fill)=>{cs.forEach(c=>o.push(["c",X(c[0]),Y(c[1]),r2(c[2]*s),LW,"k",null]));cs.forEach(c=>o.push(["c",X(c[0]),Y(c[1]),r2(c[2]*s-LW*0.55),0,null,fill]));}
-  };
-  return b;
-}
-function arcPts(cx,cy,r,a0,a1,n){const a=[];for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;a.push(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}return a;}
-function starPts(cx,cy,ro,ri){const a=[];for(let k=0;k<10;k++){const t=-Math.PI/2+k*Math.PI/5,r=k%2?ri:ro;a.push(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}return a;}
-const APPLES=[[-4.5,-14.5],[3,-19.5],[4.5,-12.5],[-0.5,-12],[-2.5,-21]];
-const ORN=[[-4.5,-6.5],[3.5,-7],[-2.5,-12],[2.8,-13],[0,-18.5]];
-const BER=[[-4.5,-3.5],[-1.2,-6.5],[2,-4],[4.8,-2.5],[0,-2]];
-const SHAPES={
-  house(b,p){
-    if(p.chim)b.rect(5.5,-31,3.6,9,"w");
-    b.rect(-13,-18,26,18,"w");
-    b.shape([-15.5,-17.6,0,-30,15.5,-17.6],"w");
-    if(p.attic)b.circle(0,-22.5,1.9,"w");
-    b.rect(-2.8,-10.5,5.6,10.5,"w");
-    if(p.knob)b.circle(1.5,-5,0.75,"d",0);
-    const win=(x,cr,dk)=>{b.rect(x,-14.5,6,5.5,dk?"l":"w");if(cr){b.line([x+3,-14.5,x+3,-9],LT);b.line([x,-11.75,x+6,-11.75],LT);}};
-    win(-10.5,p.crossL,p.darkL);win(4.5,p.crossR,p.darkR);
-  },
-  tree(b,p){
-    b.rect(-1.6,-9.5,3.2,9.5,"w");if(p.hole)b.ell(0,-5,0.9,1.4,"d",0);
-    b.blob([[0,-17,7],[-5,-14,4.6],[5,-14,4.6],[-3.2,-21.5,4.4],[3.2,-21.5,4.4]],"w");
-    APPLES.forEach((a,i)=>{if(p.apples&(1<<i))b.circle(a[0],a[1],1.15,"l",LT);});
-  },
-  pine(b,p){
-    b.rect(-1.3,-5,2.6,5,"w");
-    b.shape([-8,-4.5,0,-13.5,8,-4.5],"w");b.shape([-6.5,-10,0,-19.5,6.5,-10],"w");b.shape([-5,-15.5,0,-25,5,-15.5],"w");
-    if(p.star)b.shape(starPts(0,-25.5,2.4,1),"w",LT);
-    ORN.forEach((a,i)=>{if(p.orn&(1<<i))b.circle(a[0],a[1],0.95,"l",LT);});
-  },
-  flower(b,p){
-    b.line([0,0,0,-6.4],LT);if(p.leaf)b.shape([0,-2.2,2.6,-4,2.9,-2.3],"w",LT);
-    for(let k=0;k<p.n;k++){const a=k*2*Math.PI/p.n-Math.PI/2;b.circle(Math.cos(a)*1.7,-7.8+Math.sin(a)*1.7,1.25,"w",LT);}
-    b.circle(0,-7.8,1.05,p.dark?"d":"w",LT);
-  },
-  bush(b,p){
-    b.blob([[-4.2,-3.4,3.4],[0,-5,4.2],[4.2,-3.4,3.4]],"w");
-    BER.forEach((a,i)=>{if(p.ber&(1<<i))b.circle(a[0],a[1],0.8,"d",0);});
-  },
-  fence(b,p){
-    const n=p.n,w=(n-1)*4;b.rect(-w/2-1,-7,w+2,1.1,"w",LT);b.rect(-w/2-1,-3.6,w+2,1.1,"w",LT);
-    for(let i=0;i<n;i++){if(p.miss===i)continue;const x=-w/2+i*4;b.shape([x-1.3,0,x-1.3,-8.2,x,-9.6,x+1.3,-8.2,x+1.3,0],"w",LT);}
-  },
-  mail(b,p){
-    b.rect(-0.6,-7.5,1.2,7.5,"w",LT);b.rect(-3,-11.5,6,4,"w");
-    if(p.up){b.line([2.4,-9.5,2.4,-14.5],LT);b.rect(2.4,-14.5,2.6,1.7,"d",0);}
-    else{b.line([2.4,-9.5,6.2,-9.5],LT);b.rect(4.6,-9.5,1.6,2.4,"d",0);}
-  },
-  car(b,p){
-    b.shape([-11,-3,-11,-7,-6.5,-7.4,-3.6,-11,4,-11,7,-7.3,11,-6.6,11,-3],"w");
-    b.shape([-2.8,-7.6,-1,-10.2,3.4,-10.2,5.4,-7.6],"w",LT);if(p.div)b.line([1.2,-10.2,1.2,-7.6],LT);
-    if(p.light)b.circle(10,-5.4,0.8,"l",LT);
-    if(p.handle)b.line([-0.5,-6.3,1.8,-6.3],0.5);
-    b.circle(-6,-3,2.4,"w");b.circle(6,-3,2.4,"w");
-    if(p.hubL)b.circle(-6,-3,0.9,"d",0);if(p.hubR)b.circle(6,-3,0.9,"d",0);
-  },
-  rock(b){b.shape([-4,0,-3.4,-2.6,-1,-3.9,2.4,-3.3,4,0],"w",LT);},
-  grass(b){b.line([-1.6,0,-2.3,-2.6],LT);b.line([0,0,0,-3.2],LT);b.line([1.6,0,2.3,-2.6],LT);},
-  fly(b,p){
-    b.line([0,-1.9,-0.9,-3.1],LT);b.line([0,-1.9,0.9,-3.1],LT);
-    b.circle(-1.7,-0.9,1.5,"w",LT);b.circle(1.7,-0.9,1.5,"w",LT);b.circle(-1.25,1.1,1.05,"w",LT);b.circle(1.25,1.1,1.05,"w",LT);
-    b.line([0,-1.9,0,2.1],0.6);
-    if(p.spots){b.circle(-1.7,-0.9,0.5,"d",0);b.circle(1.7,-0.9,0.5,"d",0);}
-  },
-  sun(b,p){
-    for(let k=0;k<p.n;k++){if(k===p.gap)continue;const a=k*2*Math.PI/p.n;b.line([Math.cos(a)*6.3,Math.sin(a)*6.3,Math.cos(a)*9.2,Math.sin(a)*9.2],0.55);}
-    b.circle(0,0,5,"w");b.circle(-1.7,-0.9,0.5,"d",0);b.circle(1.7,-0.9,0.5,"d",0);
-    if(p.smile)b.line(arcPts(0,0.2,2.6,0.25*Math.PI,0.75*Math.PI,8),0.45);
-  },
-  cloud(b,p){const c=[[-4,0,3],[0,-1.6,3.8],[1.6,1.1,2.6],[-1.8,1.1,2.6]];if(!p.small)c.push([4,0,3]);b.blob(c,"w");},
-  bird(b){b.line([-2.6,0,-1.3,-1.3,0,0,1.3,-1.3,2.6,0],0.5);},
-  balloon(b,p){
-    b.line([0,4.6,0.7,7,-0.3,9.5,0.4,11.5],LT);b.shape([-0.7,5.1,0,4.2,0.7,5.1],"w",LT);b.ell(0,0,3.7,4.6,"w");
-    if(p.stripe){const xx=3.7*Math.sqrt(1-Math.pow(1.3/4.6,2));b.line([-xx,-1.3,xx,-1.3],LT);b.line([-xx,1.3,xx,1.3],LT);}
-  },
-  kite(b,p){
-    const T=[[0,6],[1.8,8.5],[-0.6,11],[1.6,13.5],[0,16]];b.line([].concat(...T),LT);
-    b.shape([0,-5,3.3,0,0,6,-3.3,0],"w");b.line([0,-5,0,6],LT);b.line([-3.3,0,3.3,0],LT);
-    for(let i=0;i<4;i++)if(p.bows&(1<<i)){const [x,y]=T[i+1];b.shape([x-1.1,y-0.7,x+1.1,y+0.7,x+1.1,y-0.7,x-1.1,y+0.7],"d",0);}
-  },
-  mount(b,p){
-    const w=p.w,h=p.h;b.shape([-w/2,0,0,-h,w/2,0],"w");
-    if(p.snow){const q=0.3;b.line([-w/2*q,-h*(1-q),-w*0.07,-h*0.62,0,-h*0.73,w*0.07,-h*0.62,w/2*q,-h*(1-q)],LT);}
-  }
-};
-function compileItem(it){if(it.gone)return [];const b=builder(it);SHAPES[it.t](b,it);return b.o;}
-function bbox(ps){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
-  for(const p of ps){
-    if(p[0]==="c"){const r=p[3]+(p[5]?p[4]/2:0);x0=Math.min(x0,p[1]-r);y0=Math.min(y0,p[2]-r);x1=Math.max(x1,p[1]+r);y1=Math.max(y1,p[2]+r);}
-    else{const h=(p[0]==="p"||p[3])?p[2]/2:0,a=p[1];for(let i=0;i<a.length;i+=2){x0=Math.min(x0,a[i]-h);y0=Math.min(y0,a[i+1]-h);x1=Math.max(x1,a[i]+h);y1=Math.max(y1,a[i+1]+h);}}
-  }
-  return [x0,y0,x1,y1];}
-const SC={house:[1,1,1,1,1,1,1],tree:[2,2,2,3,3,3,4],flower:[2,3,3,4,5,6,7],bush:[0,1,1,1,2,2,2],cloud:[2,2,3,3,3,4,4],bird:[1,2,2,3,3,4,4],
-  mount:[0,1,1,2,2,2,2],fence:[0,0,1,1,1,1,1],car:[0,0,0,1,1,1,1],mail:[0,0,1,1,1,1,1],fly:[0,1,1,1,2,2,3],rock:[1,1,2,2,2,3,3],grass:[2,3,4,5,6,7,8],air:[0,1,1,1,1,2,2]};
-function scene(W,H,L){
-  const yh=r2(H*0.5),sky=[],ground=[],boxes=[],C=k=>SC[k][L],coin=p=>Math.random()<p;
-  const free=(bb,pad)=>{if(bb[0]<1||bb[2]>W-1||bb[1]<1||bb[3]>H-1)return false;
-    for(const o of boxes)if(bb[0]<o[2]+pad&&bb[2]>o[0]-pad&&bb[1]<o[3]+pad&&bb[3]>o[1]-pad)return false;return true;};
-  const put=(list,mk,pad,boxFn)=>{for(let t=0;t<80;t++){const it=mk(),bb=bbox(compileItem(it));if(!free(bb,pad==null?1.2:pad))continue;it.bb=bb;list.push(it);boxes.push(boxFn?boxFn(bb):bb);return it;}return null;};
-  const depth=y=>r2(0.6+0.55*(y-yh)/(H-yh));
-  const G=(a,b)=>r2(yh+(H-yh)*rnd(a,b));
-  const X=()=>r2(rnd(5,W-5));
-  const mk={
-    bird:()=>({t:"bird",x:X(),y:r2(rnd(5,yh-6)),s:r2(rnd(0.8,1.2))}),
-    cloud:()=>({t:"cloud",x:X(),y:r2(rnd(6,yh*0.6)),s:r2(rnd(0.8,1.2)),small:false}),
-    flower:()=>{const y=G(0.15,0.97);return {t:"flower",x:X(),y,s:r2(depth(y)*1.15),n:5,dark:coin(0.5),leaf:coin(0.6)};},
-    rock:()=>{const y=G(0.1,0.95);return {t:"rock",x:X(),y,s:r2(depth(y)*rnd(0.8,1.2))};},
-    grass:()=>{const y=G(0.08,0.97);return {t:"grass",x:X(),y,s:depth(y)};},
-    fly:()=>({t:"fly",x:X(),y:G(-0.2,0.8),s:1,spots:coin(0.5)})
-  };
-  for(let i=0;i<C("mount");i++)put(sky,()=>{const w=rnd(34,52),h=rnd(14,22);return {t:"mount",x:r2(rnd(w/2,W-w/2)),y:yh,s:1,w:r2(w),h:r2(h),snow:coin(0.6)};},-30,
-    bb=>[bb[0]+(bb[2]-bb[0])*0.3,bb[1],bb[2]-(bb[2]-bb[0])*0.3,bb[1]+(bb[3]-bb[1])*0.45]);
-  put(sky,()=>({t:"sun",x:r2(rnd(10,W-10)),y:r2(rnd(10,yh*0.42)),s:1,n:[8,10,12][R(3)],gap:-1,smile:coin(0.6)}),2);
-  for(let i=0;i<C("cloud");i++)put(sky,mk.cloud);
-  for(let i=0;i<C("air");i++)put(sky,()=>coin(0.5)?{t:"balloon",x:X(),y:r2(rnd(7,yh-14)),s:r2(rnd(0.9,1.15)),stripe:coin(0.5)}
-    :{t:"kite",x:X(),y:r2(rnd(7,yh-18)),s:1,bows:[15,7,11,13,14][R(5)]});
-  for(let i=0;i<C("bird");i++)put(sky,mk.bird);
-  for(let i=0;i<C("house");i++)put(ground,()=>{const y=G(0.18,0.55);return {t:"house",x:r2(rnd(18,W-18)),y,s:depth(y),chim:coin(0.7),knob:true,attic:coin(0.5),crossL:coin(0.7),crossR:coin(0.7),darkL:false,darkR:coin(0.3)};});
-  for(let i=0;i<C("car");i++)put(ground,()=>{const y=G(0.6,0.95),hub=coin(0.6);return {t:"car",x:X(),y,s:r2(depth(y)*0.85),flip:coin(0.5),div:coin(0.6),light:coin(0.6),hubL:hub,hubR:hub,handle:coin(0.5)};});
-  for(let i=0;i<C("tree");i++)put(ground,()=>{const y=G(0.1,0.85),s=r2(depth(y)*1.05);
-    return coin(0.4)?{t:"pine",x:X(),y,s,star:coin(0.4),orn:R(32)|1}:{t:"tree",x:X(),y,s,apples:R(32)|3,hole:coin(0.4)};});
-  for(let i=0;i<C("fence");i++)put(ground,()=>{const y=G(0.3,0.9);return {t:"fence",x:X(),y,s:depth(y),n:4+R(3),miss:-1};});
-  for(let i=0;i<C("mail");i++)put(ground,()=>{const y=G(0.3,0.9);return {t:"mail",x:X(),y,s:r2(depth(y)*1.1),up:coin(0.5)};});
-  for(let i=0;i<C("bush");i++)put(ground,()=>{const y=G(0.15,0.95);return {t:"bush",x:X(),y,s:depth(y),ber:R(32)|5};});
-  for(let i=0;i<C("flower");i++)put(ground,mk.flower);
-  for(let i=0;i<C("rock");i++)put(ground,mk.rock);
-  for(let i=0;i<C("fly");i++)put(ground,mk.fly);
-  for(let i=0;i<C("grass");i++)put(ground,mk.grass,0.4);
-  return {W,H,yh,sky,ground,boxes,free,mk};
-}
-function scenePrims(sc,alt,adds){
-  const o=[],use=it=>alt&&alt.has(it)?alt.get(it):it;
-  for(const it of sc.sky)o.push(...compileItem(use(it)));
-  if(adds)for(const it of adds)if(it.layer==="sky")o.push(...compileItem(it));
-  o.push(["s",[0,sc.yh,sc.W,sc.yh,sc.W,sc.H,0,sc.H],0,null,"g"]);
-  o.push(["p",[0,sc.yh,sc.W,sc.yh],LW,"k"]);
-  const gr=sc.ground.map(use).concat(adds?adds.filter(a=>a.layer!=="sky"):[]).sort((a,b)=>a.y-b.y);
-  for(const it of gr)o.push(...compileItem(it));
-  return o;}
-
-/* ================= ROMPECABEZAS ================= */
-const JG=[[2,2,0],[3,2,0],[3,3,0],[4,3,0],[5,4,0],[4,4,1],[5,5,1]];
-function jigsaw(L){
-  const [cols,rows,rot]=JG[L],W=rot?100:120,H=rot?100:90,N=cols*rows;
-  const sc=scene(W,H,Math.min(6,L+1));
-  let order;do{order=shuffle(range(N));}while(order.filter((p,i)=>p===i).length>N/4);
-  return {game:"jigsaw",W,H,prims:scenePrims(sc),cols,rows,order,rot:range(N).map(()=>rot?R(4):0)};
-}
-
 /* ================= CRUCI-NÚMEROS ================= */
 /* Numbers 1-9, each used once. Rows and columns are worked strictly in order (left to right, top to bottom). */
 const CN=[{n:2,ops:"+",hide:2},{n:2,ops:"+-",hide:3},{n:3,ops:"+-",hide:4},{n:3,ops:"+-×",hide:5,need:"×"},{n:3,ops:"+-×÷",hide:6,need:"÷"},{n:3,ops:"+-×÷",hide:8,need:"÷"},{n:3,ops:"+-×÷",hide:9,need:"×"}];
@@ -1002,7 +902,7 @@ function escape(L,lang){
   return null;
 }
 
-const GEN={sudoku,maze,wordsearch,crossword,jigsaw,crossnum,cipher,escape};
+const GEN={sudoku,maze,wordsearch,crossword,crossnum,cipher,escape};
 return {generate:(game,level,lang)=>GEN[game](level,lang)};
 }
 
@@ -1035,10 +935,6 @@ const GAMES={
     desc:["5 palabras · iniciales","7 palabras · con ayudas","9 palabras · pocas ayudas","11 palabras","13 palabras","15 palabras","17 palabras"],
     rule:{es:L=>"Lee las pistas y escribe cada respuesta a partir de su número: las horizontales de izquierda a derecha y las verticales de arriba abajo. Escribe sin acentos."+(L<=2?" Algunas letras ya están puestas.":""),
           en:L=>"Read the clues and write each answer starting at its number: across answers go left to right, down answers top to bottom."+(L<=2?" Some letters are already filled in.":"")}},
-  jigsaw:{ui:"Rompecabezas",tag:"Recorta y arma",file:"rompecabezas",name:{es:"Rompecabezas",en:"Jigsaw puzzle"},per:{A4:[1,2,4],A5:[1,2]},
-    desc:["4 piezas","6 piezas","9 piezas","12 piezas","20 piezas","16 piezas giradas","25 piezas giradas"],
-    rule:{es:L=>"Recorta las piezas y pégalas en el marco para armar el dibujo, o escribe en cada casilla del marco la letra de la pieza que va ahí."+(L>=5?" Algunas piezas están giradas.":""),
-          en:L=>"Cut out the pieces and paste them into the frame to rebuild the picture, or write in each square the letter of the piece that belongs there."+(L>=5?" Some pieces are rotated.":"")}},
   crossnum:{ui:"Cruci-números",tag:"Operaciones en cruz",file:"cruci-numeros",name:{es:"Cruci-números",en:"Cross numbers"},per:{A4:[1,2,4,6],A5:[1,2,4]},
     desc:["2×2 · sumas","2×2 · sumas y restas","3×3 · sumas y restas","3×3 · con multiplicación","3×3 · las 4 operaciones","3×3 · casi vacío","3×3 · vacío"],
     rule:{es:L=>"Escribe un número del 1 al 9 en cada casilla vacía, sin repetir ninguno. Cada fila y cada columna debe dar su resultado. Las operaciones se hacen en orden: de izquierda a derecha y de arriba abajo."+(L>=4?" Todas las divisiones son exactas.":""),
@@ -1070,21 +966,23 @@ const PAPER={
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a}
 
 /* ---------- state ---------- */
-const state={game:"sudoku",level:2,lang:"es",paper:"A4",per:4,pages:2,answers:true,assign:[],pool:[],pageIdx:0};
+const state={game:"sudoku",level:2,lang:"es",paper:"A4",per:4,pages:2,answers:true,mix:MIX_KEYS.slice(),assign:[],pool:[],pageIdx:0,perWant:4};
 const STORE="hojas-pasatiempos-v1";
 try{const s=JSON.parse(localStorage.getItem(STORE)||"{}");
   if(s.game==="mix"||GAMES[s.game])state.game=s.game;
   if(s.level>=0&&s.level<=6)state.level=s.level;
   if(s.lang==="es"||s.lang==="en")state.lang=s.lang;
   if(PAPER[s.paper])state.paper=s.paper;
-  if([1,2,4,6].includes(s.per))state.per=s.per;
+  if([1,2,4,6].includes(s.per))state.per=state.perWant=s.per;
+  if([1,2,4,6].includes(s.perWant))state.perWant=s.perWant;
   if(s.pages>=1&&s.pages<=10)state.pages=s.pages;
   if(typeof s.answers==="boolean")state.answers=s.answers;
+  if(Array.isArray(s.mix)){const m=s.mix.filter(k=>GAMES[k]);if(m.length)state.mix=m;}
 }catch(e){}
-function remember(){try{localStorage.setItem(STORE,JSON.stringify({game:state.game,level:state.level,lang:state.lang,paper:state.paper,per:state.per,pages:state.pages,answers:state.answers}))}catch(e){}}
+function remember(){try{localStorage.setItem(STORE,JSON.stringify({game:state.game,level:state.level,lang:state.lang,paper:state.paper,per:state.per,pages:state.pages,answers:state.answers,mix:state.mix,perWant:state.perWant}))}catch(e){}}
 const $=id=>document.getElementById(id);
 const need=()=>state.per*state.pages;
-function ensureAssign(){while(state.assign.length<need())state.assign.push(...shuffle(MIX_KEYS.slice()));}
+function ensureAssign(){while(state.assign.length<need())state.assign.push(...shuffle((state.mix.length?state.mix:MIX_KEYS).slice()));}
 const gameAt=i=>state.game==="mix"?state.assign[i]:state.game;
 
 /* ---------- generation (background worker) ---------- */
@@ -1126,7 +1024,7 @@ function done(){
 function regenerate(){token++;state.pool=[];state.pageIdx=0;startWorker();render();pump();}
 
 /* ---------- drawing (mm coordinates, shared by preview and PDF) ---------- */
-const INK="#111111",SOFT="#8a8a8a",THIN="#6b6b6b",LET="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const INK="#111111",SOFT="#8a8a8a",THIN="#6b6b6b";
 const ptFor=mm=>mm/0.3528;
 function gridLines(D,x,y,s,n,thin,thick,every){
   const u=s/n;
@@ -1137,28 +1035,6 @@ function digit(D,v,cx,cy,u,given){D.text(String(v),cx,cy,ptFor(u*0.58),{align:"c
 function wrap(D,text,pt,maxW,bold){const out=[];let line="";for(const w of text.split(" ")){const t=line?line+" "+w:w;if(D.measure(t,pt,bold)>maxW&&line){out.push(line);line=w;}else line=t;}if(line)out.push(line);return out;}
 const square=(x,y,w,h)=>{const s=Math.min(w,h);return [x+(w-s)/2,y+(h-s)/2,s];};
 
-/* picture primitives from the engine: ["s",pts,lw,stroke,fill] ["c",x,y,r,lw,stroke,fill] ["p",pts,lw,color] */
-const PCOL={k:"#1A1A1A",w:"#FFFFFF",d:"#333333",l:"#CFCFCF",g:"#EFEFEF"};
-function primBB(p){if(p[0]==="c")return [p[1]-p[3],p[2]-p[3],p[1]+p[3],p[2]+p[3]];const a=p[1];let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
-  for(let i=0;i<a.length;i+=2){if(a[i]<x0)x0=a[i];if(a[i]>x1)x1=a[i];if(a[i+1]<y0)y0=a[i+1];if(a[i+1]>y1)y1=a[i+1];}return [x0,y0,x1,y1];}
-function drawPrims(D,prims,M,cull){
-  for(const p of prims){
-    if(cull){const b=primBB(p);if(b[2]<cull[0]||b[0]>cull[2]||b[3]<cull[1]||b[1]>cull[3])continue;}
-    const lw=Math.max(0.1,(p[0]==="c"?p[4]:p[2])*M.k);
-    if(p[0]==="c"){D.circle(M.a*p[1]+M.c*p[2]+M.e,M.b*p[1]+M.d*p[2]+M.f,p[3]*M.k,lw,PCOL[p[5]]||null,PCOL[p[6]]||null);continue;}
-    const a=p[1],pts=[];for(let i=0;i<a.length;i+=2)pts.push([M.a*a[i]+M.c*a[i+1]+M.e,M.b*a[i]+M.d*a[i+1]+M.f]);
-    if(p[0]==="s")D.shape(pts,lw,PCOL[p[3]]||null,PCOL[p[4]]||null);else D.poly(pts,lw,PCOL[p[3]]);
-  }
-}
-function drawPic(D,prims,z,px,py,pw){const k=pw/z.W,ph=z.H*k;D.fill(px,py,pw,ph,"#FFFFFF");D.clip(px,py,pw,ph);drawPrims(D,prims,{a:k,b:0,c:0,d:k,e:px,f:py,k});D.unclip();D.rect(px,py,pw,ph,0.5,INK);return ph;}
-function tag(D,X,Y,ps,L){const r=Math.max(1.3,Math.min(3,ps*0.15));D.circle(X+r+0.5,Y+r+0.5,r,0.25,INK,"#FFFFFF");D.text(L,X+r+0.5,Y+r+0.55,ptFor(r*1.25),{align:"center",baseline:"middle",bold:true});}
-function piece(D,z,p,q,X,Y,k){
-  const pw=z.W/z.cols,ph=z.H/z.rows,sx=(p%z.cols)*pw,sy=((p/z.cols)|0)*ph,cxs=sx+pw/2,cys=sy+ph/2,X0=X+pw*k/2,Y0=Y+ph*k/2;
-  const co=[1,0,-1,0][q],si=[0,1,0,-1][q],a=k*co,b=k*si,c=-k*si,d=k*co;
-  D.fill(X,Y,pw*k,ph*k,"#FFFFFF");D.clip(X,Y,pw*k,ph*k);
-  drawPrims(D,z.prims,{a,b,c,d,e:X0-a*cxs-c*cys,f:Y0-b*cxs-d*cys,k},[sx-1,sy-1,sx+pw+1,sy+ph+1]);
-  D.unclip();D.rect(X,Y,pw*k,ph*k,0.35,INK);
-}
 function wsGrid(D,x0,y0,s,z,ans){const n=z.n,u=s/n;
   if(ans)for(const p of z.words){const L=p.w.length-1;D.poly([[x0+(p.c+0.5)*u,y0+(p.r+0.5)*u],[x0+(p.c+p.dc*L+0.5)*u,y0+(p.r+p.dr*L+0.5)*u]],u*0.74,"#D4D4D4");}
   D.rect(x0,y0,s,s,0.5,INK);
@@ -1237,22 +1113,6 @@ const DRAW={
     if(showHint)D.text(T.hint+": "+z.hint[0]+" = "+z.hint[1],x+w/2,y0+3,10,{align:"center",baseline:"middle",bold:true});
     drawMsg(D,x,y0+top,w,lay,z.enc,z.words,ans);return [x,y0,w,H];},
   escape(D,x,y,w,h,z,ans){return ans?escAnswer(D,x,y,w,h,z):escSheet(D,x,y,w,h,z);},
-  jigsaw(D,x,y,w,h,z,ans){const W=z.W,H=z.H,cols=z.cols,rows=z.rows,pw=W/cols,ph=H/rows,gr=0.2;
-    if(ans){const k=Math.min(w/W,h/H),fw=W*k,fh=H*k,fx=x+(w-fw)/2,fy=y+(h-fh)/2;drawPic(D,z.prims,z,fx,fy,fw);
-      for(let i=1;i<cols;i++)D.line(fx+i*pw*k,fy,fx+i*pw*k,fy+fh,0.35,INK);for(let j=1;j<rows;j++)D.line(fx,fy+j*ph*k,fx+fw,fy+j*ph*k,0.35,INK);
-      const slotOf=[];z.order.forEach((p,s)=>slotOf[p]=s);
-      for(let p=0;p<cols*rows;p++)tag(D,fx+(p%cols)*pw*k,fy+((p/cols)|0)*ph*k,Math.min(pw,ph)*k,LET[slotOf[p]]);
-      return [fx,fy,fw,fh];}
-    const GW=W+(cols-1)*gr*pw,GH=H+(rows-1)*gr*ph,mid=5;
-    const kS=Math.min((w-mid)/(W+GW),h/Math.max(H,GH)),kT=Math.min(w/Math.max(W,GW),(h-mid)/(H+GH)),side=kS>=kT,k=side?kS:kT;
-    const bw=side?(W+GW)*k+mid:Math.max(W,GW)*k,bh=side?Math.max(H,GH)*k:(H+GH)*k+mid,bx=x+(w-bw)/2,by=y+(h-bh)/2;
-    const fx=side?bx:bx+(bw-W*k)/2,fy=side?by+(bh-H*k)/2:by,gx=side?bx+W*k+mid:bx+(bw-GW*k)/2,gy=side?by+(bh-GH*k)/2:by+H*k+mid;
-    D.fill(fx,fy,W*k,H*k,"#FFFFFF");
-    for(let i=1;i<cols;i++)D.line(fx+i*pw*k,fy,fx+i*pw*k,fy+H*k,0.2,"#BBBBBB");for(let j=1;j<rows;j++)D.line(fx,fy+j*ph*k,fx+W*k,fy+j*ph*k,0.2,"#BBBBBB");
-    D.rect(fx,fy,W*k,H*k,0.6,INK);
-    z.order.forEach((p,s)=>{const X=gx+(s%cols)*pw*k*(1+gr),Y=gy+((s/cols)|0)*ph*k*(1+gr);piece(D,z,p,z.rot[p],X,Y,k);tag(D,X,Y,Math.min(pw,ph)*k,LET[s]);});
-    return [bx,by,bw,bh];
-  }
 };
 /* ---- cruci-números grid: numbers on even cells, operators between them, results on the right and bottom ---- */
 const opGlyph=o=>o==="-"?"–":o;
@@ -1397,8 +1257,7 @@ function infoOf(z,T){switch(z.game){
   case "crossword":return (z.across.length+z.down.length)+" "+T.words;
   case "crossnum":return z.n+"×"+z.n;
   case "cipher":return z.words.join("").length+" "+T.letters;
-  case "escape":return "5 "+T.challenges;
-  case "jigsaw":return z.cols*z.rows+" "+T.pieces;}return "";}
+  case "escape":return "5 "+T.challenges;}return "";}
 function ansGrid(){const small=state.game==="sudoku"||state.game==="maze";return state.paper==="A4"?(small?[3,4]:[2,3]):(small?[4,2]:[3,1]);}
 
 function buildPages(){
@@ -1499,7 +1358,21 @@ const setStatus=t=>{$("status").textContent=t};
 const gamesEl=$("games");
 [...GAME_KEYS,"mix"].forEach(k=>{const G=GAMES[k];
   gamesEl.insertAdjacentHTML("beforeend",'<input class="vh" type="radio" name="game" id="g-'+k+'" value="'+k+'"><label for="g-'+k+'"><b>'+(G?G.ui:"Mezcla")+'</b><small>'+(G?G.tag:"Varios juegos juntos")+'</small></label>');});
-gamesEl.addEventListener("change",e=>{state.game=e.target.value;if(state.game==="mix")state.assign=[];syncLadder();syncPer();remember();regenerate();});
+gamesEl.addEventListener("change",e=>{state.game=e.target.value;if(state.game==="mix")state.assign=[];syncLadder();syncMix();syncPer();remember();regenerate();});
+
+/* mix picker: which games go into the mix */
+const mixChips=$("mixChips");
+GAME_KEYS.forEach(k=>mixChips.insertAdjacentHTML("beforeend",'<label><input type="checkbox" value="'+k+'" id="mx-'+k+'"> '+GAMES[k].ui+'</label>'));
+function syncMix(){
+  $("mixBox").hidden=state.game!=="mix";
+  GAME_KEYS.forEach(k=>{$("mx-"+k).checked=state.mix.includes(k);});
+  $("mixHint").textContent=state.mix.includes("escape")?"El escape room ocupa una hoja completa, así que con él habrá un juego por hoja.":"Se reparten al azar en las hojas. Elige al menos uno.";
+}
+mixChips.addEventListener("change",e=>{
+  const next=GAME_KEYS.filter(k=>$("mx-"+k).checked);
+  if(!next.length){e.target.checked=true;$("mixHint").textContent="Elige al menos un juego.";return;}
+  state.mix=next;state.assign=[];syncMix();syncPer();remember();regenerate();
+});
 
 const ladder=$("ladder");
 TX.es.levels.forEach((name,i)=>{
@@ -1510,19 +1383,19 @@ function syncLadder(){
   $("g-"+state.game).checked=true;$("lv-"+state.level).checked=true;
   TX.es.levels.forEach((_,i)=>{$("gv-"+i).textContent=state.game==="mix"?"":GAMES[state.game].desc[i];});
 }
-function allowedPer(){const lay=PAPER[state.paper].layouts,games=state.game==="mix"?MIX_KEYS:[state.game];
+function allowedPer(){const lay=PAPER[state.paper].layouts,games=state.game==="mix"?state.mix:[state.game];
   return [1,2,4,6].filter(v=>lay[v]&&games.every(g=>GAMES[g].per[state.paper].includes(v)));}
 function syncPer(){
   $("p-"+state.paper.toLowerCase()).checked=true;
   const al=allowedPer(),lay=PAPER[state.paper].layouts;
   [1,2,4,6].forEach(v=>{$("per-"+v).disabled=!al.includes(v);});
-  if(!al.includes(state.per))state.per=al.filter(v=>v<=state.per).pop()||al[0];
+  state.per=al.filter(v=>v<=state.perWant).pop()||al[0];
   $("per-"+state.per).checked=true;
   const blocked=[1,2,4,6].filter(v=>lay[v]&&!al.includes(v));
-  $("perHint").textContent=al.length===1&&state.game!=="mix"?GAMES[state.game].ui+" ocupa una hoja completa.":blocked.length?(state.game==="mix"?"En la mezcla":GAMES[state.game].ui)+" necesita más espacio: máximo "+al[al.length-1]+" por hoja en "+state.paper+".":"";
+  $("perHint").textContent=al.length===1&&state.game!=="mix"?GAMES[state.game].ui+" ocupa una hoja completa.":blocked.length?(state.game==="mix"?"La mezcla":GAMES[state.game].ui)+" necesita más espacio: máximo "+al[al.length-1]+" por hoja en "+state.paper+".":"";
 }
 document.querySelectorAll('input[name="paper"]').forEach(r=>r.addEventListener("change",e=>{state.paper=e.target.value;syncPer();remember();render();pump();}));
-$("perSeg").addEventListener("change",e=>{state.per=+e.target.value;remember();render();pump();});
+$("perSeg").addEventListener("change",e=>{state.per=state.perWant=+e.target.value;remember();render();pump();});
 document.querySelectorAll('input[name="lang"]').forEach(r=>r.addEventListener("change",e=>{state.lang=e.target.value;remember();
   if(state.game==="mix"||GAMES[state.game].word)regenerate();else render();}));
 function setPages(n){state.pages=Math.max(1,Math.min(10,n));$("pgOut").textContent=state.pages;remember();render();pump();}
@@ -1531,7 +1404,7 @@ $("pgPlus").addEventListener("click",()=>setPages(state.pages+1));
 $("answers").checked=state.answers;
 $("answers").addEventListener("change",e=>{state.answers=e.target.checked;remember();render();});
 $("newBtn").addEventListener("click",regenerate);
-$("shuffleBtn").addEventListener("click",()=>{state.game="mix";state.assign=[];syncLadder();syncPer();remember();regenerate();});
+$("shuffleBtn").addEventListener("click",()=>{state.game="mix";state.assign=[];syncLadder();syncMix();syncPer();remember();regenerate();});
 $("prev").addEventListener("click",()=>{state.pageIdx--;render();});
 $("next").addEventListener("click",()=>{state.pageIdx++;render();});
 $("form").addEventListener("submit",e=>e.preventDefault());
@@ -1542,18 +1415,88 @@ function makePdf(){
   const D=pdfBackend(doc);pages.forEach((pg,i)=>{if(i)doc.addPage();drawPage(D,pg,i+1,pages.length);});
   return {doc,pages};
 }
-window.__puzzleSheet={state,makePdf,regenerate,syncPer,syncLadder};
+/* ---------- naming helpers (work on the live state or a saved history entry) ---------- */
+const nPuzzles=c=>c.per*c.pages;
+const fileName=c=>(c.game==="mix"?"mezcla":GAMES[c.game].file)+"-"+LEVEL_IDS[c.level]+"-"+c.lang+"-"+c.paper.toLowerCase()+".pdf";
+const docTitle=c=>c.game==="mix"?"Mezcla: "+c.mix.map(k=>GAMES[k]?GAMES[k].ui:k).join(", "):GAMES[c.game].ui;
+const docMeta=c=>TX.es.levels[c.level]+" · "+(c.lang==="es"?"Español":"English")+" · "+c.paper+" · "+nPuzzles(c)+(nPuzzles(c)===1?" juego":" juegos")+(c.answers?" + soluciones":"");
+const CFG_KEYS=["game","level","lang","paper","per","pages","answers","mix","assign","pool"];
+function snapshot(){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),at:Date.now(),game:state.game,level:state.level,lang:state.lang,
+  paper:state.paper,per:state.per,pages:state.pages,answers:state.answers,mix:state.mix.slice(),assign:state.assign.slice(0,need()),pool:state.pool.slice(0,need())};}
+function withConfig(c,fn){const saved={};CFG_KEYS.forEach(k=>saved[k]=state[k]);
+  CFG_KEYS.forEach(k=>state[k]=Array.isArray(c[k])?c[k].slice():c[k]);
+  try{return fn();}finally{CFG_KEYS.forEach(k=>state[k]=saved[k]);}}
+
+/* ---------- PDF viewer ---------- */
+let vUrl=null,vName="",lastFocus=null;
+function openViewer(c){
+  if(!window.jspdf){setStatus("No se cargó el generador de PDF. Revisa tu conexión y recarga la página.");return false;}
+  const {doc}=withConfig(c,makePdf);
+  if(vUrl)URL.revokeObjectURL(vUrl);
+  vUrl=URL.createObjectURL(doc.output("blob"));vName=fileName(c);
+  $("vTitle").textContent=docTitle(c);$("vMeta").textContent=docMeta(c);
+  $("vFrame").src=vUrl+"#view=FitH";$("vOpen").href=vUrl;
+  lastFocus=document.activeElement;$("viewer").hidden=false;document.body.style.overflow="hidden";$("vPrint").focus();
+  return true;
+}
+function closeViewer(){
+  $("viewer").hidden=true;$("vFrame").src="about:blank";document.body.style.overflow="";
+  const u=vUrl;vUrl=null;if(u)setTimeout(()=>URL.revokeObjectURL(u),60000);
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+$("vPrint").addEventListener("click",()=>{try{const w=$("vFrame").contentWindow;w.focus();w.print();}catch(e){window.open(vUrl,"_blank");}});
+$("vDown").addEventListener("click",()=>{const a=document.createElement("a");a.href=vUrl;a.download=vName;document.body.appendChild(a);a.click();a.remove();});
+$("vClose").addEventListener("click",closeViewer);
+
+/* ---------- print history (this browser only) ---------- */
+const HKEY="hojas-pasatiempos-historial",HMAX=30;
+function loadHist(){try{const a=JSON.parse(localStorage.getItem(HKEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+function saveHist(a){a=a.slice(0,HMAX);while(a.length){try{localStorage.setItem(HKEY,JSON.stringify(a));return;}catch(e){a.pop();}}try{localStorage.removeItem(HKEY);}catch(e){}}
+function syncHistCount(){const n=loadHist().length;$("histCount").textContent=n?"("+n+")":"";}
+function renderHist(){
+  const h=loadHist(),ol=$("hList");ol.innerHTML="";$("hClear").disabled=!h.length;
+  if(!h.length){ol.innerHTML='<li class="hempty">Todavía no has impreso ninguna hoja. Cuando pulses «Imprimir», aparecerá aquí.</li>';return;}
+  for(const e of h){
+    const li=document.createElement("li");li.dataset.id=e.id;
+    li.innerHTML='<div><div class="ht"></div><div class="hm"></div></div><div class="hb"><button type="button" class="btn primary" data-a="view">Ver e imprimir</button><button type="button" class="btn" data-a="use">Usar estos juegos</button><button type="button" class="btn" data-a="del">Quitar</button></div>';
+    li.querySelector(".ht").textContent=docTitle(e);
+    li.querySelector(".hm").textContent=new Date(e.at).toLocaleString("es-MX",{dateStyle:"medium",timeStyle:"short"})+" · "+docMeta(e);
+    ol.appendChild(li);
+  }
+}
+function openHist(){renderHist();lastFocus=document.activeElement;$("hist").hidden=false;$("hClose").focus();}
+function closeHist(){$("hist").hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus();}
+function useEntry(e){
+  token++;inflight=-1;startWorker();
+  CFG_KEYS.forEach(k=>state[k]=Array.isArray(e[k])?e[k].slice():e[k]);state.pageIdx=0;state.perWant=e.per;
+  $("l-"+state.lang).checked=true;$("answers").checked=state.answers;$("pgOut").textContent=state.pages;
+  syncLadder();syncMix();syncPer();remember();render();pump();
+}
+$("histBtn").addEventListener("click",openHist);
+$("hClose").addEventListener("click",closeHist);
+$("hist").addEventListener("click",ev=>{if(ev.target===$("hist"))closeHist();});
+$("hList").addEventListener("click",ev=>{
+  const b=ev.target.closest("button[data-a]");if(!b)return;
+  const id=b.closest("li").dataset.id,h=loadHist(),e=h.find(x=>x.id===id);if(!e)return;
+  if(b.dataset.a==="view"){closeHist();openViewer(e);}
+  else if(b.dataset.a==="use"){closeHist();useEntry(e);setStatus("Juegos cargados del historial ("+new Date(e.at).toLocaleString("es-MX",{dateStyle:"medium",timeStyle:"short"})+")");}
+  else{saveHist(h.filter(x=>x.id!==id));renderHist();syncHistCount();}
+});
+$("hClear").addEventListener("click",()=>{if(!confirm("¿Borrar todo el historial de impresiones?"))return;try{localStorage.removeItem(HKEY);}catch(e){}renderHist();syncHistCount();});
+document.addEventListener("keydown",ev=>{if(ev.key!=="Escape")return;if(!$("viewer").hidden)closeViewer();else if(!$("hist").hidden)closeHist();});
+
 $("dlBtn").addEventListener("click",()=>{
   if(inflight>=0||state.pool.slice(0,need()).filter(Boolean).length<need())return;
-  if(!window.jspdf){setStatus("No se cargó el generador de PDF. Revisa tu conexión y recarga la página.");return;}
-  const {doc,pages}=makePdf();
-  const name=(state.game==="mix"?"mezcla":GAMES[state.game].file)+"-"+LEVEL_IDS[state.level]+"-"+state.lang+"-"+state.paper.toLowerCase()+".pdf";
-  doc.save(name);setStatus("PDF descargado · "+pages.length+" hojas. Imprime a tamaño real (100 %).");
+  const snap=snapshot();
+  if(!openViewer(snap))return;
+  const h=loadHist();h.unshift(snap);saveHist(h);syncHistCount();
+  setStatus("PDF listo para imprimir · guardado en el historial.");
 });
+window.__puzzleSheet={state,makePdf,regenerate,syncPer,syncLadder,syncMix,openViewer,loadHist};
 
 $("pgOut").textContent=state.pages;
 $("l-"+state.lang).checked=true;
-syncLadder();syncPer();
+syncLadder();syncMix();syncPer();syncHistCount();
 startWorker();render();pump();
 })();
 </script>
