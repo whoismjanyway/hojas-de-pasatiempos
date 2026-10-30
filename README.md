@@ -2,6 +2,8 @@
 
 Generador de hojas de pasatiempos para imprimir. Elige un juego y una dificultad, y descarga un PDF con juegos nuevos y su hoja de soluciones.
 
+**Úsalo en línea:** https://whoismjanyway.github.io/hojas-de-pasatiempos/
+
 Todo funciona en un solo archivo (`index.html`) que se abre en el navegador. No necesita instalación.
 
 ## Juegos
