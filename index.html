@@ -103,7 +103,7 @@ input.vh{position:absolute; opacity:0; pointer-events:none}
 <div class="wrap">
   <header>
     <h1>Hojas de pasatiempos</h1>
-    <p>Elige un juego y una dificultad, y descarga un PDF listo para imprimir con juegos nuevos y su hoja de soluciones. «Mezclar juegos» combina los seis juegos en las mismas hojas.</p>
+    <p>Elige un juego y una dificultad, y descarga un PDF listo para imprimir con juegos nuevos y su hoja de soluciones. «Mezclar juegos» combina varios juegos en las mismas hojas; el escape room ocupa una hoja completa.</p>
   </header>
 
   <div class="app">
@@ -555,32 +555,36 @@ function wsCount(g,n,w){let c=0;
   for(let r=0;r<n;r++)for(let col=0;col<n;col++)if(g[r*n+col]===w[0])for(const [dr,dc] of DR8){let ok=true;
     for(let i=1;i<w.length;i++){const rr=r+dr*i,cc=col+dc*i;if(rr<0||cc<0||rr>=n||cc>=n||g[rr*n+cc]!==w[i]){ok=false;break;}}if(ok)c++;}
   return c;}
+function wsPool(th,lang,max){const pool=[];
+  for(const w of shuffle(th.items.map(e=>e[lang].w))){
+    if(w.length<3||w.length>max)continue;if(w===[...w].reverse().join(""))continue;
+    if(pool.some(p=>p.includes(w)||w.includes(p)))continue;pool.push(w);}
+  return pool;}
+function wsPlace(n,dirs,cand,k,L){const g=new Array(n*n).fill(""),placed=[];
+  for(const w of cand){if(placed.length>=k)break;const opts=[];let bestOv=0;
+    for(const [dr,dc] of dirs)for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+      const er=r+dr*(w.length-1),ec=c+dc*(w.length-1);if(er<0||ec<0||er>=n||ec>=n)continue;
+      let ov=0,ok=true;for(let i=0;i<w.length;i++){const ch=g[(r+dr*i)*n+c+dc*i];if(ch){if(ch!==w[i]){ok=false;break;}ov++;}}
+      if(!ok||ov===w.length)continue;opts.push({r,c,dr,dc,ov});if(ov>bestOv)bestOv=ov;}
+    if(!opts.length)continue;
+    let pick=opts;if(L>=3&&bestOv>0&&Math.random()<0.7)pick=opts.filter(o=>o.ov>0);
+    const o=pick[R(pick.length)];for(let i=0;i<w.length;i++)g[(o.r+o.dr*i)*n+o.c+o.dc*i]=w[i];
+    placed.push({w,r:o.r,c:o.c,dr:o.dr,dc:o.dc});}
+  return {g,placed};}
+function wsFill(g,n,placed,lang,decoy,absent){const letters=FILL[lang],wl=placed.map(p=>p.w).join("");
+  for(let t=0;t<25;t++){
+    const f=g.map(ch=>ch||(decoy&&Math.random()<0.5?wl[R(wl.length)]:letters[R(letters.length)]));
+    if(placed.every(p=>wsCount(f,n,p.w)===1)&&(!absent||wsCount(f,n,absent)===0))return f;}
+  return null;}
 function wordsearch(L,lang){
-  const P=WS[L],n=P.n,max=P.max||n,dirs=DR8.slice(0,P.d);
+  const P=WS[L],n=P.n,dirs=DR8.slice(0,P.d);
   for(let att=0;att<80;att++){
-    const th=THEMES[R(THEMES.length)],pool=[];
-    for(const w of shuffle(th.items.map(e=>e[lang].w))){
-      if(w.length<3||w.length>max)continue;if(w===w.split("").reverse().join(""))continue;
-      if(pool.some(p=>p.includes(w)||w.includes(p)))continue;pool.push(w);}
+    const th=THEMES[R(THEMES.length)],pool=wsPool(th,lang,P.max||n);
     if(pool.length<P.k)continue;
-    const g=new Array(n*n).fill(""),placed=[];
-    const cand=pool.slice(0,P.k+5).sort((a,b)=>b.length-a.length);
-    for(const w of cand){if(placed.length>=P.k)break;const opts=[];let bestOv=0;
-      for(const [dr,dc] of dirs)for(let r=0;r<n;r++)for(let c=0;c<n;c++){
-        const er=r+dr*(w.length-1),ec=c+dc*(w.length-1);if(er<0||ec<0||er>=n||ec>=n)continue;
-        let ov=0,ok=true;for(let i=0;i<w.length;i++){const ch=g[(r+dr*i)*n+c+dc*i];if(ch){if(ch!==w[i]){ok=false;break;}ov++;}}
-        if(!ok||ov===w.length)continue;opts.push({r,c,dr,dc,ov});if(ov>bestOv)bestOv=ov;}
-      if(!opts.length)continue;
-      let pick=opts;if(L>=3&&bestOv>0&&Math.random()<0.7)pick=opts.filter(o=>o.ov>0);
-      const o=pick[R(pick.length)];for(let i=0;i<w.length;i++)g[(o.r+o.dr*i)*n+o.c+o.dc*i]=w[i];
-      placed.push({w,r:o.r,c:o.c,dr:o.dr,dc:o.dc});}
+    const {g,placed}=wsPlace(n,dirs,pool.slice(0,P.k+5).sort((a,b)=>b.length-a.length),P.k,L);
     if(placed.length<P.k)continue;
-    const letters=FILL[lang],wl=placed.map(p=>p.w).join("");
-    for(let t=0;t<25;t++){
-      const f=g.map(ch=>ch||(P.decoy&&Math.random()<0.5?wl[R(wl.length)]:letters[R(letters.length)]));
-      if(placed.every(p=>wsCount(f,n,p.w)===1))
-        return {game:"wordsearch",n,grid:f,words:placed.sort((a,b)=>a.w.localeCompare(b.w)),theme:th[lang],lang};
-    }
+    const f=wsFill(g,n,placed,lang,P.decoy);
+    if(f)return {game:"wordsearch",n,grid:f,words:placed.sort((a,b)=>a.w.localeCompare(b.w)),theme:th[lang],lang};
   }
   return null;
 }
@@ -736,26 +740,6 @@ function bbox(ps){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
     else{const h=(p[0]==="p"||p[3])?p[2]/2:0,a=p[1];for(let i=0;i<a.length;i+=2){x0=Math.min(x0,a[i]-h);y0=Math.min(y0,a[i+1]-h);x1=Math.max(x1,a[i]+h);y1=Math.max(y1,a[i+1]+h);}}
   }
   return [x0,y0,x1,y1];}
-function itemOps(it){
-  const o=[],tog=k=>o.push(c=>{c[k]=!c[k];}),gone=()=>o.push(c=>{c.gone=true;});
-  switch(it.t){
-    case "house":["chim","knob","attic","crossL","crossR","darkL","darkR"].forEach(tog);gone();break;
-    case "tree":for(let i=0;i<5;i++)o.push(c=>{c.apples^=1<<i;});tog("hole");gone();break;
-    case "pine":for(let i=0;i<5;i++)o.push(c=>{c.orn^=1<<i;});tog("star");gone();break;
-    case "flower":o.push(c=>{c.n=c.n===5?4:5;});tog("dark");tog("leaf");gone();break;
-    case "bush":for(let i=0;i<5;i++)o.push(c=>{c.ber^=1<<i;});gone();break;
-    case "fence":if(it.miss<0)for(let i=1;i<it.n-1;i++)o.push(c=>{c.miss=i;});break;
-    case "mail":tog("up");gone();break;
-    case "car":["div","light","hubL","hubR","handle"].forEach(tog);gone();break;
-    case "rock":case "grass":case "bird":gone();break;
-    case "fly":tog("spots");gone();break;
-    case "sun":tog("smile");for(let i=0;i<it.n;i++)o.push(c=>{c.gap=i;});break;
-    case "cloud":tog("small");gone();break;
-    case "balloon":tog("stripe");gone();break;
-    case "kite":for(let i=0;i<4;i++)o.push(c=>{c.bows^=1<<i;});gone();break;
-    case "mount":tog("snow");break;
-  }
-  return o;}
 const SC={house:[1,1,1,1,1,1,1],tree:[2,2,2,3,3,3,4],flower:[2,3,3,4,5,6,7],bush:[0,1,1,1,2,2,2],cloud:[2,2,3,3,3,4,4],bird:[1,2,2,3,3,4,4],
   mount:[0,1,1,2,2,2,2],fence:[0,0,1,1,1,1,1],car:[0,0,0,1,1,1,1],mail:[0,0,1,1,1,1,1],fly:[0,1,1,1,2,2,3],rock:[1,1,2,2,2,3,3],grass:[2,3,4,5,6,7,8],air:[0,1,1,1,1,2,2]};
 function scene(W,H,L){
@@ -804,38 +788,6 @@ function scenePrims(sc,alt,adds){
   for(const it of gr)o.push(...compileItem(it));
   return o;}
 
-/* ================= DIFERENCIAS ================= */
-const DN=[3,4,5,6,7,8,10];
-function differences(L){
-  const K=DN[L],minD=[6,5,4,3.2,2.6,2.2,1.8][L],J=p=>JSON.stringify(p);
-  for(let att=0;att<40;att++){
-    const sc=scene(120,90,L),cands=[];
-    for(const it of sc.sky.concat(sc.ground)){
-      const A=compileItem(it),sa=new Set(A.map(J));
-      for(const f of itemOps(it)){const c=Object.assign({},it);f(c);const B=compileItem(c),sb=new Set(B.map(J));
-        const d=A.filter(p=>!sb.has(J(p))).concat(B.filter(p=>!sa.has(J(p))));if(!d.length)continue;
-        const bb=bbox(d);if(Math.max(bb[2]-bb[0],bb[3]-bb[1])<minD)continue;
-        cands.push({it,c,bb,area:(bb[2]-bb[0])*(bb[3]-bb[1])});}}
-    const kinds=["bird","fly","flower","rock","cloud","grass"];
-    for(let a=0;a<5;a++){const kd=kinds[R(kinds.length)];
-      for(let t=0;t<40;t++){const it=sc.mk[kd](),bb=bbox(compileItem(it));if(!sc.free(bb,1.5))continue;
-        if(Math.max(bb[2]-bb[0],bb[3]-bb[1])<minD)break;
-        it.layer=(kd==="bird"||kd==="cloud")?"sky":"ground";sc.boxes.push(bb);cands.push({add:it,bb,area:(bb[2]-bb[0])*(bb[3]-bb[1])});break;}}
-    cands.sort((p,q)=>q.area-p.area);
-    const N=cands.length,win=L<=1?cands.slice(0,Math.ceil(N*0.6)):L>=4?cands.slice(Math.floor(N*0.35)):cands.slice();
-    const chosen=[],usedIt=new Set();
-    const tryPick=list=>{for(const cd of shuffle(list.slice())){if(chosen.length>=K)return;if(chosen.includes(cd))continue;if(cd.it&&usedIt.has(cd.it))continue;
-      const b=cd.bb,p=2.5;if(chosen.some(o=>b[0]<o.bb[2]+p&&b[2]>o.bb[0]-p&&b[1]<o.bb[3]+p&&b[3]>o.bb[1]-p))continue;
-      chosen.push(cd);if(cd.it)usedIt.add(cd.it);}};
-    tryPick(win);if(chosen.length<K)tryPick(cands);
-    if(chosen.length<K)continue;
-    const alt=new Map(),adds=[];for(const cd of chosen){if(cd.add)adds.push(cd.add);else alt.set(cd.it,cd.c);}
-    return {game:"diff",W:sc.W,H:sc.H,a:scenePrims(sc),b:scenePrims(sc,alt,adds),
-      marks:chosen.map(cd=>{const b=cd.bb;return [r2((b[0]+b[2])/2),r2((b[1]+b[3])/2),r2(Math.max(b[2]-b[0],b[3]-b[1])/2+1.8)];})};
-  }
-  return null;
-}
-
 /* ================= ROMPECABEZAS ================= */
 const JG=[[2,2,0],[3,2,0],[3,3,0],[4,3,0],[5,4,0],[4,4,1],[5,5,1]];
 function jigsaw(L){
@@ -845,7 +797,212 @@ function jigsaw(L){
   return {game:"jigsaw",W,H,prims:scenePrims(sc),cols,rows,order,rot:range(N).map(()=>rot?R(4):0)};
 }
 
-const GEN={sudoku,maze,wordsearch,crossword,diff:differences,jigsaw};
+/* ================= CRUCI-NÚMEROS ================= */
+/* Numbers 1-9, each used once. Rows and columns are worked strictly in order (left to right, top to bottom). */
+const CN=[{n:2,ops:"+",hide:2},{n:2,ops:"+-",hide:3},{n:3,ops:"+-",hide:4},{n:3,ops:"+-×",hide:5,need:"×"},{n:3,ops:"+-×÷",hide:6,need:"÷"},{n:3,ops:"+-×÷",hide:8,need:"÷"},{n:3,ops:"+-×÷",hide:9,need:"×"}];
+function cnEval(v,o,strict){let a=v[0];
+  for(let i=0;i<o.length;i++){const b=v[i+1];
+    switch(o[i]){case "+":a+=b;break;case "-":a-=b;break;case "×":a*=b;break;default:if(a%b)return NaN;a/=b;}
+    if(strict&&a<=0)return NaN;}
+  return a;}
+function cnSolve(n,giv,hop,vop,rows,cols,limit){
+  const a=giv.slice(),used=new Set(giv.filter(Boolean)),out=[];
+  const rowOk=r=>cnEval(a.slice(r*n,r*n+n),hop.slice(r*(n-1),(r+1)*(n-1)))===rows[r];
+  const colOk=c=>cnEval(range(n).map(r=>a[r*n+c]),vop.slice(c*(n-1),(c+1)*(n-1)))===cols[c];
+  const fin=i=>{const r=(i/n)|0,c=i%n;if(c===n-1&&!rowOk(r))return false;if(r===n-1&&!colOk(c))return false;return true;};
+  (function rec(i){
+    if(out.length>=limit)return;
+    if(i===n*n){out.push(a.slice());return;}
+    if(a[i]){if(fin(i))rec(i+1);return;}
+    for(let d=1;d<=9;d++){if(used.has(d))continue;a[i]=d;used.add(d);if(fin(i))rec(i+1);used.delete(d);a[i]=0;if(out.length>=limit)return;}
+  })(0);
+  return out;}
+function cnMake(n,ops,hide,need){
+  for(let att=0;att<4000;att++){
+    if(att===3000)need=null;
+    const g=shuffle(range(9).map(i=>i+1)).slice(0,n*n);
+    const hop=range(n*(n-1)).map(()=>ops[R(ops.length)]),vop=range(n*(n-1)).map(()=>ops[R(ops.length)]);
+    if(need&&!hop.concat(vop).includes(need))continue;
+    const rows=range(n).map(r=>cnEval(g.slice(r*n,r*n+n),hop.slice(r*(n-1),(r+1)*(n-1)),true));
+    const cols=range(n).map(c=>cnEval(range(n).map(r=>g[r*n+c]),vop.slice(c*(n-1),(c+1)*(n-1)),true));
+    if(rows.concat(cols).some(v=>!(v>0)||v>200))continue;
+    const giv=new Array(n*n).fill(0);
+    for(;;){const s=cnSolve(n,giv,hop,vop,rows,cols,2);if(s.length===1)break;
+      const d=range(n*n).filter(i=>s[0][i]!==s[1][i]);const i=d[R(d.length)];giv[i]=g[i];}
+    const hid=shuffle(range(n*n).filter(i=>!giv[i]));while(hid.length>hide){const i=hid.pop();giv[i]=g[i];}
+    return {n,givens:giv,solution:g,hop,vop,rows,cols};
+  }
+  return null;}
+function crossnum(L){const P=CN[L],z=cnMake(P.n,P.ops,P.hide,P.need);return z&&Object.assign({game:"crossnum"},z);}
+
+/* ================= MENSAJE SECRETO ================= */
+const ALPHA={es:"ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",en:"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+const PHR={es:`EL SOL BRILLA HOY
+ME GUSTA LEER
+LA LUNA ES BLANCA
+VAMOS AL PARQUE
+EL GATO DUERME
+TENGO UN PERRO
+HOY ES UN GRAN DIA
+LA PRACTICA HACE AL MAESTRO
+EL TESORO ESTA BAJO EL ARBOL
+NUNCA DEJES DE APRENDER
+LA LLAVE ESTA EN LA CAJA
+EL AGUA ES VIDA
+MI COLOR FAVORITO ES EL AZUL
+LOS AMIGOS SON UN TESORO
+EL QUE BUSCA ENCUENTRA
+LEER ABRE LA MENTE
+EL TIEMPO VUELA
+JUNTOS SOMOS MAS FUERTES
+LA ESCUELA ABRE MAÑANA
+CADA DIA ES UNA AVENTURA
+EL PIRATA ESCONDIO EL MAPA
+SONRIE Y SE FELIZ
+EL CIELO ESTA LLENO DE ESTRELLAS
+LAS PLANTAS NECESITAN AGUA
+LA PISTA ESTA EN LA VENTANA
+HOY COMEMOS PIZZA
+EL VIERNES HAY FIESTA
+UN LIBRO ES UN AMIGO
+EL DRAGON CUIDA EL CASTILLO
+LA PUERTA SECRETA ESTA DETRAS DEL ESPEJO
+MIRA DEBAJO DE LA ALFOMBRA
+BUEN TRABAJO EQUIPO`,en:`THE SUN IS OUT
+I LOVE TO READ
+CATS LIKE TO NAP
+LET US GO PLAY
+THE KEY IS IN THE BOX
+PRACTICE MAKES PERFECT
+NEVER STOP LEARNING
+THE TREASURE IS UNDER THE TREE
+WATER IS LIFE
+FRIENDS ARE A TREASURE
+TIME FLIES
+TOGETHER WE ARE STRONGER
+EVERY DAY IS AN ADVENTURE
+THE PIRATE HID THE MAP
+SMILE AND BE HAPPY
+THE SKY IS FULL OF STARS
+PLANTS NEED WATER
+THE CLUE IS BY THE WINDOW
+WE HAVE PIZZA TODAY
+THERE IS A PARTY ON FRIDAY
+A BOOK IS A FRIEND
+THE DRAGON GUARDS THE CASTLE
+THE SECRET DOOR IS BEHIND THE MIRROR
+MY DOG LOVES THE PARK
+READING OPENS YOUR MIND
+THE MOON IS BRIGHT
+HELLO MY FRIEND
+LOOK UNDER THE RUG
+KEEP CALM AND SOLVE IT
+GOOD JOB TEAM`};
+const CI=[{t:"num",min:6,max:14},{t:"num",min:12,max:24},{t:"shuf",min:12,max:30},{t:"caesar",min:12,max:30},{t:"hint",min:14,max:34},{t:"shuf",miss:0.3,min:16,max:36},{t:"shuf",miss:0.55,min:18,max:40}];
+function cipher(L,lang){
+  const P=CI[L],A=ALPHA[lang],N=A.length;
+  const list=PHR[lang].split("\n").map(s=>s.trim()).filter(Boolean).map(s=>s.split(/\s+/).map(norm).filter(Boolean));
+  let c=list.filter(w=>{const l=w.join("").length;return l>=P.min&&l<=P.max;});if(!c.length)c=list;
+  const words=c[R(c.length)],k=2+R(N-3);
+  const code=P.t==="num"?range(N).map(i=>String(i+1)):P.t==="shuf"?shuffle(range(N).map(i=>String(i+1))):range(N).map(i=>A[(i+k)%N]);
+  const map={};[...A].forEach((ch,i)=>map[ch]=code[i]);
+  let table=[...A].map((ch,i)=>[ch,code[i]]),hint=null;
+  if(P.t==="hint"){table=null;hint=[A[0],code[0]];}
+  if(P.miss){const inMsg=shuffle([...new Set(words.join(""))]);inMsg.slice(0,Math.round(inMsg.length*P.miss)).forEach(ch=>{table[A.indexOf(ch)][1]="";});}
+  return {game:"cipher",lang,mode:P.t,table,hint,words,enc:words.map(w=>[...w].map(ch=>map[ch]))};
+}
+
+/* ================= ESCAPE ROOM ================= */
+const RID={es:`Tengo agujas pero no sé coser; tengo números pero no sé leer.|RELOJ
+Mientras más le quitas, más grande se hace.|HOYO
+Sube y baja, pero nunca se mueve de su lugar.|ESCALERA
+Tengo dientes pero nunca muerdo.|PEINE
+Vuela sin alas y llora sin ojos.|NUBE
+Tengo hojas pero no soy árbol; tengo lomo pero no soy animal.|LIBRO
+Mientras más seca, más mojada está.|TOALLA
+Te sigo a todas partes y desaparezco en la oscuridad.|SOMBRA
+Tengo cuello pero no cabeza; tengo brazos pero no manos.|CAMISA
+Me rompo con solo decir mi nombre.|SILENCIO
+Tengo teclas pero no abro ninguna puerta.|PIANO
+Tengo corona pero no soy rey; tengo escamas pero no soy pez.|PIÑA
+Tengo ciudades pero no casas; tengo ríos pero no agua.|MAPA
+Tengo un ojo pero no puedo ver; con él se cose la ropa.|AGUJA
+Siempre estoy por llegar, pero nunca llego.|MAÑANA
+Tengo patas pero no camino; sobre mí se come.|MESA
+Tengo cara y cruz, pero no tengo cuerpo.|MONEDA
+Tengo agujeros por todos lados y aun así guardo agua.|ESPONJA
+Hay que romperme antes de poder usarme.|HUEVO
+Mientras más grande soy, menos se ve.|OSCURIDAD`,en:`I have hands but I cannot clap.|CLOCK
+The more you take, the bigger I get.|HOLE
+I have teeth but I never bite.|COMB
+I have keys but I open no doors.|PIANO
+I have cities but no houses, and rivers but no water.|MAP
+I get wetter the more I dry.|TOWEL
+I follow you everywhere and vanish in the dark.|SHADOW
+I have pages and a spine, but I am not alive.|BOOK
+I have one eye but I cannot see.|NEEDLE
+I break as soon as you say my name.|SILENCE
+I have a neck but no head.|BOTTLE
+I go up and down but never move.|STAIRS
+I have legs but cannot walk, and you eat on me.|TABLE
+I am always coming, but I never arrive.|TOMORROW
+I fly without wings and cry without eyes.|CLOUD
+I have a head and a tail but no body.|COIN
+I am full of holes but I still hold water.|SPONGE
+You must break me before you can use me.|EGG
+I have a crown and scales, but I am not a king or a fish.|PINEAPPLE
+The bigger I get, the less you can see.|DARKNESS`};
+function mkProb(L){const r=(a,b)=>a+R(b-a+1);let a,b,c;
+  switch(L){
+    case 0:a=r(1,10);b=r(1,10);return [a+" + "+b,a+b];
+    case 1:a=r(6,20);b=r(1,a-1);return Math.random()<0.5?[a+" + "+b,a+b]:[a+" - "+b,a-b];
+    case 2:a=r(12,50);b=r(2,a-2);return Math.random()<0.5?[a+" + "+b,a+b]:[a+" - "+b,a-b];
+    case 3:a=r(2,9);b=r(2,9);return [a+" × "+b,a*b];
+    case 4:if(Math.random()<0.5){a=r(3,12);b=r(3,12);return [a+" × "+b,a*b];}a=r(40,99);b=r(11,a-5);return [a+" - "+b,a-b];
+    case 5:a=r(2,9);b=r(2,9);c=r(2,20);return [a+" × "+b+" + "+c,a*b+c];
+    default:if(Math.random()<0.5){a=r(3,9);b=r(3,9);c=r(2,a*b-2);return [a+" × "+b+" - "+c,a*b-c];}
+      c=r(2,9);b=r(2,9);a=c*b;const d=r(2,30);return [a+" ÷ "+b+" + "+d,c+d];
+  }}
+function escape(L,lang){
+  const A=ALPHA[lang],N=A.length;
+  for(let att=0;att<60;att++){
+    /* 1. mini word search: one listed word is missing from the grid */
+    const n=[7,7,8,8,9,9,10][L],dirs=DR8.slice(0,[2,2,4,4,6,8,8][L]);
+    const th=THEMES[R(THEMES.length)],pool=wsPool(th,lang,Math.min(n-1,7));
+    if(pool.length<5)continue;
+    const five=pool.slice(0,5),miss=five[4];
+    const {g,placed}=wsPlace(n,dirs,five.slice(0,4).sort((a,b)=>b.length-a.length),4,L);
+    if(placed.length<4)continue;
+    const f=wsFill(g,n,placed,lang,false,miss);if(!f)continue;
+    const ws={n,grid:f,placed,list:five.slice().sort((a,b)=>a.localeCompare(b))};
+    /* 2. math lock: answers map to letters that spell a word */
+    const len=L<3?3:4,wc=[];
+    for(const t of THEMES)for(const e of t.items){const w=e[lang].w;if(w.length===len&&new Set(w).size===len&&!wc.includes(w))wc.push(w);}
+    if(!wc.length)continue;
+    const word=wc[R(wc.length)],probs=[],ans=new Set();let bad=false;
+    for(const ch of word){let p,tries=0;do{p=mkProb(L);}while(ans.has(p[1])&&++tries<60);if(ans.has(p[1])){bad=true;break;}ans.add(p[1]);probs.push([p[0],p[1],ch]);}
+    if(bad)continue;
+    const rows=probs.map(p=>[p[1],p[2]]);
+    for(let guard=0;rows.length<len+2&&guard<200;guard++){const v=mkProb(L)[1],ch=A[R(N)];if(ans.has(v)||word.includes(ch)||rows.some(q=>q[1]===ch))continue;ans.add(v);rows.push([v,ch]);}
+    rows.sort((a,b)=>a[0]-b[0]);
+    /* 3. secret word */
+    const sw=[];for(const t of THEMES)for(const e of t.items){const w=e[lang].w;if(w.length>=4&&w.length<=(L<2?5:6))sw.push(w);}
+    const sword=sw[R(sw.length)],rev=L>=5,start=L>=3&&!rev?3+R(7):1;
+    const codeOf=i=>rev?N-i:start+i;
+    const sec={mode:rev?"rev":start>1?"shift":"num",table:rev?null:[...A].map((ch,i)=>[ch,String(codeOf(i))]),
+      hint:rev?[[A[0],N],[A[1],N-1],[A[2],N-2]]:null,enc:[...sword].map(ch=>String(codeOf(A.indexOf(ch)))),word:sword};
+    /* 4. small cross numbers: the missing numbers in reading order */
+    const cn=cnMake(2,["+","+-","+-","+-×","+-×÷","+-×÷","+-×÷"][L],[2,2,3,3,3,4,4][L],L>=4?"×":null);if(!cn)continue;
+    const c4=range(4).filter(i=>!cn.givens[i]).map(i=>cn.solution[i]).join("");
+    /* 5. riddle */
+    const rl=RID[lang].split("\n").map(s=>s.trim()).filter(Boolean).map(s=>s.split("|")),rd=rl[R(rl.length)];
+    const rid={q:rd[0],a:norm(rd[1])};
+    return {game:"escape",lang,level:L,ws,lock:{probs,rows,word},sec,cn,rid,codes:[miss,word,sword,c4,rid.a]};
+  }
+  return null;
+}
+
+const GEN={sudoku,maze,wordsearch,crossword,jigsaw,crossnum,cipher,escape};
 return {generate:(game,level,lang)=>GEN[game](level,lang)};
 }
 
@@ -857,11 +1014,10 @@ return {generate:(game,level,lang)=>GEN[game](level,lang)};
 const LEVEL_IDS=["super-facil","facil","medio","medio-dificil","dificil","extremo","super-extremo"];
 const TX={
   es:{levels:["Súper fácil","Fácil","Medio","Medio-difícil","Difícil","Extremo","Súper extremo"],answers:"Soluciones",mix:"Mezcla de juegos",
-    theme:"Tema",across:"Horizontales",down:"Verticales",clues:"pistas",words:"palabras",diffs:"diferencias",pieces:"piezas",no:"No.",making:"generando…"},
+    theme:"Tema",across:"Horizontales",down:"Verticales",clues:"pistas",words:"palabras",hint:"Pista",letters:"letras",challenges:"retos",pieces:"piezas",no:"No.",making:"generando…"},
   en:{levels:["Super easy","Easy","Medium","Medium-hard","Hard","Extreme","Super extreme"],answers:"Answers",mix:"Puzzle mix",
-    theme:"Theme",across:"Across",down:"Down",clues:"clues",words:"words",diffs:"differences",pieces:"pieces",no:"No.",making:"making…"}
+    theme:"Theme",across:"Across",down:"Down",clues:"clues",words:"words",hint:"Hint",letters:"letters",challenges:"challenges",pieces:"pieces",no:"No.",making:"making…"}
 };
-const DN=[3,4,5,6,7,8,10];
 const GAMES={
   sudoku:{ui:"Sudoku",tag:"9×9 clásico",file:"sudoku",name:{es:"Sudoku",en:"Sudoku"},per:{A4:[1,2,4,6],A5:[1,2,4]},
     desc:["Unas 50 pistas","Únicos ocultos","Pares señaladores","Pares","Tríos y X-Wing","XY-Wing","Requiere cadenas"],
@@ -879,16 +1035,34 @@ const GAMES={
     desc:["5 palabras · iniciales","7 palabras · con ayudas","9 palabras · pocas ayudas","11 palabras","13 palabras","15 palabras","17 palabras"],
     rule:{es:L=>"Lee las pistas y escribe cada respuesta a partir de su número: las horizontales de izquierda a derecha y las verticales de arriba abajo. Escribe sin acentos."+(L<=2?" Algunas letras ya están puestas.":""),
           en:L=>"Read the clues and write each answer starting at its number: across answers go left to right, down answers top to bottom."+(L<=2?" Some letters are already filled in.":"")}},
-  diff:{ui:"Diferencias",tag:"Encuentra los cambios",file:"diferencias",name:{es:"Encuentra las diferencias",en:"Spot the difference"},per:{A4:[1,2,4],A5:[1,2]},
-    desc:["3 diferencias grandes","4 diferencias","5 diferencias","6 diferencias","7 diferencias","8 diferencias chicas","10 diferencias chicas"],
-    rule:{es:L=>"Hay "+DN[L]+" diferencias entre los dos dibujos. Encuéntralas y enciérralas en un círculo.",
-          en:L=>"There are "+DN[L]+" differences between the two pictures. Find them and circle them."}},
   jigsaw:{ui:"Rompecabezas",tag:"Recorta y arma",file:"rompecabezas",name:{es:"Rompecabezas",en:"Jigsaw puzzle"},per:{A4:[1,2,4],A5:[1,2]},
     desc:["4 piezas","6 piezas","9 piezas","12 piezas","20 piezas","16 piezas giradas","25 piezas giradas"],
     rule:{es:L=>"Recorta las piezas y pégalas en el marco para armar el dibujo, o escribe en cada casilla del marco la letra de la pieza que va ahí."+(L>=5?" Algunas piezas están giradas.":""),
-          en:L=>"Cut out the pieces and paste them into the frame to rebuild the picture, or write in each square the letter of the piece that belongs there."+(L>=5?" Some pieces are rotated.":"")}}
+          en:L=>"Cut out the pieces and paste them into the frame to rebuild the picture, or write in each square the letter of the piece that belongs there."+(L>=5?" Some pieces are rotated.":"")}},
+  crossnum:{ui:"Cruci-números",tag:"Operaciones en cruz",file:"cruci-numeros",name:{es:"Cruci-números",en:"Cross numbers"},per:{A4:[1,2,4,6],A5:[1,2,4]},
+    desc:["2×2 · sumas","2×2 · sumas y restas","3×3 · sumas y restas","3×3 · con multiplicación","3×3 · las 4 operaciones","3×3 · casi vacío","3×3 · vacío"],
+    rule:{es:L=>"Escribe un número del 1 al 9 en cada casilla vacía, sin repetir ninguno. Cada fila y cada columna debe dar su resultado. Las operaciones se hacen en orden: de izquierda a derecha y de arriba abajo."+(L>=4?" Todas las divisiones son exactas.":""),
+          en:L=>"Write a number from 1 to 9 in each empty square, using each number only once. Every row and column must equal its result. Work the operations in order: left to right and top to bottom."+(L>=4?" Every division comes out even.":"")}},
+  cipher:{ui:"Mensaje secreto",tag:"Descifra la clave",file:"mensaje-secreto",word:true,name:{es:"Mensaje secreto",en:"Secret message"},per:{A4:[1,2,4,6],A5:[1,2,4]},
+    desc:["Clave A = 1 · frase corta","Clave A = 1 · frase larga","Clave revuelta","Letras cambiadas","Solo una pista","Clave incompleta","Clave casi vacía"],
+    rule:{es:L=>["Cada número es una letra. Usa la clave y escribe la letra debajo de cada número para descubrir el mensaje.","Cada número es una letra. Usa la clave y escribe la letra debajo de cada número para descubrir el mensaje.",
+            "Cada número es una letra, pero la clave está revuelta. Usa la tabla para descubrir el mensaje.",
+            "Cada letra del mensaje se cambió por otra. Busca cada letra en la fila de abajo de la tabla y escribe la que está arriba.",
+            "Cada letra se recorrió el mismo número de lugares en el alfabeto. Usa la pista para saber cuántos y descifra el mensaje.",
+            "Cada número es una letra, pero a la clave le faltan algunos. Descifra lo que puedas y adivina las letras que faltan por el contexto.",
+            "Cada número es una letra, pero a la clave le faltan muchos. Descifra lo que puedas y adivina las letras que faltan por el contexto."][L],
+          en:L=>["Each number stands for a letter. Use the key and write the letter under each number to reveal the message.","Each number stands for a letter. Use the key and write the letter under each number to reveal the message.",
+            "Each number stands for a letter, but the key is scrambled. Use the table to reveal the message.",
+            "Each letter in the message was swapped for another. Find each letter in the bottom row of the table and write the one above it.",
+            "Each letter was shifted the same number of places along the alphabet. Use the hint to work out how many, then decode the message.",
+            "Each number stands for a letter, but some are missing from the key. Decode what you can and guess the rest from context.",
+            "Each number stands for a letter, but many are missing from the key. Decode what you can and guess the rest from context."][L]}},
+  escape:{ui:"Escape room",tag:"5 retos y un código",file:"escape-room",word:true,solo:true,name:{es:"Escape room",en:"Escape room"},per:{A4:[1],A5:[1]},
+    desc:["Retos muy fáciles","Retos fáciles","Retos medios","Medio-difíciles","Retos difíciles","Retos extremos","Súper extremos"],
+    rule:{es:()=>"Resuelve los cinco retos: cada uno te da un código. Al final, escribe los códigos en orden para escapar.",
+          en:()=>"Solve the five challenges: each one gives you a code. Then write the codes in order to escape."}}
 };
-const GAME_KEYS=Object.keys(GAMES);
+const GAME_KEYS=Object.keys(GAMES),MIX_KEYS=GAME_KEYS.filter(k=>!GAMES[k].solo);
 const PAPER={
   A4:{w:210,h:297,m:12,layouts:{1:[1,1],2:[1,2],4:[2,2],6:[2,3]},title:16,rpt:8},
   A5:{w:210,h:148.5,sheet:{w:210,h:297},m:10,layouts:{1:[1,1],2:[2,1],4:[2,2]},title:13,rpt:7}
@@ -910,7 +1084,7 @@ try{const s=JSON.parse(localStorage.getItem(STORE)||"{}");
 function remember(){try{localStorage.setItem(STORE,JSON.stringify({game:state.game,level:state.level,lang:state.lang,paper:state.paper,per:state.per,pages:state.pages,answers:state.answers}))}catch(e){}}
 const $=id=>document.getElementById(id);
 const need=()=>state.per*state.pages;
-function ensureAssign(){while(state.assign.length<need())state.assign.push(...shuffle(GAME_KEYS.slice()));}
+function ensureAssign(){while(state.assign.length<need())state.assign.push(...shuffle(MIX_KEYS.slice()));}
 const gameAt=i=>state.game==="mix"?state.assign[i]:state.game;
 
 /* ---------- generation (background worker) ---------- */
@@ -1054,13 +1228,15 @@ const DRAW={
     const bw=gw+5+b.cw,x0=x+(w-bw)/2,bh=Math.max(gh,b.lh),y0=y+(h-bh)/2;cwGrid(D,x0,y0,b.u,z,false);
     drawClues(D,x0+gw+5,y0,T.across,b.A,b.f);drawClues(D,x0+gw+5,y0+b.A.h+2,T.down,b.B,b.f);return [x0,y0,bw,bh];
   },
-  diff(D,x,y,w,h,z,ans){const a=z.W/z.H,g=4;
-    if(ans){const pw=Math.min(w,h*a),ph=pw/a,px=x+(w-pw)/2,py=y+(h-ph)/2,k=pw/z.W;drawPic(D,z.b,z,px,py,pw);
-      for(const m of z.marks)D.circle(px+m[0]*k,py+m[1]*k,m[2]*k,0.6,"#D0443A",null);return [px,py,pw,ph];}
-    const sw=Math.min((w-g)/2,h*a),st=Math.min(w,((h-g)/2)*a);
-    if(sw>=st){const pw=sw,ph=pw/a,bw=2*pw+g,px=x+(w-bw)/2,py=y+(h-ph)/2;drawPic(D,z.a,z,px,py,pw);drawPic(D,z.b,z,px+pw+g,py,pw);return [px,py,bw,ph];}
-    const pw=st,ph=pw/a,bh=2*ph+g,px=x+(w-pw)/2,py=y+(h-bh)/2;drawPic(D,z.a,z,px,py,pw);drawPic(D,z.b,z,px,py+ph+g,pw);return [px,py,pw,bh];
-  },
+  crossnum(D,x,y,w,h,z,ans){return drawCN(D,x,y,w,h,z,ans);},
+  cipher(D,x,y,w,h,z,ans){const T=TX[z.lang],showKey=!ans&&z.table,showHint=!ans&&z.hint;
+    const top=showKey?keyH(w,z.table,9)+4:showHint?9:0;
+    const lay=msgLayout(z.enc,w,h-top,Math.min(9.5,w/6))||msgLayout(z.enc,w,1e9,2.5);
+    const H=top+lay.lines.length*lay.lh,y0=y+Math.max(0,(h-H)/2);
+    if(showKey)keyTable(D,x,y0,w,z.table,9);
+    if(showHint)D.text(T.hint+": "+z.hint[0]+" = "+z.hint[1],x+w/2,y0+3,10,{align:"center",baseline:"middle",bold:true});
+    drawMsg(D,x,y0+top,w,lay,z.enc,z.words,ans);return [x,y0,w,H];},
+  escape(D,x,y,w,h,z,ans){return ans?escAnswer(D,x,y,w,h,z):escSheet(D,x,y,w,h,z);},
   jigsaw(D,x,y,w,h,z,ans){const W=z.W,H=z.H,cols=z.cols,rows=z.rows,pw=W/cols,ph=H/rows,gr=0.2;
     if(ans){const k=Math.min(w/W,h/H),fw=W*k,fh=H*k,fx=x+(w-fw)/2,fy=y+(h-fh)/2;drawPic(D,z.prims,z,fx,fy,fw);
       for(let i=1;i<cols;i++)D.line(fx+i*pw*k,fy,fx+i*pw*k,fy+fh,0.35,INK);for(let j=1;j<rows;j++)D.line(fx,fy+j*ph*k,fx+fw,fy+j*ph*k,0.35,INK);
@@ -1078,6 +1254,139 @@ const DRAW={
     return [bx,by,bw,bh];
   }
 };
+/* ---- cruci-números grid: numbers on even cells, operators between them, results on the right and bottom ---- */
+const opGlyph=o=>o==="-"?"–":o;
+function drawCN(D,x,y,w,h,z,ans){
+  const n=z.n,m=2*n,u=Math.min(w,h)/m,x0=x+(w-u*m)/2,y0=y+(h-u*m)/2,DARK="#2A2A2A";
+  const res=(v,cx,cy)=>{D.fill(cx,cy,u,u,"#F1F1F1");D.rect(cx,cy,u,u,0.35,INK);
+    D.text("= "+v,cx+u/2,cy+u*0.55,ptFor(u*(String(v).length>2?0.3:0.37)),{align:"center",baseline:"middle",bold:true});};
+  for(let r=0;r<m;r++)for(let c=0;c<m;c++){
+    const cx=x0+c*u,cy=y0+r*u,lastC=c===m-1,lastR=r===m-1;
+    if(lastC&&lastR)continue;
+    if(lastC){if(r%2)D.fill(cx,cy,u,u,DARK);else res(z.rows[r/2],cx,cy);continue;}
+    if(lastR){if(c%2)D.fill(cx,cy,u,u,DARK);else res(z.cols[c/2],cx,cy);continue;}
+    if(r%2&&c%2){D.fill(cx,cy,u,u,DARK);continue;}
+    D.rect(cx,cy,u,u,0.35,INK);
+    if(!(r%2)&&!(c%2)){const i=(r/2)*n+c/2,g=z.givens[i],v=ans?z.solution[i]:g;if(v)digit(D,v,cx+u/2,cy+u*0.53,u,!!g);}
+    else{const op=r%2?z.vop[(c/2)*(n-1)+(r-1)/2]:z.hop[(r/2)*(n-1)+(c-1)/2];
+      D.text(opGlyph(op),cx+u/2,cy+u*0.55,ptFor(u*0.5),{align:"center",baseline:"middle",color:"#333333"});}
+  }
+  D.rect(x0,y0,u*(m-1),u*(m-1),0.8,INK);
+  return [x0,y0,u*m,u*m];
+}
+/* ---- secret-message helpers ---- */
+function keyH(w,table,kwMax){const per=Math.ceil(table.length/2),kw=Math.min(kwMax,w/per);return 4*kw*0.82+1.5;}
+function keyTable(D,x,y,w,table,kwMax){
+  const per=Math.ceil(table.length/2),kw=Math.min(kwMax,w/per),kh=kw*0.82,x0=x+(w-kw*per)/2,ks=table.some(t=>t[1].length>1)?0.42:0.5;
+  for(let b=0;b<2;b++)for(let j=0;j<per;j++){const i=b*per+j;if(i>=table.length)break;const cx=x0+j*kw,cy=y+b*(2*kh+1.5),t=table[i];
+    D.fill(cx,cy,kw,kh,"#EDEDED");D.rect(cx,cy,kw,kh,0.3,INK);D.rect(cx,cy+kh,kw,kh,0.3,INK);
+    D.text(t[0],cx+kw/2,cy+kh*0.55,ptFor(kh*0.5),{align:"center",baseline:"middle",bold:true});
+    if(t[1])D.text(t[1],cx+kw/2,cy+kh*1.55,ptFor(kh*ks),{align:"center",baseline:"middle"});}
+  return 4*kh+1.5;
+}
+function msgLayout(enc,w,hAvail,cuMax){
+  for(let cu=cuMax;cu>=2.5;cu-=0.25){
+    if(enc.some(wd=>wd.length*cu>w))continue;
+    const gap=cu*0.8,lines=[];let cur=[],cw=0;
+    enc.forEach((wd,i)=>{const ww=wd.length*cu;if(cur.length&&cw+gap+ww>w){lines.push(cur);cur=[];cw=0;}cw+=(cur.length?gap:0)+ww;cur.push(i);});
+    if(cur.length)lines.push(cur);
+    const lh=cu*2.15;if(lines.length*lh<=hAvail)return {cu,lines,lh,gap};
+  }
+  return null;
+}
+function drawMsg(D,x,y,w,lay,enc,plain,ans){
+  const {cu,lines,lh,gap}=lay,cs=enc.some(wd=>wd.some(c=>c.length>1))?0.4:0.48;
+  lines.forEach((ln,li)=>{
+    const lw=ln.reduce((s,wi,k)=>s+enc[wi].length*cu+(k?gap:0),0);let cx=x+(w-lw)/2;const cy=y+li*lh;
+    for(const wi of ln){
+      enc[wi].forEach((code,k)=>{const bx=cx+k*cu;
+        D.text(code,bx+cu/2,cy+cu*0.42,ptFor(cu*cs),{align:"center",baseline:"middle",bold:true});
+        D.rect(bx+cu*0.08,cy+cu*0.78,cu*0.84,cu,0.3,INK);
+        if(ans&&plain)D.text(plain[wi][k],bx+cu/2,cy+cu*1.33,ptFor(cu*0.6),{align:"center",baseline:"middle",color:"#333333"});});
+      cx+=enc[wi].length*cu+gap;}
+  });
+  return lines.length*lh;
+}
+/* ---- escape room: one full page with five challenges and a final code ---- */
+const ESC={
+  es:{t:["1. SOPA DE LETRAS","2. CANDADO MATEMÁTICO","3. MENSAJE SECRETO","4. CRUCI-NÚMEROS","5. ADIVINANZA","6. CÓDIGO FINAL"],
+    d:[()=>"Una palabra de la lista NO está escondida en la sopa. Esa palabra es el código 1.",
+       ()=>"Resuelve cada operación y busca el resultado en la tabla. Las letras, en orden, forman el código 2.",
+       L=>L>=5?"La clave va al revés: sigue la cuenta de la pista. La palabra es el código 3.":L>=3?"La clave no empieza en 1. Descifra la palabra: es el código 3.":"Cada número es una letra. Descifra la palabra: es el código 3.",
+       ()=>"Usa números del 1 al 9 sin repetir y opera en orden. Los números que escribiste, de izquierda a derecha y de arriba abajo, son el código 4.",
+       ()=>"Resuelve la adivinanza. La respuesta es el código 5.",
+       ()=>"Escribe los cinco códigos en orden para abrir el candado."],
+    code:"CÓDIGO",answer:"Respuesta",done:"¡ESCAPASTE!",res:"Resultado",let:"Letra",fin:"Código final",miss:"falta"},
+  en:{t:["1. WORD SEARCH","2. MATH LOCK","3. SECRET MESSAGE","4. CROSS NUMBERS","5. RIDDLE","6. FINAL CODE"],
+    d:[()=>"One word on the list is NOT hidden in the grid. That word is code 1.",
+       ()=>"Solve each problem and find the answer in the table. The letters, in order, spell code 2.",
+       L=>L>=5?"The key runs backwards: follow the pattern in the hint. The word is code 3.":L>=3?"The key does not start at 1. Decode the word: it is code 3.":"Each number stands for a letter. Decode the word: it is code 3.",
+       ()=>"Use numbers 1 to 9, each only once, and work in order. The numbers you wrote, left to right and top to bottom, are code 4.",
+       ()=>"Solve the riddle. The answer is code 5.",
+       ()=>"Write the five codes in order to open the lock."],
+    code:"CODE",answer:"Answer",done:"YOU ESCAPED!",res:"Answer",let:"Letter",fin:"Final code",miss:"missing"}
+};
+function boxes(D,x,y,len,cb){for(let i=0;i<len;i++)D.rect(x+i*cb,y,cb,cb,0.45,INK);return len*cb;}
+function escSheet(D,x,y,w,h,z){
+  const E=ESC[z.lang],T=TX[z.lang],L=z.level,wide=w>h*1.2,cols=wide?3:2,rows=wide?2:3,gp=3;
+  const pw=(w-gp*(cols-1))/cols,ph=(h-gp*(rows-1))/rows;
+  const fs=Math.max(5,Math.min(8.5,Math.min(pw/88,ph/72)*7.8)),mm=fs*0.3528,pad=2.4,cb=Math.min(5.5,mm*2.4);
+  for(let k=0;k<6;k++){
+    const px=x+(k%cols)*(pw+gp),py=y+((k/cols)|0)*(ph+gp),ax=px+pad,aw=pw-2*pad;
+    D.rect(px,py,pw,ph,0.6,INK);
+    const hh=mm*2.1,tw=D.measure(E.t[k],fs,true)+4;
+    D.fill(px+pad,py+pad,tw,hh,"#111111");D.text(E.t[k],px+pad+2,py+pad+hh*0.55,fs,{bold:true,baseline:"middle",color:"#FFFFFF"});
+    let cy=py+pad+hh+1.6;const df=fs*0.9;
+    for(const l of wrap(D,E.d[k](L),df,aw)){D.text(l,ax,cy,df,{baseline:"top",color:"#333333"});cy+=df*0.3528*1.3;}
+    cy+=1.5;
+    const codeH=k<5?cb+3:0,ay=cy,ah=py+ph-pad-codeH-ay;
+    if(k===0){/* word search + word list */
+      const ws=z.ws,lf=fs,lw=Math.max(...ws.list.map(s=>D.measure(s,lf)))+3,s=Math.max(10,Math.min(ah,aw-lw-2));
+      wsGrid(D,ax,ay,s,{n:ws.n,grid:ws.grid,words:[]},false);
+      ws.list.forEach((wd,i)=>{const ly=ay+i*mm*1.7;D.text("•",ax+s+2.5,ly,lf,{baseline:"top"});D.text(wd,ax+s+5,ly,lf,{baseline:"top"});});
+    }else if(k===1){/* math lock */
+      const P=z.lock.probs,R=z.lock.rows,lh=Math.min(mm*2.2,ah/Math.max(P.length,R.length+1)),bf=Math.min(fs*1.05,ptFor(lh*0.62));
+      P.forEach((p,i)=>D.text(String.fromCharCode(65+i)+".  "+p[0].replace(/ - /g," – ")+" = ______",ax,ay+i*lh+lh/2,bf,{baseline:"middle"}));
+      const tw2=Math.max(D.measure(E.res+" = "+E.let,bf*0.85,true),D.measure("888 = W",bf))+4,tx=ax+aw-tw2;
+      D.fill(tx,ay,tw2,lh,"#EDEDED");D.rect(tx,ay,tw2,lh*(R.length+1),0.4,INK);
+      D.text(E.res+" = "+E.let,tx+tw2/2,ay+lh/2,bf*0.85,{align:"center",baseline:"middle",bold:true});
+      R.forEach((r,i)=>{D.line(tx,ay+(i+1)*lh,tx+tw2,ay+(i+1)*lh,0.2,"#999999");D.text(r[0]+"  =  "+r[1],tx+tw2/2,ay+(i+1.5)*lh,bf,{align:"center",baseline:"middle"});});
+    }else if(k===2){/* secret word */
+      const sc=z.sec;let top=0;
+      if(sc.table)top=keyTable(D,ax,ay,aw,sc.table,6.5)+2;
+      else{D.text(T.hint+": "+sc.hint.map(p=>p[0]+" = "+p[1]).join(", ")+"…",ax+aw/2,ay+mm,fs,{align:"center",baseline:"middle",bold:true});top=mm*2.6;}
+      const lay=msgLayout([sc.enc],aw,ah-top,Math.min(9,aw/sc.enc.length))||msgLayout([sc.enc],aw,1e9,2.5);
+      drawMsg(D,ax,ay+top+Math.max(0,(ah-top-lay.lh)/2),aw,lay,[sc.enc],null,false);
+    }else if(k===3){drawCN(D,ax,ay,aw,ah,z.cn,false);
+    }else if(k===4){/* riddle */
+      const rf=fs*1.15,lines=wrap(D,z.rid.q,rf,aw-6),lh=rf*0.3528*1.4,bh=lines.length*lh+4;
+      D.fill(ax,ay,aw,bh,"#F4F4F4");D.rect(ax,ay,aw,bh,0.3,"#888888");
+      lines.forEach((l,i)=>D.text(l,ax+3,ay+2+i*lh,rf,{baseline:"top"}));
+      const ry=Math.min(ay+bh+mm*2.2,ay+ah-1);D.text(E.answer+":",ax,ry,fs,{bold:true,baseline:"middle"});
+      const lx=ax+D.measure(E.answer+":",fs,true)+2;D.line(lx,ry+mm*0.6,ax+aw,ry+mm*0.6,0.3,INK);
+    }else{/* final code */
+      const lens=z.codes.map(c=>c.length),doneH=mm*3.4;let lay=null;
+      for(let c=6;c>=2;c-=0.25){const rowsArr=[];let cur=[],cw=0;
+        lens.forEach((n,i)=>{const gw=n*c;if(cur.length&&cw+c*1.4+gw>aw){rowsArr.push(cur);cur=[];cw=0;}cw+=(cur.length?c*1.4:0)+gw;cur.push(i);});
+        rowsArr.push(cur);const rh=c+mm*1.6+2.5;if(rowsArr.length*rh<=ah-doneH){lay={c,rowsArr,rh};break;}}
+      if(!lay)lay={c:2,rowsArr:[[0,1,2,3,4]],rh:2+mm*1.6+2.5};
+      lay.rowsArr.forEach((ri,r)=>{const rw=ri.reduce((s,i,j)=>s+lens[i]*lay.c+(j?lay.c*1.4:0),0);let bx=ax+(aw-rw)/2;const by=ay+r*lay.rh;
+        for(const i of ri){D.text(String(i+1),bx+lens[i]*lay.c/2,by+mm*0.6,fs*0.85,{align:"center",baseline:"middle",bold:true,color:"#555555"});
+          boxes(D,bx,by+mm*1.5,lens[i],lay.c);bx+=lens[i]*lay.c+lay.c*1.4;}});
+      D.text(E.done,px+pw/2,py+ph-pad-doneH/2,fs*1.7,{align:"center",baseline:"middle",bold:true});
+    }
+    if(k<5){const ry=py+ph-pad-cb,lab=E.code+" "+(k+1)+":";D.text(lab,ax,ry+cb/2,fs,{bold:true,baseline:"middle"});
+      const bx=ax+D.measure(lab,fs,true)+2,len=z.codes[k].length;boxes(D,bx,ry,len,Math.min(cb,(ax+aw-bx)/len));}
+  }
+  return [x,y,w,h];
+}
+function escAnswer(D,x,y,w,h,z){
+  const E=ESC[z.lang],c=z.codes,P=z.lock.probs;
+  const items=[E.t[0]+": "+c[0]+" ("+E.miss+")",E.t[1]+": "+P.map((p,i)=>String.fromCharCode(65+i)+" = "+p[1]).join(", ")+" = "+c[1],
+    E.t[2]+": "+c[2],E.t[3]+": "+c[3],E.t[4]+": "+c[4],E.fin+": "+c.join(" · ")];
+  for(let f=10;f>=5;f-=0.5){const lh=f*0.3528*1.45,lines=items.map(t=>wrap(D,t,f,w));const n=lines.reduce((s,l)=>s+l.length,0)+0.6;
+    if(n*lh<=h||f<=5){let yy=y;lines.forEach((ls,i)=>{if(i===5)yy+=lh*0.6;ls.forEach(l=>{D.text(l,x,yy,f,{baseline:"top",bold:i===5});yy+=lh;});});return [x,y,w,yy-y];}}
+}
 function drawPuzzle(D,x,y,w,h,z,ans,lang){
   if(!z){const [x0,y0,s]=square(x,y,w,h);D.rect(x0,y0,s,s,0.3,"#BBBBBB");D.text(TX[lang].making,x0+s/2,y0+s/2,9,{align:"center",baseline:"middle",color:"#999999"});return [x0,y0,s,s];}
   return DRAW[z.game](D,x,y,w,h,z,ans);
@@ -1086,7 +1395,9 @@ function infoOf(z,T){switch(z.game){
   case "sudoku":return z.count+" "+T.clues;
   case "maze":case "wordsearch":return z.n+"×"+z.n;
   case "crossword":return (z.across.length+z.down.length)+" "+T.words;
-  case "diff":return z.marks.length+" "+T.diffs;
+  case "crossnum":return z.n+"×"+z.n;
+  case "cipher":return z.words.join("").length+" "+T.letters;
+  case "escape":return "5 "+T.challenges;
   case "jigsaw":return z.cols*z.rows+" "+T.pieces;}return "";}
 function ansGrid(){const small=state.game==="sudoku"||state.game==="maze";return state.paper==="A4"?(small?[3,4]:[2,3]):(small?[4,2]:[3,1]);}
 
@@ -1187,7 +1498,7 @@ const setStatus=t=>{$("status").textContent=t};
 /* ---------- controls ---------- */
 const gamesEl=$("games");
 [...GAME_KEYS,"mix"].forEach(k=>{const G=GAMES[k];
-  gamesEl.insertAdjacentHTML("beforeend",'<input class="vh" type="radio" name="game" id="g-'+k+'" value="'+k+'"><label for="g-'+k+'"><b>'+(G?G.ui:"Mezcla")+'</b><small>'+(G?G.tag:"Los seis juegos")+'</small></label>');});
+  gamesEl.insertAdjacentHTML("beforeend",'<input class="vh" type="radio" name="game" id="g-'+k+'" value="'+k+'"><label for="g-'+k+'"><b>'+(G?G.ui:"Mezcla")+'</b><small>'+(G?G.tag:"Varios juegos juntos")+'</small></label>');});
 gamesEl.addEventListener("change",e=>{state.game=e.target.value;if(state.game==="mix")state.assign=[];syncLadder();syncPer();remember();regenerate();});
 
 const ladder=$("ladder");
@@ -1199,7 +1510,7 @@ function syncLadder(){
   $("g-"+state.game).checked=true;$("lv-"+state.level).checked=true;
   TX.es.levels.forEach((_,i)=>{$("gv-"+i).textContent=state.game==="mix"?"":GAMES[state.game].desc[i];});
 }
-function allowedPer(){const lay=PAPER[state.paper].layouts,games=state.game==="mix"?GAME_KEYS:[state.game];
+function allowedPer(){const lay=PAPER[state.paper].layouts,games=state.game==="mix"?MIX_KEYS:[state.game];
   return [1,2,4,6].filter(v=>lay[v]&&games.every(g=>GAMES[g].per[state.paper].includes(v)));}
 function syncPer(){
   $("p-"+state.paper.toLowerCase()).checked=true;
@@ -1208,7 +1519,7 @@ function syncPer(){
   if(!al.includes(state.per))state.per=al.filter(v=>v<=state.per).pop()||al[0];
   $("per-"+state.per).checked=true;
   const blocked=[1,2,4,6].filter(v=>lay[v]&&!al.includes(v));
-  $("perHint").textContent=blocked.length?(state.game==="mix"?"En la mezcla":GAMES[state.game].ui)+" necesita más espacio: máximo "+al[al.length-1]+" por hoja en "+state.paper+".":"";
+  $("perHint").textContent=al.length===1&&state.game!=="mix"?GAMES[state.game].ui+" ocupa una hoja completa.":blocked.length?(state.game==="mix"?"En la mezcla":GAMES[state.game].ui)+" necesita más espacio: máximo "+al[al.length-1]+" por hoja en "+state.paper+".":"";
 }
 document.querySelectorAll('input[name="paper"]').forEach(r=>r.addEventListener("change",e=>{state.paper=e.target.value;syncPer();remember();render();pump();}));
 $("perSeg").addEventListener("change",e=>{state.per=+e.target.value;remember();render();pump();});
