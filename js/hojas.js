@@ -360,11 +360,12 @@ function lgGridDraw(D,x,y,G,z){
       D.rect(bx,ry,n*u,n*u,0.6,INK);}});
 }
 function lgItems(z){const T=TX[z.lang],out=[];
-  out.push({t:z.titulo,bold:true,size:1.25});out.push({t:z.intro,gapAfter:0.5});
+  /* puzzles saved before stories existed have no title or question */
+  if(z.titulo)out.push({t:z.titulo,bold:true,size:1.25});out.push({t:z.intro,gapAfter:0.5});
   out.push({t:T.clueList,bold:true});
   z.clues.forEach((c,i)=>out.push({t:c,num:(i+1)+"."}));
   if(z.game==="mystery")out.push({t:z.evidencia,bold:true,gapBefore:0.5});
-  out.push({t:z.pregunta,ask:true,bold:z.game==="logic",gapBefore:0.6});
+  if(z.pregunta)out.push({t:z.pregunta,ask:true,bold:z.game==="logic",gapBefore:0.6});
   return out;}
 function textBlock(D,items,f,W){
   const mm=f*0.3528,lh=mm*1.38,numW=D.measure("00.",f,true)+1.2,lines=[];let h=0;
@@ -395,7 +396,7 @@ function lgAnswer(D,x,y,w,h,z){
   const T=TX[z.lang],head=[z.persona].concat(z.cats.map(c=>c.titulo));
   const rows=z.names.map((nm,p)=>[nm].concat(z.cats.map((c,ci)=>c.labels[z.sol[ci][p]])));
   /* the answer to the sheet's question goes first, in red; the full table shows how it was reached */
-  const myst=true,who=z.game==="mystery"?z.culprit:z.answer,top=z.game==="mystery"?T.culprit+": "+z.names[who]:z.pregunta+" "+z.names[who];
+  const who=z.game==="mystery"?z.culprit:z.answer,myst=who!=null&&who>=0,top=!myst?null:z.game==="mystery"?T.culprit+": "+z.names[who]:z.pregunta+" "+z.names[who];
   for(let f=10;f>=4.5;f-=0.5){
     const mm=f*0.3528,rh=mm*1.75,colW=head.map((hd,ci)=>Math.max(D.measure(hd,f,true),...rows.map(r=>D.measure(r[ci],f)))+3);
     const tw=colW.reduce((s,v)=>s+v,0),topH=myst?mm*2.2:0,th=topH+rh*(rows.length+1);
