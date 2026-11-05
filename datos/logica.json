@@ -1,0 +1,326 @@
+{
+ "es": {
+  "nombres": [
+   "Ana",
+   "Luis",
+   "Sofía",
+   "Diego",
+   "Valeria",
+   "Mateo",
+   "Camila",
+   "Emilio",
+   "Lucía",
+   "Andrés",
+   "Regina",
+   "Tomás",
+   "Elena",
+   "Bruno",
+   "Paula",
+   "Hugo",
+   "Renata",
+   "Iván",
+   "Daniela",
+   "Pablo",
+   "Ximena",
+   "Gael",
+   "Jimena",
+   "Rodrigo",
+   "Natalia",
+   "Leo",
+   "Mariana",
+   "Santiago",
+   "Carla",
+   "Joaquín",
+   "Fernanda",
+   "Raúl"
+  ],
+  "persona": "Nombre",
+  "quien": "quien",
+  "o": "o",
+  "intro": ["{n} amigos se juntaron el fin de semana.", "{n} vecinos de la misma calle participan en este acertijo.", "{n} compañeros de clase contestaron una encuesta.", "{n} primos pasaron juntos las vacaciones."],
+  "categorias": [
+   {
+    "id": "mascota",
+    "titulo": "Mascota",
+    "si": "tiene {v}",
+    "no": "no tiene {v}",
+    "valores": [
+     ["Gato", "un gato"],
+     ["Perro", "un perro"],
+     ["Conejo", "un conejo"],
+     ["Tortuga", "una tortuga"],
+     ["Loro", "un loro"],
+     ["Pez", "un pez"],
+     ["Hámster", "un hámster"]
+    ]
+   },
+   {
+    "id": "color",
+    "titulo": "Color",
+    "si": "prefiere el {v}",
+    "no": "no prefiere el {v}",
+    "valores": [
+     ["Rojo", "rojo"],
+     ["Azul", "azul"],
+     ["Verde", "verde"],
+     ["Amarillo", "amarillo"],
+     ["Morado", "morado"],
+     ["Naranja", "naranja"],
+     ["Rosa", "rosa"]
+    ]
+   },
+   {
+    "id": "bebida",
+    "titulo": "Bebida",
+    "si": "toma {v}",
+    "no": "no toma {v}",
+    "valores": [
+     ["Jugo", "jugo"],
+     ["Leche", "leche"],
+     ["Agua", "agua"],
+     ["Té", "té"],
+     ["Limonada", "limonada"],
+     ["Chocolate", "chocolate"],
+     ["Horchata", "horchata"]
+    ]
+   },
+   {
+    "id": "deporte",
+    "titulo": "Deporte",
+    "si": "juega {v}",
+    "no": "no juega {v}",
+    "valores": [
+     ["Fútbol", "fútbol"],
+     ["Béisbol", "béisbol"],
+     ["Tenis", "tenis"],
+     ["Voleibol", "voleibol"],
+     ["Básquetbol", "básquetbol"],
+     ["Ajedrez", "ajedrez"],
+     ["Golf", "golf"]
+    ]
+   },
+   {
+    "id": "fruta",
+    "titulo": "Fruta",
+    "si": "trajo {v}",
+    "no": "no trajo {v}",
+    "valores": [
+     ["Manzana", "una manzana"],
+     ["Plátano", "un plátano"],
+     ["Pera", "una pera"],
+     ["Uvas", "uvas"],
+     ["Mango", "un mango"],
+     ["Naranja", "una naranja"],
+     ["Fresas", "fresas"]
+    ]
+   },
+   {
+    "id": "transporte",
+    "titulo": "Transporte",
+    "si": "llega en {v}",
+    "no": "no llega en {v}",
+    "valores": [
+     ["Bicicleta", "bicicleta"],
+     ["Autobús", "autobús"],
+     ["Coche", "coche"],
+     ["Metro", "metro"],
+     ["Patineta", "patineta"],
+     ["Tren", "tren"]
+    ]
+   },
+   {
+    "id": "instrumento",
+    "titulo": "Instrumento",
+    "si": "toca {v}",
+    "no": "no toca {v}",
+    "valores": [
+     ["Guitarra", "la guitarra"],
+     ["Piano", "el piano"],
+     ["Batería", "la batería"],
+     ["Flauta", "la flauta"],
+     ["Violín", "el violín"],
+     ["Trompeta", "la trompeta"]
+    ]
+   },
+   {
+    "id": "casa",
+    "titulo": "Casa",
+    "si": "vive en la casa {v}",
+    "no": "no vive en la casa {v}",
+    "orden": true,
+    "menor": "vive más a la izquierda que",
+    "justo": "vive justo a la izquierda de",
+    "lado": "vive al lado de",
+    "valores": [
+     ["1", "1"],
+     ["2", "2"],
+     ["3", "3"],
+     ["4", "4"],
+     ["5", "5"]
+    ]
+   }
+  ]
+ },
+ "en": {
+  "nombres": [
+   "Emma",
+   "Liam",
+   "Olivia",
+   "Noah",
+   "Ava",
+   "Ethan",
+   "Mia",
+   "Lucas",
+   "Zoe",
+   "Owen",
+   "Lily",
+   "Jack",
+   "Grace",
+   "Ryan",
+   "Chloe",
+   "Leo",
+   "Ella",
+   "Max",
+   "Ruby",
+   "Sam",
+   "Nora",
+   "Ben",
+   "Ivy",
+   "Theo",
+   "Maya",
+   "Finn",
+   "Hazel",
+   "Eli",
+   "Rose",
+   "Jake",
+   "Amelia",
+   "Oscar"
+  ],
+  "persona": "Name",
+  "quien": "the one who",
+  "o": "or",
+  "intro": ["{n} friends got together over the weekend.", "{n} neighbors on the same street take part in this puzzle.", "{n} classmates answered a survey.", "{n} cousins spent the holidays together."],
+  "categorias": [
+   {
+    "id": "mascota",
+    "titulo": "Pet",
+    "si": "has {v}",
+    "no": "does not have {v}",
+    "valores": [
+     ["Cat", "a cat"],
+     ["Dog", "a dog"],
+     ["Rabbit", "a rabbit"],
+     ["Turtle", "a turtle"],
+     ["Parrot", "a parrot"],
+     ["Fish", "a fish"],
+     ["Hamster", "a hamster"]
+    ]
+   },
+   {
+    "id": "color",
+    "titulo": "Color",
+    "si": "likes {v}",
+    "no": "does not like {v}",
+    "valores": [
+     ["Red", "red"],
+     ["Blue", "blue"],
+     ["Green", "green"],
+     ["Yellow", "yellow"],
+     ["Purple", "purple"],
+     ["Orange", "orange"],
+     ["Pink", "pink"]
+    ]
+   },
+   {
+    "id": "bebida",
+    "titulo": "Drink",
+    "si": "drinks {v}",
+    "no": "does not drink {v}",
+    "valores": [
+     ["Juice", "juice"],
+     ["Milk", "milk"],
+     ["Water", "water"],
+     ["Tea", "tea"],
+     ["Lemonade", "lemonade"],
+     ["Cocoa", "cocoa"],
+     ["Smoothie", "smoothies"]
+    ]
+   },
+   {
+    "id": "deporte",
+    "titulo": "Sport",
+    "si": "plays {v}",
+    "no": "does not play {v}",
+    "valores": [
+     ["Soccer", "soccer"],
+     ["Baseball", "baseball"],
+     ["Tennis", "tennis"],
+     ["Volleyball", "volleyball"],
+     ["Basketball", "basketball"],
+     ["Chess", "chess"],
+     ["Golf", "golf"]
+    ]
+   },
+   {
+    "id": "fruta",
+    "titulo": "Fruit",
+    "si": "brought {v}",
+    "no": "did not bring {v}",
+    "valores": [
+     ["Apple", "an apple"],
+     ["Banana", "a banana"],
+     ["Pear", "a pear"],
+     ["Grapes", "grapes"],
+     ["Mango", "a mango"],
+     ["Orange", "an orange"],
+     ["Strawberries", "strawberries"]
+    ]
+   },
+   {
+    "id": "transporte",
+    "titulo": "Transport",
+    "si": "comes by {v}",
+    "no": "does not come by {v}",
+    "valores": [
+     ["Bike", "bike"],
+     ["Bus", "bus"],
+     ["Car", "car"],
+     ["Subway", "subway"],
+     ["Skateboard", "skateboard"],
+     ["Train", "train"]
+    ]
+   },
+   {
+    "id": "instrumento",
+    "titulo": "Instrument",
+    "si": "plays {v}",
+    "no": "does not play {v}",
+    "valores": [
+     ["Guitar", "the guitar"],
+     ["Piano", "the piano"],
+     ["Drums", "the drums"],
+     ["Flute", "the flute"],
+     ["Violin", "the violin"],
+     ["Trumpet", "the trumpet"]
+    ]
+   },
+   {
+    "id": "casa",
+    "titulo": "House",
+    "si": "lives in house {v}",
+    "no": "does not live in house {v}",
+    "orden": true,
+    "menor": "lives further left than",
+    "justo": "lives directly to the left of",
+    "lado": "lives next to",
+    "valores": [
+     ["1", "1"],
+     ["2", "2"],
+     ["3", "3"],
+     ["4", "4"],
+     ["5", "5"]
+    ]
+   }
+  ]
+ }
+}

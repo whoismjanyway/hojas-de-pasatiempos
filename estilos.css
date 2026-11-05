@@ -1,0 +1,168 @@
+/* Notebook-and-ink look: graph-paper desk, navy ink for everything you act on,
+   red pen reserved for answers. The printed sheet is the only element with a shadow. */
+:root{
+  --desk:#EDF2F6; --grid:#DCE5EE; --paper:#FFFFFF; --ink:#1E2B45; --ink-2:#55637A; --line:#C3CFDB;
+  --wash:#E3EAF2; --red:#C8372D; --red-wash:#F8E3E0; --focus:#2F6FDB;
+  --hand:"Shantell Sans", "Comic Neue", "Segoe Print", cursive;
+  --ui:"Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --desk:#131A24; --grid:#1B2431; --paper:#1D2634; --ink:#E3E9F2; --ink-2:#9BA9BD; --line:#334155;
+    --wash:#253043; --red:#FF7A6B; --red-wash:#3A2426; --focus:#86AEFF; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --desk:#131A24; --grid:#1B2431; --paper:#1D2634; --ink:#E3E9F2; --ink-2:#9BA9BD; --line:#334155;
+  --wash:#253043; --red:#FF7A6B; --red-wash:#3A2426; --focus:#86AEFF; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink); font-family:var(--ui); font-size:15px; line-height:1.5;
+  background-color:var(--desk);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg,var(--grid) 1px, transparent 1px);
+  background-size:20px 20px;
+}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:1180px; margin:0 auto; padding:28px max(16px, env(safe-area-inset-left, 0px)) 56px max(16px, env(safe-area-inset-right, 0px))}
+
+/* header */
+.top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:26px}
+.top h1{font-family:var(--hand); font-weight:700; font-size:clamp(34px,5.4vw,52px); line-height:1; margin:0; letter-spacing:-0.01em}
+.top p{margin:10px 0 0; color:var(--ink-2); max-width:56ch}
+
+/* layout */
+.app{display:grid; grid-template-columns:minmax(0,430px) minmax(0,1fr); gap:40px; align-items:start}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr); gap:28px}}
+.controls{display:flex; flex-direction:column; gap:24px; min-width:0}
+fieldset{border:0; margin:0; padding:0; min-width:0}
+fieldset[hidden]{display:none}
+legend{font-weight:600; font-size:15px; padding:0; margin-bottom:10px}
+.hint{font-size:13px; color:var(--ink-2); margin:8px 0 0}
+.hint:empty{display:none}
+.vh{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+/* game picker: each option shows a miniature of its own grid */
+.games{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
+@media (max-width:420px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.game{display:flex; flex-direction:column; align-items:flex-start; gap:8px; padding:11px 11px 10px; text-align:left;
+  background:var(--paper); border:1px solid var(--line); border-radius:6px; cursor:pointer; min-width:0}
+.game svg{width:34px; height:34px; color:var(--ink-2); flex:none}
+.game b{font-weight:600; font-size:14px; line-height:1.2}
+.game small{display:block; font-size:12px; color:var(--ink-2); line-height:1.3; margin-top:2px}
+.game:hover{border-color:var(--ink-2)}
+.game[aria-checked="true"]{border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink); background:var(--wash)}
+.game[aria-checked="true"] svg{color:var(--ink)}
+
+/* mix checklist */
+.checks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 14px}
+.checks label{display:flex; align-items:center; gap:9px; padding:5px 0; cursor:pointer}
+.checks input,.check input{width:18px; height:18px; margin:0; accent-color:var(--ink); flex:none}
+
+/* difficulty: a 1–7 scale; the selected level's name and what it means sit underneath */
+.scale{display:grid; grid-template-columns:repeat(7,1fr); border:1px solid var(--line); border-radius:6px; overflow:hidden; background:var(--paper)}
+.scale button{border:0; border-left:1px solid var(--line); background:transparent; padding:10px 0; cursor:pointer; font-weight:600; font-variant-numeric:tabular-nums; position:relative}
+.scale button:first-child{border-left:0}
+.scale button span{display:block; height:4px; margin:6px auto 0; width:calc(20% + var(--i) * 9%); background:var(--line); border-radius:2px}
+.scale button[aria-checked="true"]{background:var(--ink); color:var(--paper)}
+.scale button[aria-checked="true"] span{background:var(--paper)}
+.level-name{margin:10px 0 0; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline}
+.level-name b{font-weight:600}
+.level-name span{color:var(--ink-2); font-size:14px}
+
+/* segmented choices */
+.seg{display:flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:var(--paper)}
+.seg label{flex:1; text-align:center; padding:8px 6px; cursor:pointer; border-left:1px solid var(--line); font-weight:600; line-height:1.25}
+.seg label:first-of-type{border-left:0}
+.seg label small{display:block; font-weight:400; font-size:12px; color:var(--ink-2)}
+.seg input:checked + label{background:var(--ink); color:var(--paper)}
+.seg input:checked + label small{color:var(--paper); opacity:.8}
+.seg input:disabled + label{color:var(--ink-2); opacity:.45; cursor:not-allowed; text-decoration:line-through}
+.seg input:focus-visible + label{outline:2px solid var(--focus); outline-offset:-3px}
+.row2{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:end}
+@media (max-width:420px){.row2{grid-template-columns:minmax(0,1fr)}}
+.stepper{display:flex; align-items:center; border:1px solid var(--line); border-radius:6px; background:var(--paper); overflow:hidden}
+.stepper button{width:44px; height:40px; border:0; background:transparent; font-size:20px; cursor:pointer}
+.stepper output{flex:1; text-align:center; font-weight:600; font-variant-numeric:tabular-nums; border-left:1px solid var(--line); border-right:1px solid var(--line); line-height:40px}
+.check{display:flex; gap:10px; align-items:center; cursor:pointer; padding:9px 0}
+
+/* buttons */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; padding:9px 16px; border-radius:6px;
+  border:1px solid var(--line); background:var(--paper); font-weight:600; cursor:pointer; text-decoration:none}
+.btn svg{width:18px; height:18px; flex:none}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--ink); border-color:var(--ink); color:var(--paper)}
+.btn.primary:hover{filter:brightness(1.15)}
+.btn.quiet{background:transparent; border-color:transparent; color:var(--ink-2)}
+.btn.quiet:hover{color:var(--ink); border-color:var(--line)}
+.btn.red{color:var(--red)}
+.btn:disabled{opacity:.5; cursor:progress}
+.btn:focus-visible,.game:focus-visible,.scale button:focus-visible,.stepper button:focus-visible,.pager button:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.actions{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.actions .primary{grid-column:1 / -1; min-height:50px; font-size:16px}
+.status{font-size:13px; color:var(--ink-2); margin:-12px 0 0; min-height:1.5em}
+.count{font-variant-numeric:tabular-nums; color:var(--ink-2); font-weight:400}
+@media (max-width:900px){
+  .actions{position:sticky; bottom:0; z-index:5; margin:0 -16px; padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background:var(--desk); border-top:1px solid var(--line); grid-template-columns:minmax(0,1fr) auto auto}
+  .actions .primary{grid-column:auto; min-height:46px}
+  .actions .long{display:none}
+  .actions #newBtn{border-color:var(--line)}
+}
+
+/* preview: the sheet sits on the desk like real paper */
+.preview{display:flex; flex-direction:column; align-items:center; gap:12px; min-width:0; position:sticky; top:20px}
+@media (max-width:900px){.preview{position:static}}
+.sheet{width:100%; max-width:600px; background:#fff; border-radius:2px;
+  box-shadow:0 1px 1px rgba(30,43,69,.10), 0 10px 28px -6px rgba(30,43,69,.22)}
+.sheet svg{display:block; width:100%; height:auto}
+.sheet.empty{aspect-ratio:210 / 297; display:flex; align-items:center; justify-content:center; padding:24px; color:#55637A; text-align:center}
+.pager{display:flex; align-items:center; gap:12px; font-variant-numeric:tabular-nums}
+.pager button{width:38px; height:34px; border:1px solid var(--line); background:var(--paper); border-radius:6px; cursor:pointer; font-size:17px}
+.pager button:disabled{opacity:.35; cursor:default}
+.meta{font-size:13px; color:var(--ink-2); text-align:center; max-width:600px; margin:0}
+
+/* dialogs */
+.viewer,.modal{position:fixed; inset:0; z-index:50}
+.viewer[hidden],.modal[hidden]{display:none}
+.viewer{display:flex; flex-direction:column; background:var(--desk)}
+.vbar{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:12px max(16px, env(safe-area-inset-left, 0px));
+  background:var(--paper); border-bottom:1px solid var(--line)}
+.vbar h2{margin:0; font-size:18px; font-weight:600}
+.vbar p{margin:2px 0 0; font-size:13px; color:var(--ink-2)}
+.vbar .solution{color:var(--red)}
+.vbtns{display:flex; gap:8px; flex-wrap:wrap}
+.vpages{flex:1; overflow:auto; padding:24px 16px 48px; display:flex; flex-direction:column; align-items:center; gap:20px}
+.vpages .sheet{max-width:820px}
+.modal{background:rgba(14,20,32,.55); display:flex; justify-content:center; align-items:flex-start; padding:48px 16px; overflow:auto}
+.card{background:var(--desk); border-radius:8px; width:100%; max-width:720px; padding:20px 20px 16px; box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.card-head{display:flex; justify-content:space-between; align-items:center; gap:12px}
+.card-head h2{font-family:var(--hand); font-weight:700; font-size:28px; margin:0}
+.hlist{list-style:none; margin:16px 0; padding:0; display:flex; flex-direction:column; gap:10px}
+.hlist li{background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:12px 14px; display:flex; flex-direction:column; gap:10px}
+.hlist .ht{font-weight:600}
+.hlist .hm{font-size:13px; color:var(--ink-2)}
+.hlist .hb{display:flex; gap:6px; flex-wrap:wrap}
+.hlist .hb .end{margin-left:auto}
+.hlist .hb .btn{min-height:36px; padding:6px 11px; font-size:14px}
+.hlist .empty{display:block; text-align:center; color:var(--ink-2); padding:28px 16px}
+.card-foot{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+
+@media (prefers-reduced-motion:no-preference){
+  .game,.scale button,.seg label,.btn{transition:background-color .12s, border-color .12s, color .12s}
+}
+
+/* printing: only the sheets, at real size, one per A4 page */
+#printArea{display:none}
+@page{size:A4 portrait; margin:0}
+@media print{
+  html.imprimiendo body{background:#fff !important}
+  html.imprimiendo body > :not(#printArea){display:none !important}
+  html.imprimiendo #printArea{display:block}
+  #printArea .pp{width:210mm; height:296.8mm; overflow:hidden; break-after:page; page-break-after:always}
+  #printArea .pp:last-child{break-after:auto; page-break-after:auto}
+  #printArea svg{display:block; width:210mm; height:297mm}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+}

@@ -1,0 +1,642 @@
+{
+ "es": [
+  {
+   "titulo": "El pastel desaparecido",
+   "intro": "En la fiesta de cumpleaños de la abuela, alguien se comió el pastel antes de tiempo. Cada invitado estuvo en un lugar distinto de la casa y traía algo diferente.",
+   "pregunta": "¿Quién se comió el pastel?",
+   "evidencia": "Junto al plato vacío quedó una pista: quien se comió el pastel {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Lugar",
+     "si": "estaba en {v}",
+     "no": "no estaba en {v}",
+     "valores": [
+      ["Cocina", "la cocina"],
+      ["Jardín", "el jardín"],
+      ["Sala", "la sala"],
+      ["Comedor", "el comedor"],
+      ["Patio", "el patio"],
+      ["Cochera", "la cochera"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Objeto",
+     "si": "traía {v}",
+     "no": "no traía {v}",
+     "valores": [
+      ["Linterna", "una linterna"],
+      ["Paraguas", "un paraguas"],
+      ["Mochila", "una mochila"],
+      ["Regalo", "un regalo"],
+      ["Gorra", "una gorra"],
+      ["Cámara", "una cámara"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Hora",
+     "si": "llegó a las {v}",
+     "no": "no llegó a las {v}",
+     "orden": true,
+     "menor": "llegó antes que",
+     "justo": "llegó una hora antes que",
+     "lado": "llegó una hora antes o una hora después que",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "El diamante del museo",
+   "intro": "Durante la noche, el famoso diamante azul desapareció de su vitrina. Los guardias revisaron dónde estaba cada visitante del último recorrido y qué llevaba.",
+   "pregunta": "¿Quién se llevó el diamante?",
+   "evidencia": "Las cámaras alcanzaron a ver algo: quien se llevó el diamante {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Lugar",
+     "si": "estaba en {v}",
+     "no": "no estaba en {v}",
+     "valores": [
+      ["Sala egipcia", "la sala egipcia"],
+      ["Dinosaurios", "la sala de dinosaurios"],
+      ["Cafetería", "la cafetería"],
+      ["Biblioteca", "la biblioteca"],
+      ["Tienda", "la tienda de regalos"],
+      ["Jardín", "el jardín de esculturas"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Objeto",
+     "si": "traía {v}",
+     "no": "no traía {v}",
+     "valores": [
+      ["Lupa", "una lupa"],
+      ["Mapa", "un mapa"],
+      ["Cuaderno", "un cuaderno"],
+      ["Bastón", "un bastón"],
+      ["Bolsa", "una bolsa"],
+      ["Audífonos", "audífonos"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Hora",
+     "si": "llegó a las {v}",
+     "no": "no llegó a las {v}",
+     "orden": true,
+     "menor": "llegó antes que",
+     "justo": "llegó una hora antes que",
+     "lado": "llegó una hora antes o una hora después que",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "La corona del castillo",
+   "intro": "La corona de la reina desapareció la noche del gran banquete. Cada invitado pasó la noche en una torre distinta y llevaba algo especial.",
+   "pregunta": "¿Quién escondió la corona?",
+   "evidencia": "El guardia encontró una pista en el cofre vacío: quien escondió la corona {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Lugar",
+     "si": "estaba en {v}",
+     "no": "no estaba en {v}",
+     "valores": [
+      ["Torre norte", "la torre norte"],
+      ["Torre sur", "la torre sur"],
+      ["Biblioteca", "la biblioteca"],
+      ["Establo", "el establo"],
+      ["Cocina", "la cocina del castillo"],
+      ["Capilla", "la capilla"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Objeto",
+     "si": "traía {v}",
+     "no": "no traía {v}",
+     "valores": [
+      ["Vela", "una vela"],
+      ["Capa", "una capa"],
+      ["Escudo", "un escudo"],
+      ["Laúd", "un laúd"],
+      ["Pergamino", "un pergamino"],
+      ["Llave", "una llave"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Hora",
+     "si": "llegó a las {v}",
+     "no": "no llegó a las {v}",
+     "orden": true,
+     "menor": "llegó antes que",
+     "justo": "llegó una hora antes que",
+     "lado": "llegó una hora antes o una hora después que",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "La maleta del tren nocturno",
+   "intro": "En el tren nocturno desapareció la maleta del violinista. Cada pasajero viajaba en un vagón distinto, en fila desde la locomotora, y llevaba algo diferente.",
+   "pregunta": "¿Quién tomó la maleta?",
+   "evidencia": "El revisor encontró una pista en el pasillo: quien tomó la maleta {si}.",
+   "categorias": [
+    {
+     "id": "vagon",
+     "titulo": "Vagón",
+     "si": "viajaba en el vagón {v}",
+     "no": "no viajaba en el vagón {v}",
+     "orden": true,
+     "menor": "viajaba más cerca de la locomotora que",
+     "justo": "viajaba en el vagón justo delante de",
+     "lado": "viajaba en un vagón junto al de",
+     "valores": [
+      ["1", "1"],
+      ["2", "2"],
+      ["3", "3"],
+      ["4", "4"],
+      ["5", "5"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Objeto",
+     "si": "traía {v}",
+     "no": "no traía {v}",
+     "valores": [
+      ["Periódico", "un periódico"],
+      ["Sombrero", "un sombrero"],
+      ["Termo", "un termo"],
+      ["Novela", "una novela"],
+      ["Bufanda", "una bufanda"],
+      ["Canasta", "una canasta"]
+     ]
+    },
+    {
+     "id": "destino",
+     "titulo": "Destino",
+     "si": "iba a {v}",
+     "no": "no iba a {v}",
+     "valores": [
+      ["Saltillo", "Saltillo"],
+      ["Torreón", "Torreón"],
+      ["Zacatecas", "Zacatecas"],
+      ["Querétaro", "Querétaro"],
+      ["Puebla", "Puebla"],
+      ["Oaxaca", "Oaxaca"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Crimen en la mansión",
+   "intro": "El dueño de la mansión fue encontrado sin vida en su estudio después de la cena. Cada invitado estuvo en un cuarto distinto y tenía en la mano un objeto diferente; uno de esos objetos fue el arma.",
+   "pregunta": "¿Quién fue el culpable?",
+   "evidencia": "La policía encontró huellas en el estudio: el culpable {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Lugar",
+     "si": "estaba en {v}",
+     "no": "no estaba en {v}",
+     "valores": [
+      ["Biblioteca", "la biblioteca"],
+      ["Invernadero", "el invernadero"],
+      ["Salón de baile", "el salón de baile"],
+      ["Cocina", "la cocina"],
+      ["Bodega", "la bodega"],
+      ["Billar", "la sala de billar"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Objeto",
+     "si": "traía {v}",
+     "no": "no traía {v}",
+     "valores": [
+      ["Candelabro", "un candelabro"],
+      ["Cuerda", "una cuerda"],
+      ["Llave inglesa", "una llave inglesa"],
+      ["Bastón", "un bastón"],
+      ["Estatuilla", "una estatuilla"],
+      ["Atizador", "un atizador"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Hora",
+     "si": "llegó a las {v}",
+     "no": "no llegó a las {v}",
+     "orden": true,
+     "menor": "llegó antes que",
+     "justo": "llegó una hora antes que",
+     "lado": "llegó una hora antes o una hora después que",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "El trofeo de la escuela",
+   "intro": "El día de la feria escolar, el trofeo de ciencias desapareció de la vitrina. Cada estudiante estuvo en un salón distinto y traía algo diferente.",
+   "pregunta": "¿Quién escondió el trofeo?",
+   "evidencia": "La directora encontró una pista junto a la vitrina: quien escondió el trofeo {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Lugar",
+     "si": "estaba en {v}",
+     "no": "no estaba en {v}",
+     "valores": [
+      ["Laboratorio", "el laboratorio"],
+      ["Gimnasio", "el gimnasio"],
+      ["Biblioteca", "la biblioteca"],
+      ["Salón de arte", "el salón de arte"],
+      ["Cafetería", "la cafetería"],
+      ["Patio", "el patio"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Objeto",
+     "si": "traía {v}",
+     "no": "no traía {v}",
+     "valores": [
+      ["Lupa", "una lupa"],
+      ["Pincel", "un pincel"],
+      ["Balón", "un balón"],
+      ["Calculadora", "una calculadora"],
+      ["Flauta", "una flauta"],
+      ["Maqueta", "una maqueta"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Hora",
+     "si": "llegó a las {v}",
+     "no": "no llegó a las {v}",
+     "orden": true,
+     "menor": "llegó antes que",
+     "justo": "llegó una hora antes que",
+     "lado": "llegó una hora antes o una hora después que",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  }
+ ],
+ "en": [
+  {
+   "titulo": "The missing cake",
+   "intro": "At Grandma's birthday party, someone ate the cake before it was time. Each guest was in a different part of the house and had something different with them.",
+   "pregunta": "Who ate the cake?",
+   "evidencia": "Next to the empty plate there was a clue: whoever ate the cake {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Place",
+     "si": "was in {v}",
+     "no": "was not in {v}",
+     "valores": [
+      ["Kitchen", "the kitchen"],
+      ["Garden", "the garden"],
+      ["Living room", "the living room"],
+      ["Dining room", "the dining room"],
+      ["Patio", "the patio"],
+      ["Garage", "the garage"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Item",
+     "si": "had {v}",
+     "no": "did not have {v}",
+     "valores": [
+      ["Flashlight", "a flashlight"],
+      ["Umbrella", "an umbrella"],
+      ["Backpack", "a backpack"],
+      ["Gift", "a gift"],
+      ["Cap", "a cap"],
+      ["Camera", "a camera"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Time",
+     "si": "arrived at {v}",
+     "no": "did not arrive at {v}",
+     "orden": true,
+     "menor": "arrived earlier than",
+     "justo": "arrived one hour before",
+     "lado": "arrived one hour before or after",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "The museum diamond",
+   "intro": "During the night, the famous blue diamond vanished from its case. The guards checked where each visitor on the last tour had been and what they were carrying.",
+   "pregunta": "Who took the diamond?",
+   "evidencia": "The cameras caught one detail: whoever took the diamond {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Place",
+     "si": "was in {v}",
+     "no": "was not in {v}",
+     "valores": [
+      ["Egypt room", "the Egypt room"],
+      ["Dinosaurs", "the dinosaur hall"],
+      ["Cafe", "the cafe"],
+      ["Library", "the library"],
+      ["Gift shop", "the gift shop"],
+      ["Garden", "the sculpture garden"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Item",
+     "si": "had {v}",
+     "no": "did not have {v}",
+     "valores": [
+      ["Magnifier", "a magnifying glass"],
+      ["Map", "a map"],
+      ["Notebook", "a notebook"],
+      ["Cane", "a cane"],
+      ["Bag", "a bag"],
+      ["Headphones", "headphones"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Time",
+     "si": "arrived at {v}",
+     "no": "did not arrive at {v}",
+     "orden": true,
+     "menor": "arrived earlier than",
+     "justo": "arrived one hour before",
+     "lado": "arrived one hour before or after",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "The castle crown",
+   "intro": "The queen's crown disappeared on the night of the great feast. Each guest spent the night in a different part of the castle and carried something special.",
+   "pregunta": "Who hid the crown?",
+   "evidencia": "The guard found a clue in the empty chest: whoever hid the crown {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Place",
+     "si": "was in {v}",
+     "no": "was not in {v}",
+     "valores": [
+      ["North tower", "the north tower"],
+      ["South tower", "the south tower"],
+      ["Library", "the library"],
+      ["Stables", "the stables"],
+      ["Kitchen", "the castle kitchen"],
+      ["Chapel", "the chapel"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Item",
+     "si": "had {v}",
+     "no": "did not have {v}",
+     "valores": [
+      ["Candle", "a candle"],
+      ["Cloak", "a cloak"],
+      ["Shield", "a shield"],
+      ["Lute", "a lute"],
+      ["Scroll", "a scroll"],
+      ["Key", "a key"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Time",
+     "si": "arrived at {v}",
+     "no": "did not arrive at {v}",
+     "orden": true,
+     "menor": "arrived earlier than",
+     "justo": "arrived one hour before",
+     "lado": "arrived one hour before or after",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "The night train suitcase",
+   "intro": "On the night train, the violinist's suitcase disappeared. Each passenger rode in a different car, in a line behind the engine, and carried something different.",
+   "pregunta": "Who took the suitcase?",
+   "evidencia": "The conductor found a clue in the aisle: whoever took the suitcase {si}.",
+   "categorias": [
+    {
+     "id": "vagon",
+     "titulo": "Car",
+     "si": "rode in car {v}",
+     "no": "did not ride in car {v}",
+     "orden": true,
+     "menor": "rode closer to the engine than",
+     "justo": "rode in the car right in front of",
+     "lado": "rode in a car next to",
+     "valores": [
+      ["1", "1"],
+      ["2", "2"],
+      ["3", "3"],
+      ["4", "4"],
+      ["5", "5"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Item",
+     "si": "had {v}",
+     "no": "did not have {v}",
+     "valores": [
+      ["Newspaper", "a newspaper"],
+      ["Hat", "a hat"],
+      ["Thermos", "a thermos"],
+      ["Novel", "a novel"],
+      ["Scarf", "a scarf"],
+      ["Basket", "a basket"]
+     ]
+    },
+    {
+     "id": "destino",
+     "titulo": "Going to",
+     "si": "was going to {v}",
+     "no": "was not going to {v}",
+     "valores": [
+      ["Boston", "Boston"],
+      ["Denver", "Denver"],
+      ["Chicago", "Chicago"],
+      ["Seattle", "Seattle"],
+      ["Dallas", "Dallas"],
+      ["Miami", "Miami"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "Murder at the mansion",
+   "intro": "The owner of the mansion was found dead in his study after dinner. Each guest was in a different room holding a different object, and one of those objects was the weapon.",
+   "pregunta": "Who was the culprit?",
+   "evidencia": "The police found fingerprints in the study: the culprit {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Place",
+     "si": "was in {v}",
+     "no": "was not in {v}",
+     "valores": [
+      ["Library", "the library"],
+      ["Greenhouse", "the greenhouse"],
+      ["Ballroom", "the ballroom"],
+      ["Kitchen", "the kitchen"],
+      ["Cellar", "the cellar"],
+      ["Billiard room", "the billiard room"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Item",
+     "si": "had {v}",
+     "no": "did not have {v}",
+     "valores": [
+      ["Candlestick", "a candlestick"],
+      ["Rope", "a rope"],
+      ["Wrench", "a wrench"],
+      ["Cane", "a cane"],
+      ["Statuette", "a statuette"],
+      ["Poker", "a fire poker"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Time",
+     "si": "arrived at {v}",
+     "no": "did not arrive at {v}",
+     "orden": true,
+     "menor": "arrived earlier than",
+     "justo": "arrived one hour before",
+     "lado": "arrived one hour before or after",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  },
+  {
+   "titulo": "The school trophy",
+   "intro": "On the day of the school fair, the science trophy disappeared from its case. Each student was in a different room and had something different with them.",
+   "pregunta": "Who hid the trophy?",
+   "evidencia": "The principal found a clue next to the case: whoever hid the trophy {si}.",
+   "categorias": [
+    {
+     "id": "lugar",
+     "titulo": "Place",
+     "si": "was in {v}",
+     "no": "was not in {v}",
+     "valores": [
+      ["Lab", "the lab"],
+      ["Gym", "the gym"],
+      ["Library", "the library"],
+      ["Art room", "the art room"],
+      ["Cafeteria", "the cafeteria"],
+      ["Yard", "the yard"]
+     ]
+    },
+    {
+     "id": "objeto",
+     "titulo": "Item",
+     "si": "had {v}",
+     "no": "did not have {v}",
+     "valores": [
+      ["Magnifier", "a magnifying glass"],
+      ["Paintbrush", "a paintbrush"],
+      ["Ball", "a ball"],
+      ["Calculator", "a calculator"],
+      ["Recorder", "a recorder"],
+      ["Model", "a model volcano"]
+     ]
+    },
+    {
+     "id": "hora",
+     "titulo": "Time",
+     "si": "arrived at {v}",
+     "no": "did not arrive at {v}",
+     "orden": true,
+     "menor": "arrived earlier than",
+     "justo": "arrived one hour before",
+     "lado": "arrived one hour before or after",
+     "valores": [
+      ["5:00", "5:00"],
+      ["6:00", "6:00"],
+      ["7:00", "7:00"],
+      ["8:00", "8:00"],
+      ["9:00", "9:00"]
+     ]
+    }
+   ]
+  }
+ ]
+}
