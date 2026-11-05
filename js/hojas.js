@@ -53,9 +53,9 @@ const GAMES={
             "Each number stands for a letter, but some are missing from the key. Decode what you can and guess the rest from context.",
             "Each number stands for a letter, but many are missing from the key. Decode what you can and guess the rest from context."][L]}},
   logic:{ui:"Acertijo de lógica",tag:"Deduce con pistas",file:"acertijo-logica",word:true,name:{es:"Acertijo de lógica",en:"Logic puzzle"},per:{A4:[1,2],A5:[1]},
-    desc:["3 personas, 1 categoría","3 personas, 2 categorías","4 personas, 2 categorías","4 personas, 3 categorías","Con posiciones en fila","5 personas en fila","5 personas, pistas indirectas"],
-    rule:{es:()=>"Cada persona tiene una sola opción de cada categoría y nadie repite. Lee las pistas y usa la cuadrícula: marca con una X lo que no puede ser y con un círculo lo que sí es.",
-          en:()=>"Each person has exactly one option from each category and nobody repeats. Read the clues and use the grid: mark an X for what cannot be and a circle for what must be."}},
+    desc:["3 personas, 2 categorías","3 personas, con un orden","4 personas, 2 categorías","4 personas, 3 categorías y un orden","4 personas, pistas difíciles","5 personas","5 personas, pistas indirectas"],
+    rule:{es:()=>"Lee la historia y las pistas. Cada persona tiene una sola opción de cada categoría y nadie repite. Usa la cuadrícula para deducir: marca con una X lo que no puede ser y con un círculo lo que sí es. Al final, contesta la pregunta.",
+          en:()=>"Read the story and the clues. Each person has exactly one option from each category and nobody repeats. Use the grid to work it out: mark an X for what cannot be and a circle for what must be. Then answer the question."}},
   mystery:{ui:"Misterio",tag:"¿Quién fue?",file:"misterio",word:true,name:{es:"Misterio",en:"Mystery"},per:{A4:[1,2],A5:[1]},
     desc:["3 sospechosos","3 sospechosos, 3 categorías","4 sospechosos","4 sospechosos con horario","Pistas más difíciles","5 sospechosos","5 sospechosos, pistas indirectas"],
     rule:{es:()=>"Lee la historia y las pistas. Usa la cuadrícula para descubrir qué hizo cada sospechoso (X para lo que no, círculo para lo que sí); la última pista señala al culpable.",
@@ -360,11 +360,11 @@ function lgGridDraw(D,x,y,G,z){
       D.rect(bx,ry,n*u,n*u,0.6,INK);}});
 }
 function lgItems(z){const T=TX[z.lang],out=[];
-  if(z.game==="mystery"){out.push({t:z.titulo,bold:true,size:1.25});out.push({t:z.intro,gapAfter:0.5});}
-  else out.push({t:z.intro,gapAfter:0.5});
+  out.push({t:z.titulo,bold:true,size:1.25});out.push({t:z.intro,gapAfter:0.5});
   out.push({t:T.clueList,bold:true});
   z.clues.forEach((c,i)=>out.push({t:c,num:(i+1)+"."}));
-  if(z.game==="mystery"){out.push({t:z.evidencia,bold:true,gapBefore:0.5});out.push({t:z.pregunta,ask:true,gapBefore:0.6});}
+  if(z.game==="mystery")out.push({t:z.evidencia,bold:true,gapBefore:0.5});
+  out.push({t:z.pregunta,ask:true,bold:z.game==="logic",gapBefore:0.6});
   return out;}
 function textBlock(D,items,f,W){
   const mm=f*0.3528,lh=mm*1.38,numW=D.measure("00.",f,true)+1.2,lines=[];let h=0;
@@ -394,7 +394,8 @@ function lgSheet(D,x,y,w,h,z){
 function lgAnswer(D,x,y,w,h,z){
   const T=TX[z.lang],head=[z.persona].concat(z.cats.map(c=>c.titulo));
   const rows=z.names.map((nm,p)=>[nm].concat(z.cats.map((c,ci)=>c.labels[z.sol[ci][p]])));
-  const myst=z.game==="mystery",top=myst?T.culprit+": "+z.names[z.culprit]:null;
+  /* the answer to the sheet's question goes first, in red; the full table shows how it was reached */
+  const myst=true,who=z.game==="mystery"?z.culprit:z.answer,top=z.game==="mystery"?T.culprit+": "+z.names[who]:z.pregunta+" "+z.names[who];
   for(let f=10;f>=4.5;f-=0.5){
     const mm=f*0.3528,rh=mm*1.75,colW=head.map((hd,ci)=>Math.max(D.measure(hd,f,true),...rows.map(r=>D.measure(r[ci],f)))+3);
     const tw=colW.reduce((s,v)=>s+v,0),topH=myst?mm*2.2:0,th=topH+rh*(rows.length+1);
@@ -403,7 +404,7 @@ function lgAnswer(D,x,y,w,h,z){
     if(myst)D.text(top,x0,y0,f*1.1,{baseline:"top",bold:true,color:RED});
     const ty=y0+topH;
     D.fill(x0,ty,tw,rh,"#EDEDED");
-    rows.forEach((r,ri)=>{if(myst&&ri===z.culprit)D.fill(x0,ty+(ri+1)*rh,tw,rh,"#F7E1DE");});
+    rows.forEach((r,ri)=>{if(ri===who)D.fill(x0,ty+(ri+1)*rh,tw,rh,"#F7E1DE");});
     let cx=x0;head.forEach((hd,ci)=>{D.text(hd,cx+1.5,ty+rh/2,f,{baseline:"middle",bold:true});
       rows.forEach((r,ri)=>D.text(r[ci],cx+1.5,ty+(ri+1.5)*rh,f,{baseline:"middle",bold:ci===0}));cx+=colW[ci];});
     for(let i=1;i<=rows.length;i++)D.line(x0,ty+i*rh,x0+tw,ty+i*rh,0.2,"#999999");

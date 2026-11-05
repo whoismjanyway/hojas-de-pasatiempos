@@ -40,14 +40,19 @@ El orden es: palabra en español, pista en español, palabra en inglés, pista e
 
 **Una frase** en `frases.json`. Las plantillas usan `{cosa}`, `{lugar}`, `{cuando}` y `{plan}`, y el programa las combina con las listas del mismo nombre. Agregar una sola línea a `lugar` multiplica las frases posibles.
 
-**Una categoría de lógica** en `logica.json`: cada valor lleva el texto corto para la cuadrícula y el texto para las pistas.
+**Un acertijo de lógica** en `logica.json`, dentro de `escenarios`. Cada escenario es una pequeña historia con categorías que tienen que ver entre sí y una categoría con orden (lugares, mesas, horas o días). Copia uno completo y cambia:
+
+- `titulo` y `persona` (cómo se llama a cada participante en la cuadrícula: «Ciclista», «Vecino»…).
+- `inicio`: la primera frase; `{n}` se reemplaza por el número de personas escrito con letra.
+- `nota` (opcional): una frase que explica el orden, por ejemplo «Las casas están numeradas de izquierda a derecha».
+- En cada categoría: `desc` (lo que se agrega a «Cada quien…»), `si` y `no` (cómo se dice en las pistas) y al menos 5 `valores`, cada uno con el texto corto de la cuadrícula y el de las pistas.
 
 ```json
-{"id": "postre", "titulo": "Postre", "si": "pidió {v}", "no": "no pidió {v}",
+{"id": "postre", "titulo": "Postre", "desc": "pidió otro postre", "si": "pidió {v}", "no": "no pidió {v}",
  "valores": [["Flan", "flan"], ["Pastel", "pastel"], ["Helado", "helado"], ["Gelatina", "gelatina"], ["Galletas", "galletas"]]}
 ```
 
-Las frases deben quedar bien después del nombre («Ana pidió flan») y después de «quien» («Quien pidió flan…»). Cada categoría necesita al menos 5 valores.
+Las frases deben quedar bien después de un nombre («Ana pidió flan»), después de «quien» («Quien pidió flan…») y en la pregunta final («¿Quién pidió flan?»). La categoría con orden lleva además `"orden": true` y las frases `menor`, `justo` y `lado` («llegó antes que», «llegó justo antes que», «llegó justo antes o justo después que»); sus valores van en orden.
 
 **Un misterio** en `misterios.json`: copia uno completo y cambia `titulo`, `intro`, `pregunta`, `evidencia` y sus tres categorías. En `evidencia`, `{si}` se reemplaza por la característica del culpable («…el culpable traía una linterna»).
 

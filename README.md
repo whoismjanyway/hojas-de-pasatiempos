@@ -16,7 +16,7 @@ Todos tienen 7 niveles, de súper fácil a súper extremo.
 | **Crucigrama** | De 5 palabras con la primera letra puesta hasta 17 palabras sin ayudas. |
 | **Cruci-números** | Operaciones en cruz: de 2×2 con sumas a 3×3 vacío con las cuatro operaciones. Siempre tiene una sola solución. |
 | **Mensaje secreto** | Frase cifrada: de la clave A = 1 a claves revueltas, letras corridas o claves incompletas. |
-| **Acertijo de lógica** | Personas, categorías y pistas con cuadrícula para deducir. De 3 personas y 1 categoría a 5 personas en fila con pistas indirectas. Solución única comprobada. |
+| **Acertijo de lógica** | Una pequeña historia (una carrera, una feria de ciencias, una pizzería…), pistas, cuadrícula para deducir y una pregunta final. De 3 personas y 2 categorías a 5 personas en orden con pistas indirectas. Solución única comprobada. |
 | **Misterio** | Un caso con sospechosos, lugares, objetos y horarios; la última pista señala al culpable. Solución única comprobada. |
 | **Escape room** | Una hoja con 5 retos (sopa de letras, candado matemático, mensaje secreto, cruci-números y adivinanza) y un código final. |
 

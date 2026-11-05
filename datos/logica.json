@@ -37,129 +37,575 @@
   "persona": "Nombre",
   "quien": "quien",
   "o": "o",
-  "intro": ["{n} amigos se juntaron el fin de semana.", "{n} vecinos de la misma calle participan en este acertijo.", "{n} compañeros de clase contestaron una encuesta.", "{n} primos pasaron juntos las vacaciones."],
-  "categorias": [
+  "escenarios": [
    {
-    "id": "mascota",
-    "titulo": "Mascota",
-    "si": "tiene {v}",
-    "no": "no tiene {v}",
-    "valores": [
-     ["Gato", "un gato"],
-     ["Perro", "un perro"],
-     ["Conejo", "un conejo"],
-     ["Tortuga", "una tortuga"],
-     ["Loro", "un loro"],
-     ["Pez", "un pez"],
-     ["Hámster", "un hámster"]
+    "titulo": "La carrera de bicicletas",
+    "persona": "Ciclista",
+    "inicio": "{n} amigos hicieron una carrera de bicicletas en el parque.",
+    "categorias": [
+     {
+      "id": "casco",
+      "titulo": "Casco",
+      "desc": "llevaba un casco de distinto color",
+      "si": "llevaba el casco {v}",
+      "no": "no llevaba el casco {v}",
+      "valores": [
+       ["Rojo", "rojo"],
+       ["Azul", "azul"],
+       ["Verde", "verde"],
+       ["Amarillo", "amarillo"],
+       ["Negro", "negro"],
+       ["Blanco", "blanco"]
+      ]
+     },
+     {
+      "id": "numero",
+      "titulo": "Número",
+      "desc": "tenía un número diferente",
+      "si": "llevaba el número {v}",
+      "no": "no llevaba el número {v}",
+      "valores": [
+       ["7", "7"],
+       ["12", "12"],
+       ["21", "21"],
+       ["33", "33"],
+       ["45", "45"],
+       ["50", "50"]
+      ]
+     },
+     {
+      "id": "merienda",
+      "titulo": "Merienda",
+      "desc": "comió algo distinto al terminar",
+      "si": "comió {v} al terminar",
+      "no": "no comió {v} al terminar",
+      "valores": [
+       ["Torta", "una torta"],
+       ["Elote", "un elote"],
+       ["Paleta", "una paleta"],
+       ["Fruta", "fruta picada"],
+       ["Tacos", "tacos"],
+       ["Nieve", "una nieve"]
+      ]
+     },
+     {
+      "id": "lugar",
+      "titulo": "Lugar",
+      "desc": "llegó en un lugar diferente",
+      "si": "llegó en {v} lugar",
+      "no": "no llegó en {v} lugar",
+      "orden": true,
+      "menor": "llegó antes que",
+      "justo": "llegó justo antes que",
+      "lado": "llegó justo antes o justo después que",
+      "valores": [
+       ["1.º", "primer"],
+       ["2.º", "segundo"],
+       ["3.º", "tercer"],
+       ["4.º", "cuarto"],
+       ["5.º", "quinto"]
+      ]
+     }
     ]
    },
    {
-    "id": "color",
-    "titulo": "Color",
-    "si": "prefiere el {v}",
-    "no": "no prefiere el {v}",
-    "valores": [
-     ["Rojo", "rojo"],
-     ["Azul", "azul"],
-     ["Verde", "verde"],
-     ["Amarillo", "amarillo"],
-     ["Morado", "morado"],
-     ["Naranja", "naranja"],
-     ["Rosa", "rosa"]
+    "titulo": "La feria de ciencias",
+    "persona": "Estudiante",
+    "inicio": "En la feria de ciencias, {n} estudiantes presentaron un proyecto.",
+    "nota": "Las mesas estaban en fila, numeradas de izquierda a derecha.",
+    "categorias": [
+     {
+      "id": "proyecto",
+      "titulo": "Proyecto",
+      "desc": "presentó un experimento distinto",
+      "si": "presentó {v}",
+      "no": "no presentó {v}",
+      "valores": [
+       ["Volcán", "un volcán"],
+       ["Robot", "un robot"],
+       ["Cohete", "un cohete"],
+       ["Circuito", "un circuito"],
+       ["Germinador", "un germinador"],
+       ["Imán", "un imán gigante"]
+      ]
+     },
+     {
+      "id": "cartel",
+      "titulo": "Cartel",
+      "desc": "hizo un cartel de otro color",
+      "si": "hizo un cartel {v}",
+      "no": "no hizo un cartel {v}",
+      "valores": [
+       ["Rojo", "rojo"],
+       ["Azul", "azul"],
+       ["Verde", "verde"],
+       ["Amarillo", "amarillo"],
+       ["Morado", "morado"],
+       ["Naranja", "naranja"]
+      ]
+     },
+     {
+      "id": "ayuda",
+      "titulo": "Ayuda",
+      "desc": "recibió ayuda de alguien diferente",
+      "si": "recibió ayuda de {v}",
+      "no": "no recibió ayuda de {v}",
+      "valores": [
+       ["Mamá", "su mamá"],
+       ["Papá", "su papá"],
+       ["Abuela", "su abuela"],
+       ["Hermano", "su hermano"],
+       ["Tía", "su tía"],
+       ["Maestro", "su maestro"]
+      ]
+     },
+     {
+      "id": "mesa",
+      "titulo": "Mesa",
+      "desc": "estaba en una mesa distinta",
+      "si": "estaba en la mesa {v}",
+      "no": "no estaba en la mesa {v}",
+      "orden": true,
+      "menor": "estaba en una mesa más a la izquierda que",
+      "justo": "estaba en la mesa justo a la izquierda de",
+      "lado": "estaba en una mesa junto a la de",
+      "valores": [
+       ["1", "1"],
+       ["2", "2"],
+       ["3", "3"],
+       ["4", "4"],
+       ["5", "5"]
+      ]
+     }
     ]
    },
    {
-    "id": "bebida",
-    "titulo": "Bebida",
-    "si": "toma {v}",
-    "no": "no toma {v}",
-    "valores": [
-     ["Jugo", "jugo"],
-     ["Leche", "leche"],
-     ["Agua", "agua"],
-     ["Té", "té"],
-     ["Limonada", "limonada"],
-     ["Chocolate", "chocolate"],
-     ["Horchata", "horchata"]
+    "titulo": "Noche de pizza",
+    "persona": "Amigo",
+    "inicio": "{n} amigos quedaron de verse en la pizzería.",
+    "nota": "Llegaron uno por hora, a partir de las 5:00.",
+    "categorias": [
+     {
+      "id": "pizza",
+      "titulo": "Pizza",
+      "desc": "pidió una pizza diferente",
+      "si": "pidió pizza de {v}",
+      "no": "no pidió pizza de {v}",
+      "valores": [
+       ["Jamón", "jamón"],
+       ["Pepperoni", "pepperoni"],
+       ["Champiñones", "champiñones"],
+       ["Piña", "piña"],
+       ["Cuatro quesos", "cuatro quesos"],
+       ["Vegetales", "vegetales"]
+      ]
+     },
+     {
+      "id": "bebida",
+      "titulo": "Bebida",
+      "desc": "tomó una bebida distinta",
+      "si": "tomó {v}",
+      "no": "no tomó {v}",
+      "valores": [
+       ["Jamaica", "agua de jamaica"],
+       ["Limonada", "limonada"],
+       ["Refresco", "refresco"],
+       ["Té helado", "té helado"],
+       ["Agua mineral", "agua mineral"],
+       ["Horchata", "horchata"]
+      ]
+     },
+     {
+      "id": "postre",
+      "titulo": "Postre",
+      "desc": "pidió otro postre",
+      "si": "pidió de postre {v}",
+      "no": "no pidió de postre {v}",
+      "valores": [
+       ["Brownie", "un brownie"],
+       ["Helado", "un helado"],
+       ["Flan", "un flan"],
+       ["Dona", "una dona"],
+       ["Pay", "un pay"],
+       ["Fresas", "fresas con crema"]
+      ]
+     },
+     {
+      "id": "hora",
+      "titulo": "Llegada",
+      "desc": "llegó a una hora diferente",
+      "si": "llegó a las {v}",
+      "no": "no llegó a las {v}",
+      "orden": true,
+      "menor": "llegó antes que",
+      "justo": "llegó una hora antes que",
+      "lado": "llegó una hora antes o una hora después que",
+      "valores": [
+       ["5:00", "5:00"],
+       ["6:00", "6:00"],
+       ["7:00", "7:00"],
+       ["8:00", "8:00"],
+       ["9:00", "9:00"]
+      ]
+     }
     ]
    },
    {
-    "id": "deporte",
-    "titulo": "Deporte",
-    "si": "juega {v}",
-    "no": "no juega {v}",
-    "valores": [
-     ["Fútbol", "fútbol"],
-     ["Béisbol", "béisbol"],
-     ["Tenis", "tenis"],
-     ["Voleibol", "voleibol"],
-     ["Básquetbol", "básquetbol"],
-     ["Ajedrez", "ajedrez"],
-     ["Golf", "golf"]
+    "titulo": "Los vecinos de la calle",
+    "persona": "Vecino",
+    "inicio": "En una calle hay {n} casas en fila y en cada una vive una persona.",
+    "nota": "Las casas están numeradas de izquierda a derecha.",
+    "categorias": [
+     {
+      "id": "mascota",
+      "titulo": "Mascota",
+      "desc": "tiene una mascota distinta",
+      "si": "tiene {v}",
+      "no": "no tiene {v}",
+      "valores": [
+       ["Gato", "un gato"],
+       ["Perro", "un perro"],
+       ["Conejo", "un conejo"],
+       ["Tortuga", "una tortuga"],
+       ["Loro", "un loro"],
+       ["Pez", "un pez"]
+      ]
+     },
+     {
+      "id": "color",
+      "titulo": "Color",
+      "desc": "pintó su casa de otro color",
+      "si": "pintó su casa de {v}",
+      "no": "no pintó su casa de {v}",
+      "valores": [
+       ["Rojo", "rojo"],
+       ["Azul", "azul"],
+       ["Verde", "verde"],
+       ["Amarillo", "amarillo"],
+       ["Blanco", "blanco"],
+       ["Naranja", "naranja"]
+      ]
+     },
+     {
+      "id": "desayuno",
+      "titulo": "Desayuno",
+      "desc": "toma algo diferente en el desayuno",
+      "si": "toma {v} en el desayuno",
+      "no": "no toma {v} en el desayuno",
+      "valores": [
+       ["Café", "café"],
+       ["Té", "té"],
+       ["Leche", "leche"],
+       ["Jugo", "jugo"],
+       ["Chocolate", "chocolate"],
+       ["Atole", "atole"]
+      ]
+     },
+     {
+      "id": "casa",
+      "titulo": "Casa",
+      "desc": "vive en una casa diferente",
+      "si": "vive en la casa {v}",
+      "no": "no vive en la casa {v}",
+      "orden": true,
+      "menor": "vive más a la izquierda que",
+      "justo": "vive justo a la izquierda de",
+      "lado": "vive al lado de",
+      "valores": [
+       ["1", "1"],
+       ["2", "2"],
+       ["3", "3"],
+       ["4", "4"],
+       ["5", "5"]
+      ]
+     }
     ]
    },
    {
-    "id": "fruta",
-    "titulo": "Fruta",
-    "si": "trajo {v}",
-    "no": "no trajo {v}",
-    "valores": [
-     ["Manzana", "una manzana"],
-     ["Plátano", "un plátano"],
-     ["Pera", "una pera"],
-     ["Uvas", "uvas"],
-     ["Mango", "un mango"],
-     ["Naranja", "una naranja"],
-     ["Fresas", "fresas"]
+    "titulo": "Las vacaciones de los primos",
+    "persona": "Primo",
+    "inicio": "{n} primos salieron de vacaciones la misma semana.",
+    "nota": "Salieron en días seguidos, a partir del lunes.",
+    "categorias": [
+     {
+      "id": "destino",
+      "titulo": "Destino",
+      "desc": "fue a un lugar distinto",
+      "si": "fue a {v}",
+      "no": "no fue a {v}",
+      "valores": [
+       ["Cancún", "Cancún"],
+       ["Oaxaca", "Oaxaca"],
+       ["Chiapas", "Chiapas"],
+       ["Guadalajara", "Guadalajara"],
+       ["Los Cabos", "Los Cabos"],
+       ["Mérida", "Mérida"]
+      ]
+     },
+     {
+      "id": "transporte",
+      "titulo": "Transporte",
+      "desc": "viajó en otro transporte",
+      "si": "viajó en {v}",
+      "no": "no viajó en {v}",
+      "valores": [
+       ["Avión", "avión"],
+       ["Autobús", "autobús"],
+       ["Coche", "coche"],
+       ["Tren", "tren"],
+       ["Barco", "barco"],
+       ["Camioneta", "camioneta"]
+      ]
+     },
+     {
+      "id": "maleta",
+      "titulo": "Maleta",
+      "desc": "llevó una maleta de otro color",
+      "si": "llevó una maleta {v}",
+      "no": "no llevó una maleta {v}",
+      "valores": [
+       ["Roja", "roja"],
+       ["Azul", "azul"],
+       ["Verde", "verde"],
+       ["Negra", "negra"],
+       ["Morada", "morada"],
+       ["Gris", "gris"]
+      ]
+     },
+     {
+      "id": "dia",
+      "titulo": "Salida",
+      "desc": "salió un día diferente",
+      "si": "salió el {v}",
+      "no": "no salió el {v}",
+      "orden": true,
+      "menor": "salió antes que",
+      "justo": "salió un día antes que",
+      "lado": "salió un día antes o un día después que",
+      "valores": [
+       ["Lunes", "lunes"],
+       ["Martes", "martes"],
+       ["Miércoles", "miércoles"],
+       ["Jueves", "jueves"],
+       ["Viernes", "viernes"]
+      ]
+     }
     ]
    },
    {
-    "id": "transporte",
-    "titulo": "Transporte",
-    "si": "llega en {v}",
-    "no": "no llega en {v}",
-    "valores": [
-     ["Bicicleta", "bicicleta"],
-     ["Autobús", "autobús"],
-     ["Coche", "coche"],
-     ["Metro", "metro"],
-     ["Patineta", "patineta"],
-     ["Tren", "tren"]
+    "titulo": "El festival de la banda",
+    "persona": "Músico",
+    "inicio": "En el festival de la escuela, {n} estudiantes tocaron con la banda.",
+    "categorias": [
+     {
+      "id": "instrumento",
+      "titulo": "Instrumento",
+      "desc": "tocó un instrumento distinto",
+      "si": "tocó {v}",
+      "no": "no tocó {v}",
+      "valores": [
+       ["Guitarra", "la guitarra"],
+       ["Piano", "el piano"],
+       ["Batería", "la batería"],
+       ["Flauta", "la flauta"],
+       ["Violín", "el violín"],
+       ["Trompeta", "la trompeta"]
+      ]
+     },
+     {
+      "id": "camiseta",
+      "titulo": "Camiseta",
+      "desc": "llevaba una camiseta de otro color",
+      "si": "llevaba una camiseta {v}",
+      "no": "no llevaba una camiseta {v}",
+      "valores": [
+       ["Roja", "roja"],
+       ["Azul", "azul"],
+       ["Verde", "verde"],
+       ["Amarilla", "amarilla"],
+       ["Negra", "negra"],
+       ["Blanca", "blanca"]
+      ]
+     },
+     {
+      "id": "cancion",
+      "titulo": "Canción",
+      "desc": "eligió otro tipo de canción",
+      "si": "eligió una canción de {v}",
+      "no": "no eligió una canción de {v}",
+      "valores": [
+       ["Rock", "rock"],
+       ["Pop", "pop"],
+       ["Cumbia", "cumbia"],
+       ["Jazz", "jazz"],
+       ["Mariachi", "mariachi"],
+       ["Reggae", "reggae"]
+      ]
+     },
+     {
+      "id": "turno",
+      "titulo": "Turno",
+      "desc": "pasó al escenario en un turno diferente",
+      "si": "pasó en el turno {v}",
+      "no": "no pasó en el turno {v}",
+      "orden": true,
+      "menor": "pasó antes que",
+      "justo": "pasó justo antes que",
+      "lado": "pasó justo antes o justo después que",
+      "valores": [
+       ["1", "1"],
+       ["2", "2"],
+       ["3", "3"],
+       ["4", "4"],
+       ["5", "5"]
+      ]
+     }
     ]
    },
    {
-    "id": "instrumento",
-    "titulo": "Instrumento",
-    "si": "toca {v}",
-    "no": "no toca {v}",
-    "valores": [
-     ["Guitarra", "la guitarra"],
-     ["Piano", "el piano"],
-     ["Batería", "la batería"],
-     ["Flauta", "la flauta"],
-     ["Violín", "el violín"],
-     ["Trompeta", "la trompeta"]
+    "titulo": "El concurso de pasteles",
+    "persona": "Repostero",
+    "inicio": "En el concurso de pasteles del barrio participaron {n} reposteros.",
+    "nota": "El jurado los ordenó del primer al último lugar.",
+    "categorias": [
+     {
+      "id": "sabor",
+      "titulo": "Sabor",
+      "desc": "hizo un pastel de otro sabor",
+      "si": "hizo un pastel de {v}",
+      "no": "no hizo un pastel de {v}",
+      "valores": [
+       ["Chocolate", "chocolate"],
+       ["Vainilla", "vainilla"],
+       ["Fresa", "fresa"],
+       ["Zanahoria", "zanahoria"],
+       ["Limón", "limón"],
+       ["Tres leches", "tres leches"]
+      ]
+     },
+     {
+      "id": "decoracion",
+      "titulo": "Decoración",
+      "desc": "usó otra decoración",
+      "si": "decoró su pastel con {v}",
+      "no": "no decoró su pastel con {v}",
+      "valores": [
+       ["Chispas", "chispas"],
+       ["Flores", "flores"],
+       ["Frutas", "frutas"],
+       ["Estrellas", "estrellas"],
+       ["Nueces", "nueces"],
+       ["Merengue", "merengue"]
+      ]
+     },
+     {
+      "id": "forma",
+      "titulo": "Forma",
+      "desc": "usó un molde distinto",
+      "si": "usó un molde {v}",
+      "no": "no usó un molde {v}",
+      "valores": [
+       ["Redondo", "redondo"],
+       ["Cuadrado", "cuadrado"],
+       ["Corazón", "de corazón"],
+       ["Ovalado", "ovalado"],
+       ["Rectangular", "rectangular"],
+       ["Flor", "de flor"]
+      ]
+     },
+     {
+      "id": "lugar",
+      "titulo": "Lugar",
+      "desc": "quedó en un lugar diferente",
+      "si": "quedó en {v} lugar",
+      "no": "no quedó en {v} lugar",
+      "orden": true,
+      "menor": "quedó por encima de",
+      "justo": "quedó justo por encima de",
+      "lado": "quedó justo arriba o justo abajo de",
+      "valores": [
+       ["1.º", "primer"],
+       ["2.º", "segundo"],
+       ["3.º", "tercer"],
+       ["4.º", "cuarto"],
+       ["5.º", "quinto"]
+      ]
+     }
     ]
    },
    {
-    "id": "casa",
-    "titulo": "Casa",
-    "si": "vive en la casa {v}",
-    "no": "no vive en la casa {v}",
-    "orden": true,
-    "menor": "vive más a la izquierda que",
-    "justo": "vive justo a la izquierda de",
-    "lado": "vive al lado de",
-    "valores": [
-     ["1", "1"],
-     ["2", "2"],
-     ["3", "3"],
-     ["4", "4"],
-     ["5", "5"]
+    "titulo": "El torneo de juegos de mesa",
+    "persona": "Jugador",
+    "inicio": "{n} amigos organizaron un torneo de juegos de mesa.",
+    "categorias": [
+     {
+      "id": "juego",
+      "titulo": "Juego",
+      "desc": "trajo un juego distinto",
+      "si": "trajo {v}",
+      "no": "no trajo {v}",
+      "valores": [
+       ["Ajedrez", "el ajedrez"],
+       ["Damas", "las damas"],
+       ["Dominó", "el dominó"],
+       ["Lotería", "la lotería"],
+       ["Memorama", "el memorama"],
+       ["Serpientes", "serpientes y escaleras"]
+      ]
+     },
+     {
+      "id": "botana",
+      "titulo": "Botana",
+      "desc": "compartió una botana diferente",
+      "si": "compartió {v}",
+      "no": "no compartió {v}",
+      "valores": [
+       ["Papitas", "papitas"],
+       ["Palomitas", "palomitas"],
+       ["Cacahuates", "cacahuates"],
+       ["Gomitas", "gomitas"],
+       ["Galletas", "galletas"],
+       ["Fruta", "fruta"]
+      ]
+     },
+     {
+      "id": "fichas",
+      "titulo": "Fichas",
+      "desc": "jugó con fichas de otro color",
+      "si": "jugó con fichas {v}",
+      "no": "no jugó con fichas {v}",
+      "valores": [
+       ["Rojas", "rojas"],
+       ["Azules", "azules"],
+       ["Verdes", "verdes"],
+       ["Amarillas", "amarillas"],
+       ["Negras", "negras"],
+       ["Blancas", "blancas"]
+      ]
+     },
+     {
+      "id": "lugar",
+      "titulo": "Lugar",
+      "desc": "terminó en un lugar distinto",
+      "si": "terminó en {v} lugar",
+      "no": "no terminó en {v} lugar",
+      "orden": true,
+      "menor": "terminó mejor que",
+      "justo": "terminó justo arriba de",
+      "lado": "terminó justo arriba o justo abajo de",
+      "valores": [
+       ["1.º", "primer"],
+       ["2.º", "segundo"],
+       ["3.º", "tercer"],
+       ["4.º", "cuarto"],
+       ["5.º", "quinto"]
+      ]
+     }
     ]
    }
-  ]
+  ],
+  "cadaUno": "Cada quien",
+  "y": "y"
  },
  "en": {
   "nombres": [
@@ -199,128 +645,574 @@
   "persona": "Name",
   "quien": "the one who",
   "o": "or",
-  "intro": ["{n} friends got together over the weekend.", "{n} neighbors on the same street take part in this puzzle.", "{n} classmates answered a survey.", "{n} cousins spent the holidays together."],
-  "categorias": [
+  "escenarios": [
    {
-    "id": "mascota",
-    "titulo": "Pet",
-    "si": "has {v}",
-    "no": "does not have {v}",
-    "valores": [
-     ["Cat", "a cat"],
-     ["Dog", "a dog"],
-     ["Rabbit", "a rabbit"],
-     ["Turtle", "a turtle"],
-     ["Parrot", "a parrot"],
-     ["Fish", "a fish"],
-     ["Hamster", "a hamster"]
+    "titulo": "The bike race",
+    "persona": "Rider",
+    "inicio": "{n} friends had a bike race in the park.",
+    "categorias": [
+     {
+      "id": "casco",
+      "titulo": "Helmet",
+      "desc": "wore a different color helmet",
+      "si": "wore the {v} helmet",
+      "no": "did not wear the {v} helmet",
+      "valores": [
+       ["Red", "red"],
+       ["Blue", "blue"],
+       ["Green", "green"],
+       ["Yellow", "yellow"],
+       ["Black", "black"],
+       ["White", "white"]
+      ]
+     },
+     {
+      "id": "numero",
+      "titulo": "Number",
+      "desc": "had a different number",
+      "si": "wore number {v}",
+      "no": "did not wear number {v}",
+      "valores": [
+       ["7", "7"],
+       ["12", "12"],
+       ["21", "21"],
+       ["33", "33"],
+       ["45", "45"],
+       ["50", "50"]
+      ]
+     },
+     {
+      "id": "merienda",
+      "titulo": "Snack",
+      "desc": "ate something different afterwards",
+      "si": "ate {v} afterwards",
+      "no": "did not eat {v} afterwards",
+      "valores": [
+       ["Sandwich", "a sandwich"],
+       ["Corn", "corn on the cob"],
+       ["Popsicle", "a popsicle"],
+       ["Fruit", "fruit salad"],
+       ["Tacos", "tacos"],
+       ["Ice cream", "ice cream"]
+      ]
+     },
+     {
+      "id": "lugar",
+      "titulo": "Place",
+      "desc": "finished in a different place",
+      "si": "finished {v}",
+      "no": "did not finish {v}",
+      "orden": true,
+      "menor": "finished ahead of",
+      "justo": "finished right ahead of",
+      "lado": "finished right before or right after",
+      "valores": [
+       ["1st", "first"],
+       ["2nd", "second"],
+       ["3rd", "third"],
+       ["4th", "fourth"],
+       ["5th", "fifth"]
+      ]
+     }
     ]
    },
    {
-    "id": "color",
-    "titulo": "Color",
-    "si": "likes {v}",
-    "no": "does not like {v}",
-    "valores": [
-     ["Red", "red"],
-     ["Blue", "blue"],
-     ["Green", "green"],
-     ["Yellow", "yellow"],
-     ["Purple", "purple"],
-     ["Orange", "orange"],
-     ["Pink", "pink"]
+    "titulo": "The science fair",
+    "persona": "Student",
+    "inicio": "At the science fair, {n} students presented a project.",
+    "nota": "The tables stood in a row, numbered from left to right.",
+    "categorias": [
+     {
+      "id": "proyecto",
+      "titulo": "Project",
+      "desc": "did a different experiment",
+      "si": "presented {v}",
+      "no": "did not present {v}",
+      "valores": [
+       ["Volcano", "a volcano"],
+       ["Robot", "a robot"],
+       ["Rocket", "a rocket"],
+       ["Circuit", "a circuit"],
+       ["Seeds", "a seed sprouter"],
+       ["Magnet", "a giant magnet"]
+      ]
+     },
+     {
+      "id": "cartel",
+      "titulo": "Poster",
+      "desc": "made a poster of a different color",
+      "si": "made a {v} poster",
+      "no": "did not make a {v} poster",
+      "valores": [
+       ["Red", "red"],
+       ["Blue", "blue"],
+       ["Green", "green"],
+       ["Yellow", "yellow"],
+       ["Purple", "purple"],
+       ["Orange", "orange"]
+      ]
+     },
+     {
+      "id": "ayuda",
+      "titulo": "Helper",
+      "desc": "got help from someone different",
+      "si": "got help from {v}",
+      "no": "did not get help from {v}",
+      "valores": [
+       ["Mom", "their mom"],
+       ["Dad", "their dad"],
+       ["Grandma", "their grandma"],
+       ["Brother", "their brother"],
+       ["Aunt", "their aunt"],
+       ["Teacher", "their teacher"]
+      ]
+     },
+     {
+      "id": "mesa",
+      "titulo": "Table",
+      "desc": "was at a different table",
+      "si": "was at table {v}",
+      "no": "was not at table {v}",
+      "orden": true,
+      "menor": "was at a table further left than",
+      "justo": "was at the table right to the left of",
+      "lado": "was at a table next to",
+      "valores": [
+       ["1", "1"],
+       ["2", "2"],
+       ["3", "3"],
+       ["4", "4"],
+       ["5", "5"]
+      ]
+     }
     ]
    },
    {
-    "id": "bebida",
-    "titulo": "Drink",
-    "si": "drinks {v}",
-    "no": "does not drink {v}",
-    "valores": [
-     ["Juice", "juice"],
-     ["Milk", "milk"],
-     ["Water", "water"],
-     ["Tea", "tea"],
-     ["Lemonade", "lemonade"],
-     ["Cocoa", "cocoa"],
-     ["Smoothie", "smoothies"]
+    "titulo": "Pizza night",
+    "persona": "Friend",
+    "inicio": "{n} friends met at the pizza place.",
+    "nota": "They arrived one per hour, starting at 5:00.",
+    "categorias": [
+     {
+      "id": "pizza",
+      "titulo": "Pizza",
+      "desc": "ordered a different pizza",
+      "si": "ordered {v} pizza",
+      "no": "did not order {v} pizza",
+      "valores": [
+       ["Ham", "ham"],
+       ["Pepperoni", "pepperoni"],
+       ["Mushroom", "mushroom"],
+       ["Pineapple", "pineapple"],
+       ["Four-cheese", "four-cheese"],
+       ["Veggie", "veggie"]
+      ]
+     },
+     {
+      "id": "bebida",
+      "titulo": "Drink",
+      "desc": "had a different drink",
+      "si": "drank {v}",
+      "no": "did not drink {v}",
+      "valores": [
+       ["Iced tea", "iced tea"],
+       ["Lemonade", "lemonade"],
+       ["Soda", "soda"],
+       ["Sparkling water", "sparkling water"],
+       ["Root beer", "root beer"],
+       ["Orange juice", "orange juice"]
+      ]
+     },
+     {
+      "id": "postre",
+      "titulo": "Dessert",
+      "desc": "picked a different dessert",
+      "si": "had {v} for dessert",
+      "no": "did not have {v} for dessert",
+      "valores": [
+       ["Brownie", "a brownie"],
+       ["Ice cream", "ice cream"],
+       ["Flan", "flan"],
+       ["Donut", "a donut"],
+       ["Pie", "pie"],
+       ["Strawberries", "strawberries and cream"]
+      ]
+     },
+     {
+      "id": "hora",
+      "titulo": "Arrival",
+      "desc": "arrived at a different time",
+      "si": "arrived at {v}",
+      "no": "did not arrive at {v}",
+      "orden": true,
+      "menor": "arrived earlier than",
+      "justo": "arrived one hour before",
+      "lado": "arrived one hour before or after",
+      "valores": [
+       ["5:00", "5:00"],
+       ["6:00", "6:00"],
+       ["7:00", "7:00"],
+       ["8:00", "8:00"],
+       ["9:00", "9:00"]
+      ]
+     }
     ]
    },
    {
-    "id": "deporte",
-    "titulo": "Sport",
-    "si": "plays {v}",
-    "no": "does not play {v}",
-    "valores": [
-     ["Soccer", "soccer"],
-     ["Baseball", "baseball"],
-     ["Tennis", "tennis"],
-     ["Volleyball", "volleyball"],
-     ["Basketball", "basketball"],
-     ["Chess", "chess"],
-     ["Golf", "golf"]
+    "titulo": "The neighbors on the street",
+    "persona": "Neighbor",
+    "inicio": "There are {n} houses in a row on one street, and one person lives in each.",
+    "nota": "The houses are numbered from left to right.",
+    "categorias": [
+     {
+      "id": "mascota",
+      "titulo": "Pet",
+      "desc": "has a different pet",
+      "si": "has {v}",
+      "no": "does not have {v}",
+      "valores": [
+       ["Cat", "a cat"],
+       ["Dog", "a dog"],
+       ["Rabbit", "a rabbit"],
+       ["Turtle", "a turtle"],
+       ["Parrot", "a parrot"],
+       ["Fish", "a fish"]
+      ]
+     },
+     {
+      "id": "color",
+      "titulo": "Color",
+      "desc": "painted their house a different color",
+      "si": "painted their house {v}",
+      "no": "did not paint their house {v}",
+      "valores": [
+       ["Red", "red"],
+       ["Blue", "blue"],
+       ["Green", "green"],
+       ["Yellow", "yellow"],
+       ["White", "white"],
+       ["Orange", "orange"]
+      ]
+     },
+     {
+      "id": "desayuno",
+      "titulo": "Breakfast",
+      "desc": "has a different drink at breakfast",
+      "si": "drinks {v} at breakfast",
+      "no": "does not drink {v} at breakfast",
+      "valores": [
+       ["Coffee", "coffee"],
+       ["Tea", "tea"],
+       ["Milk", "milk"],
+       ["Juice", "juice"],
+       ["Cocoa", "cocoa"],
+       ["A smoothie", "a smoothie"]
+      ]
+     },
+     {
+      "id": "casa",
+      "titulo": "House",
+      "desc": "lives in a different house",
+      "si": "lives in house {v}",
+      "no": "does not live in house {v}",
+      "orden": true,
+      "menor": "lives further left than",
+      "justo": "lives directly to the left of",
+      "lado": "lives next to",
+      "valores": [
+       ["1", "1"],
+       ["2", "2"],
+       ["3", "3"],
+       ["4", "4"],
+       ["5", "5"]
+      ]
+     }
     ]
    },
    {
-    "id": "fruta",
-    "titulo": "Fruit",
-    "si": "brought {v}",
-    "no": "did not bring {v}",
-    "valores": [
-     ["Apple", "an apple"],
-     ["Banana", "a banana"],
-     ["Pear", "a pear"],
-     ["Grapes", "grapes"],
-     ["Mango", "a mango"],
-     ["Orange", "an orange"],
-     ["Strawberries", "strawberries"]
+    "titulo": "The cousins' vacation",
+    "persona": "Cousin",
+    "inicio": "{n} cousins went on vacation the same week.",
+    "nota": "They left on consecutive days, starting on Monday.",
+    "categorias": [
+     {
+      "id": "destino",
+      "titulo": "Destination",
+      "desc": "went somewhere different",
+      "si": "went to {v}",
+      "no": "did not go to {v}",
+      "valores": [
+       ["Orlando", "Orlando"],
+       ["Denver", "Denver"],
+       ["Seattle", "Seattle"],
+       ["Miami", "Miami"],
+       ["Boston", "Boston"],
+       ["Austin", "Austin"]
+      ]
+     },
+     {
+      "id": "transporte",
+      "titulo": "Transport",
+      "desc": "traveled a different way",
+      "si": "traveled by {v}",
+      "no": "did not travel by {v}",
+      "valores": [
+       ["Plane", "plane"],
+       ["Bus", "bus"],
+       ["Car", "car"],
+       ["Train", "train"],
+       ["Ship", "ship"],
+       ["RV", "RV"]
+      ]
+     },
+     {
+      "id": "maleta",
+      "titulo": "Suitcase",
+      "desc": "took a suitcase of a different color",
+      "si": "took a {v} suitcase",
+      "no": "did not take a {v} suitcase",
+      "valores": [
+       ["Red", "red"],
+       ["Blue", "blue"],
+       ["Green", "green"],
+       ["Black", "black"],
+       ["Purple", "purple"],
+       ["Gray", "gray"]
+      ]
+     },
+     {
+      "id": "dia",
+      "titulo": "Departure",
+      "desc": "left on a different day",
+      "si": "left on {v}",
+      "no": "did not leave on {v}",
+      "orden": true,
+      "menor": "left earlier than",
+      "justo": "left one day before",
+      "lado": "left one day before or after",
+      "valores": [
+       ["Monday", "Monday"],
+       ["Tuesday", "Tuesday"],
+       ["Wednesday", "Wednesday"],
+       ["Thursday", "Thursday"],
+       ["Friday", "Friday"]
+      ]
+     }
     ]
    },
    {
-    "id": "transporte",
-    "titulo": "Transport",
-    "si": "comes by {v}",
-    "no": "does not come by {v}",
-    "valores": [
-     ["Bike", "bike"],
-     ["Bus", "bus"],
-     ["Car", "car"],
-     ["Subway", "subway"],
-     ["Skateboard", "skateboard"],
-     ["Train", "train"]
+    "titulo": "The band festival",
+    "persona": "Musician",
+    "inicio": "At the school festival, {n} students played with the band.",
+    "categorias": [
+     {
+      "id": "instrumento",
+      "titulo": "Instrument",
+      "desc": "played a different instrument",
+      "si": "played {v}",
+      "no": "did not play {v}",
+      "valores": [
+       ["Guitar", "the guitar"],
+       ["Piano", "the piano"],
+       ["Drums", "the drums"],
+       ["Flute", "the flute"],
+       ["Violin", "the violin"],
+       ["Trumpet", "the trumpet"]
+      ]
+     },
+     {
+      "id": "camiseta",
+      "titulo": "Shirt",
+      "desc": "wore a shirt of a different color",
+      "si": "wore a {v} shirt",
+      "no": "did not wear a {v} shirt",
+      "valores": [
+       ["Red", "red"],
+       ["Blue", "blue"],
+       ["Green", "green"],
+       ["Yellow", "yellow"],
+       ["Black", "black"],
+       ["White", "white"]
+      ]
+     },
+     {
+      "id": "cancion",
+      "titulo": "Song",
+      "desc": "picked a different kind of song",
+      "si": "picked a {v} song",
+      "no": "did not pick a {v} song",
+      "valores": [
+       ["Rock", "rock"],
+       ["Pop", "pop"],
+       ["Jazz", "jazz"],
+       ["Country", "country"],
+       ["Reggae", "reggae"],
+       ["Salsa", "salsa"]
+      ]
+     },
+     {
+      "id": "turno",
+      "titulo": "Turn",
+      "desc": "went on stage at a different turn",
+      "si": "went on stage {v}",
+      "no": "did not go on stage {v}",
+      "orden": true,
+      "menor": "went on stage before",
+      "justo": "went on stage right before",
+      "lado": "went on stage right before or right after",
+      "valores": [
+       ["1st", "first"],
+       ["2nd", "second"],
+       ["3rd", "third"],
+       ["4th", "fourth"],
+       ["5th", "fifth"]
+      ]
+     }
     ]
    },
    {
-    "id": "instrumento",
-    "titulo": "Instrument",
-    "si": "plays {v}",
-    "no": "does not play {v}",
-    "valores": [
-     ["Guitar", "the guitar"],
-     ["Piano", "the piano"],
-     ["Drums", "the drums"],
-     ["Flute", "the flute"],
-     ["Violin", "the violin"],
-     ["Trumpet", "the trumpet"]
+    "titulo": "The cake contest",
+    "persona": "Baker",
+    "inicio": "{n} bakers entered the neighborhood cake contest.",
+    "nota": "The judges ranked them from first to last.",
+    "categorias": [
+     {
+      "id": "sabor",
+      "titulo": "Flavor",
+      "desc": "baked a cake with a different flavor",
+      "si": "baked a {v} cake",
+      "no": "did not bake a {v} cake",
+      "valores": [
+       ["Chocolate", "chocolate"],
+       ["Vanilla", "vanilla"],
+       ["Strawberry", "strawberry"],
+       ["Carrot", "carrot"],
+       ["Lemon", "lemon"],
+       ["Coconut", "coconut"]
+      ]
+     },
+     {
+      "id": "decoracion",
+      "titulo": "Decoration",
+      "desc": "used a different decoration",
+      "si": "decorated the cake with {v}",
+      "no": "did not decorate the cake with {v}",
+      "valores": [
+       ["Sprinkles", "sprinkles"],
+       ["Flowers", "flowers"],
+       ["Fruit", "fruit"],
+       ["Stars", "stars"],
+       ["Nuts", "nuts"],
+       ["Meringue", "meringue"]
+      ]
+     },
+     {
+      "id": "forma",
+      "titulo": "Shape",
+      "desc": "used a different pan",
+      "si": "used a {v} pan",
+      "no": "did not use a {v} pan",
+      "valores": [
+       ["Round", "round"],
+       ["Square", "square"],
+       ["Heart", "heart-shaped"],
+       ["Oval", "oval"],
+       ["Rectangle", "rectangular"],
+       ["Flower", "flower-shaped"]
+      ]
+     },
+     {
+      "id": "lugar",
+      "titulo": "Place",
+      "desc": "placed differently",
+      "si": "placed {v}",
+      "no": "did not place {v}",
+      "orden": true,
+      "menor": "placed higher than",
+      "justo": "placed right above",
+      "lado": "placed right above or right below",
+      "valores": [
+       ["1st", "first"],
+       ["2nd", "second"],
+       ["3rd", "third"],
+       ["4th", "fourth"],
+       ["5th", "fifth"]
+      ]
+     }
     ]
    },
    {
-    "id": "casa",
-    "titulo": "House",
-    "si": "lives in house {v}",
-    "no": "does not live in house {v}",
-    "orden": true,
-    "menor": "lives further left than",
-    "justo": "lives directly to the left of",
-    "lado": "lives next to",
-    "valores": [
-     ["1", "1"],
-     ["2", "2"],
-     ["3", "3"],
-     ["4", "4"],
-     ["5", "5"]
+    "titulo": "The board game tournament",
+    "persona": "Player",
+    "inicio": "{n} friends held a board game tournament.",
+    "categorias": [
+     {
+      "id": "juego",
+      "titulo": "Game",
+      "desc": "brought a different game",
+      "si": "brought {v}",
+      "no": "did not bring {v}",
+      "valores": [
+       ["Chess", "chess"],
+       ["Checkers", "checkers"],
+       ["Dominoes", "dominoes"],
+       ["Bingo", "bingo"],
+       ["Memory", "a memory game"],
+       ["Snakes", "snakes and ladders"]
+      ]
+     },
+     {
+      "id": "botana",
+      "titulo": "Snack",
+      "desc": "shared a different snack",
+      "si": "shared {v}",
+      "no": "did not share {v}",
+      "valores": [
+       ["Chips", "chips"],
+       ["Popcorn", "popcorn"],
+       ["Peanuts", "peanuts"],
+       ["Gummies", "gummies"],
+       ["Cookies", "cookies"],
+       ["Fruit", "fruit"]
+      ]
+     },
+     {
+      "id": "fichas",
+      "titulo": "Pieces",
+      "desc": "played with pieces of a different color",
+      "si": "played with {v} pieces",
+      "no": "did not play with {v} pieces",
+      "valores": [
+       ["Red", "red"],
+       ["Blue", "blue"],
+       ["Green", "green"],
+       ["Yellow", "yellow"],
+       ["Black", "black"],
+       ["White", "white"]
+      ]
+     },
+     {
+      "id": "lugar",
+      "titulo": "Place",
+      "desc": "finished in a different place",
+      "si": "finished {v}",
+      "no": "did not finish {v}",
+      "orden": true,
+      "menor": "finished ahead of",
+      "justo": "finished right ahead of",
+      "lado": "finished right before or right after",
+      "valores": [
+       ["1st", "first"],
+       ["2nd", "second"],
+       ["3rd", "third"],
+       ["4th", "fourth"],
+       ["5th", "fifth"]
+      ]
+     }
     ]
    }
-  ]
+  ],
+  "cadaUno": "Each one",
+  "y": "and"
  }
 }

@@ -466,8 +466,10 @@ function lgText(cl,ctx){
 /* Builds category objects with exactly n values: ordered categories keep their first n values in order. */
 function lgCats(defs,n){return defs.map(d=>({titulo:d.titulo,si:d.si,no:d.no,orden:!!d.orden,menor:d.menor,justo:d.justo,lado:d.lado,
   vals:d.orden?d.valores.slice(0,n):shuffle(d.valores.slice()).slice(0,n)}));}
-const LG=[{n:3,k:1,ord:0,mix:"easy"},{n:3,k:2,ord:0,mix:"easy"},{n:4,k:2,ord:0,mix:"mid"},{n:4,k:3,ord:0,mix:"mid"},
+/* k = categories besides the names; ord = whether one of them has an order (places, tables, times, days) */
+const LG=[{n:3,k:2,ord:0,mix:"easy"},{n:3,k:2,ord:1,mix:"mid"},{n:4,k:2,ord:0,mix:"mid"},{n:4,k:3,ord:1,mix:"mid"},
   {n:4,k:3,ord:1,mix:"hard"},{n:5,k:3,ord:1,mix:"hard"},{n:5,k:3,ord:1,mix:"expert"}];
+const NUMW={es:["cero","uno","dos","tres","cuatro","cinco","seis"],en:["zero","one","two","three","four","five","six"]};
 function logicPuzzle(n,defs,mixName,lang){
   const L=DATA.logica[lang],cats=lgCats(defs,n),k=cats.length,ord=cats.findIndex(c=>c.orden);
   const names=shuffle(L.nombres.slice()).slice(0,n);
@@ -475,17 +477,31 @@ function logicPuzzle(n,defs,mixName,lang){
     const sol=cats.map(()=>shuffle(range(n)));
     const clues=lgClues(n,k,sol,ord,mixName);if(!clues)continue;
     const ctx={names,cats,L};
-    return {names,cats:cats.map(c=>({titulo:c.titulo,labels:c.vals.map(v=>v[0]),orden:c.orden,vals:c.vals})),sol,ord,clues:shuffle(clues).map(cl=>lgText(cl,ctx)),ctx};
+    return {names,cats:cats.map(c=>({titulo:c.titulo,labels:c.vals.map(v=>v[0]),orden:c.orden,vals:c.vals,si:c.si})),sol,ord,raw:clues,clues:shuffle(clues.slice()).map(cl=>lgText(cl,ctx)),ctx};
   }
   return null;
 }
+/* A logic puzzle is a small story: one scenario, categories that belong to it, and a question to answer at the end. */
 function logic(Lv,lang){
   const P=LG[Lv],D=DATA.logica[lang];
-  const plain=shuffle(D.categorias.filter(c=>!c.orden)).slice(0,P.k-P.ord),ordC=D.categorias.filter(c=>c.orden);
-  const defs=shuffle(plain.concat(P.ord?[pick(ordC)]:[]));
+  const sc=fresh(D.escenarios,e=>"l:"+e.titulo)[0];
+  const plain=shuffle(sc.categorias.filter(c=>!c.orden)).slice(0,P.k-P.ord),ordC=sc.categorias.filter(c=>c.orden);
+  const defs=plain.concat(P.ord?ordC.slice(0,1):[]);
   const z=logicPuzzle(P.n,defs,P.mix,lang);if(!z)return null;
+  /* the question asks for something no clue says outright, so it can only be answered by solving the grid */
+  const told=new Set();z.raw.forEach(cl=>{if(cl.t==="is"&&(cl.a.c<0||cl.b.c<0)){const r=cl.a.c<0?cl.b:cl.a;told.add(r.c+":"+r.v);}});
+  const targets=[];z.cats.forEach((c,ci)=>c.vals.forEach((v,vi)=>{if(!told.has(ci+":"+vi))targets.push([ci,vi]);}));
+  const ordIdx=z.cats.findIndex(c=>c.orden),firstOrd=targets.find(t=>t[0]===ordIdx&&t[1]===0);
+  const [qc,qv]=firstOrd&&Math.random()<0.4?firstOrd:pick(targets.length?targets:[[0,0]]);
+  const answer=z.sol[qc].indexOf(qv);
+  const ask=z.cats[qc].si.replace("{v}",z.cats[qc].vals[qv][1]);
+  /* the story names only the categories this puzzle uses */
+  const parts=defs.map(c=>c.desc),list=parts.length>1?parts.slice(0,-1).join(", ")+" "+D.y+" "+parts[parts.length-1]:parts[0];
+  const intro=sc.inicio.replace("{n}",NUMW[lang][P.n])+" "+D.cadaUno+" "+list+"."+(P.ord&&sc.nota?" "+sc.nota:"");
+  use("l:"+sc.titulo);
   return {game:"logic",lang,n:P.n,names:z.names,cats:z.cats.map(c=>({titulo:c.titulo,labels:c.labels,orden:c.orden})),sol:z.sol,
-    persona:D.persona,intro:pick(D.intro).replace("{n}",String(P.n)),clues:z.clues};
+    persona:sc.persona,titulo:sc.titulo,intro:intro.charAt(0).toUpperCase()+intro.slice(1),
+    pregunta:(lang==="es"?"¿Quién ":"Who ")+ask+"?",answer,clues:z.clues};
 }
 const MY=[{n:3,k:2,mix:"easy",noOrd:1},{n:3,k:3,mix:"easy",noOrd:1},{n:4,k:2,mix:"mid",noOrd:1},{n:4,k:3,mix:"mid"},
   {n:4,k:3,mix:"hard"},{n:5,k:3,mix:"hard"},{n:5,k:3,mix:"expert"}];
