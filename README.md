@@ -1,60 +1,58 @@
 # Hojas de pasatiempos
 
-Generador de hojas de pasatiempos para imprimir. Elige un juego y una dificultad, pulsa **Imprimir** y se abre un visor del PDF con su hoja de soluciones, desde donde puedes imprimirlo o descargarlo.
+Generador de hojas de pasatiempos para imprimir, con su hoja de soluciones. Cada vez que lo usas salen juegos nuevos, generados automáticamente.
 
 **Úsalo en línea:** https://whoismjanyway.github.io/hojas-de-pasatiempos/
 
-Todo funciona en un solo archivo (`index.html`) que se abre en el navegador. No necesita instalación.
-
 ## Juegos
+
+Todos tienen 7 niveles, de súper fácil a súper extremo.
 
 | Juego | Qué cambia con la dificultad |
 | --- | --- |
 | **Sudoku** | De unas 50 pistas hasta tableros que requieren técnicas avanzadas. |
 | **Laberinto** | De 6×6 hasta 30×30. |
-| **Sopa de letras** | De 8×8 con 6 palabras (solo → y ↓) hasta 16×16 con 16 palabras en 8 direcciones y letras trampa. |
+| **Sopa de letras** | De 8×8 con 6 palabras hasta 16×16 con dos temas, trampas y solo pistas en lugar de palabras. En el nivel difícil a las palabras les faltan letras. |
 | **Crucigrama** | De 5 palabras con la primera letra puesta hasta 17 palabras sin ayudas. |
-| **Cruci-números** | Cuadrícula de operaciones en cruz: de 2×2 con sumas hasta 3×3 vacío con las cuatro operaciones. Siempre tiene una sola solución. |
-| **Mensaje secreto** | Frase cifrada: de la clave A = 1 hasta claves revueltas, letras corridas o claves incompletas. |
-| **Escape room** | Una hoja completa con 5 retos (sopa de letras, candado matemático, mensaje secreto, cruci-números y adivinanza). Cada reto da un código y al final se escribe el código final. |
+| **Cruci-números** | Operaciones en cruz: de 2×2 con sumas a 3×3 vacío con las cuatro operaciones. Siempre tiene una sola solución. |
+| **Mensaje secreto** | Frase cifrada: de la clave A = 1 a claves revueltas, letras corridas o claves incompletas. |
+| **Acertijo de lógica** | Personas, categorías y pistas con cuadrícula para deducir. De 3 personas y 1 categoría a 5 personas en fila con pistas indirectas. Solución única comprobada. |
+| **Misterio** | Un caso con sospechosos, lugares, objetos y horarios; la última pista señala al culpable. Solución única comprobada. |
+| **Escape room** | Una hoja con 5 retos (sopa de letras, candado matemático, mensaje secreto, cruci-números y adivinanza) y un código final. |
 
-Cada juego tiene 7 niveles: súper fácil, fácil, medio, medio-difícil, difícil, extremo y súper extremo.
+En **Mezcla** tú eliges qué juegos combinar.
 
-**Mezcla:** tú eliges qué juegos combinar y se reparten al azar en las hojas. Si incluyes el escape room, habrá un juego por hoja porque necesita la hoja completa.
+### Menos repetición
 
-Todos los juegos se generan automáticamente: cada vez que pulsas «Juegos nuevos» salen distintos.
+El sitio recuerda en tu navegador las palabras, frases, adivinanzas y misterios que ya salieron, y prefiere contenido nuevo en las siguientes hojas. Con esa memoria, 10 sopas de letras seguidas no repiten ninguna palabra.
 
-## Idioma
+## Imprimir
 
-Se puede elegir **español** o **inglés**. Esto cambia las palabras de la sopa de letras, las pistas del crucigrama, las frases del mensaje secreto, las adivinanzas del escape room y las instrucciones impresas. Las dificultades son iguales en los dos idiomas. En español las palabras van sin acentos dentro de la cuadrícula; la Ñ se conserva.
+- **Imprimir** abre directamente el cuadro de impresión del dispositivo (computadora, celular o tableta). Las hojas se mandan como dibujos vectoriales, así que salen nítidas.
+- **Ver o descargar PDF** muestra todas las hojas y permite descargar el PDF.
+- En los navegadores que no pueden imprimir directamente (por ejemplo, el navegador interno de algunas apps), se abre el visor para descargar el PDF.
+- Usa **tamaño real (100 %)**. En A5, el juego sale en la mitad de arriba de una hoja A4 con una línea punteada para cortar.
 
-## Tamaños de hoja
+## Historial
 
-- **A4:** hoja completa.
-- **A5:** se imprime en la mitad superior de una hoja A4 para después cortarla.
+Cada impresión se guarda en el historial (las últimas 30, solo en ese navegador). Desde ahí puedes:
 
-Algunos juegos necesitan más espacio, así que el número de juegos por hoja está limitado:
+- **Ver soluciones** de esa impresión, aunque no las hayas impreso.
+- **Ver hojas** o **Imprimir otra vez** exactamente los mismos juegos.
+- **Usar estos juegos** para cargarlos en la página con sus ajustes.
 
-| Juego | A4 | A5 |
-| --- | --- | --- |
-| Sudoku, laberinto, cruci-números, mensaje secreto | hasta 6 | hasta 4 |
-| Sopa de letras, crucigrama | hasta 4 | hasta 2 |
-| Escape room | 1 | 1 |
+## Agregar contenido
 
-Al imprimir, usa **tamaño real (100 %)**.
+Las palabras, pistas, frases, adivinanzas, categorías de lógica y misterios están en la carpeta [`datos/`](datos/). Se pueden editar desde GitHub sin programar; la guía está en [`datos/LEEME.md`](datos/LEEME.md).
 
-## Cómo usarlo
+## Archivos
 
-1. Abre el sitio (o `index.html` en el navegador).
-2. Elige juego, dificultad, idioma, tamaño de hoja y cuántos juegos por hoja.
-3. Revisa la vista previa y pulsa **Imprimir**. Se abre el visor del PDF con los botones **Imprimir** y **Descargar**.
+| Archivo | Para qué sirve |
+| --- | --- |
+| `index.html`, `estilos.css` | La página |
+| `js/app.js` | Controles, vista previa, impresión e historial |
+| `js/hojas.js` | Catálogo de juegos y dibujo de las hojas (SVG y PDF) |
+| `js/motor.js` | Generadores de juegos; corre en segundo plano |
+| `datos/*.json` | Contenido de los juegos |
 
-## Historial de impresiones
-
-Cada vez que pulsas **Imprimir**, el programa guarda esos juegos en el historial (las últimas 30 impresiones, solo en tu navegador). Desde **Historial de impresiones** puedes:
-
-- **Ver e imprimir** otra vez exactamente los mismos juegos.
-- **Usar estos juegos** para cargarlos en la vista previa con sus ajustes.
-- **Quitar** una entrada o borrar todo el historial.
-
-El PDF se genera con [jsPDF](https://github.com/parallax/jsPDF), que se carga desde cdnjs, así que la descarga necesita conexión a internet.
+El PDF se genera con [jsPDF](https://github.com/parallax/jsPDF). Como el contenido se carga desde `datos/`, la página debe abrirse desde su dirección web (o desde un servidor local), no con doble clic en el archivo.
